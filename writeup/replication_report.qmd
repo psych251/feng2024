@@ -1,0 +1,44 @@
+---
+title: "Replication of Experiment 2 of Feng & Rutledge (2024, Nature Communications)"
+author: "Olivia Pricilia (YOUR_STANFORD_EMAIL@stanford.edu)"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    embed-resources: true
+---
+
+<!-- Replace every block marked WRITE with your own words, then delete the comments. -->
+
+## AI use statement
+
+<!-- WRITE: which AI tools you used, for which tasks, and confirm that all prose is your own. Check the course AI use policy page for what it asks you to state. -->
+
+## Introduction
+
+### Justification
+
+<!-- WRITE (one paragraph): why this paper fits your research interests. -->
+
+### Stimuli and procedure
+
+<!-- WRITE (one to two paragraphs): what you need to build and the challenges you foresee. -->
+
+### Key statistical test
+
+<!-- WRITE: the test you expect to preregister. -->
+
+### Possible extension
+
+<!-- WRITE (one sentence): a sketch of a possible extension. -->
+
+## Links
+
+Project repository: <https://github.com/psych251/feng2024>
+
+Original paper: <https://doi.org/10.1038/s41467-024-51729-4>
+
+Original materials, data, and analysis code (OSF): <https://doi.org/10.17605/OSF.IO/PA75Q>
+
+<!-- Later sections (Methods, Results, Discussion) get added as the project develops. -->
