@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Psych 251 experiment</title>
+  <!-- Empty icon: without this the browser requests /favicon.ico and logs a red 404 on the
+       first load of every session, which competes with real errors in a student's console. -->
+  <link rel="icon" href="data:,">
+
+  <!-- jsPsych core + plugins. Vendored copies (pinned versions, see lib/VERSIONS.json). -->
+  <script src="lib/jspsych.js"></script>
+  <script src="lib/plugin-html-keyboard-response.js"></script>
+  <script src="lib/plugin-html-button-response.js"></script>
+  <script src="lib/plugin-instructions.js"></script>
+  <script src="lib/plugin-survey.js"></script>
+  <script src="lib/plugin-survey-likert.js"></script>
+  <script src="lib/plugin-survey-text.js"></script>
+  <link rel="stylesheet" href="lib/jspsych.css">
+  <link rel="stylesheet" href="lib/plugin-survey.css">
+
+  <!-- Firebase (bundled) + your project's config + the data saver -->
+  <script src="lib/firebase-bundle.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="src/save.js"></script>
+
+  <link rel="stylesheet" href="src/experiment.css">
+</head>
+<body>
+  <!-- jsPsych renders into the body. The experiment starts from experiment.js. -->
+  <script src="experiment.js"></script>
+</body>
+</html>

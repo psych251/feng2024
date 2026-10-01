@@ -1,0 +1,11 @@
+/* Experiment-specific styles. jsPsych's defaults are in lib/jspsych.css. */
+.jspsych-content { max-width: 720px; text-align: left; }
+.jspsych-content h1, .jspsych-content h2 { text-align: center; }
+.consent { font-size: 15px; line-height: 1.5; }
+.consent .buttons { text-align: center; }
+.stimulus { font-size: 44px; text-align: center; font-family: monospace; letter-spacing: 0.05em; }
+.fixation { font-size: 44px; text-align: center; }
+.framing { font-size: 18px; line-height: 1.6; }
+.framing .programs { margin: 1em 0; padding-left: 1.2em; }
+#jspsych-html-button-response-btngroup { text-align: center; }
+.thanks { text-align: center; }

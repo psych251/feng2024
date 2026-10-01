@@ -1,0 +1,56 @@
+# dependencies
+node_modules/
+
+# The ONE real secret: the Firebase service-account key used by scripts/export.js.
+# Never commit this. If it ever lands on GitHub, delete the key in the Google Cloud console
+# and generate a new one. These patterns cover the names Firebase and Google hand out plus
+# the ones people invent, but they are a backstop, not a guarantee: keep the key outside the
+# repository altogether.
+*service-account*.json
+*serviceaccount*.json
+*service_account*.json
+serviceAccountKey.json
+firebase-service-account.json
+*firebase-adminsdk*.json
+*-adminsdk-*.json
+*credentials*.json
+*private-key*.json
+*privatekey*.json
+key.json
+keys.json
+secret*.json
+.env
+.env.*
+
+# Firebase CLI local state
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+*-debug.log
+
+# knitted analysis output: regenerate it with Knit rather than committing it
+analysis/*.html
+analysis/*_files/
+analysis/*_cache/
+
+# test output
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Exported data: the CSVs are anonymous and meant to be committed (see docs/student-guide.md).
+# The one exception is the identifier mapping, which links anonymous ids to Prolific ids.
+# Data a participant downloaded and sent you (data/raw/<id>/manual/) is NOT ignored: it is
+# part of the record and belongs in the repository, like the CSVs. Check it for anything
+# identifying before committing, exactly as you would the free-text columns.
+identifiers.csv
+
+# OS / editor
+.DS_Store
+.Rhistory
+.Rproj.user/
+*.Rproj
+
+# agent worktrees
+.claude/worktrees/

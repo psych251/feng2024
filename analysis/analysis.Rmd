@@ -1,0 +1,215 @@
+---
+title: "Analysis: framing demo"
+author: "Your name"   # <- put your name here
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = TRUE, warning = FALSE)
+library(tidyverse)
+library(jsonlite)
+```
+
+This notebook reads the CSVs written by `npm run export -- --experiment framing-demo`
+and runs the planned analyses for the demo experiment. Set `experiment_id` in the first
+code chunk below to match `EXPERIMENT.id` in `experiment.js`, and put your name in the
+`author:` line at the top of this file. Replace the sections below with
+the confirmatory analysis you preregistered; keep exploratory analyses clearly separated.
+
+## Load data
+
+`trials.csv` is long format: one row per jsPsych trial, one participant per `participant_id`.
+Columns that hold objects (for example the survey plugin's `response`) are JSON strings.
+
+```{r load}
+experiment_id <- "framing-demo"
+raw_dir <- file.path("..", "data", "raw", experiment_id)
+
+participants <- read_csv(file.path(raw_dir, "participants.csv"), show_col_types = FALSE)
+trials <- read_csv(file.path(raw_dir, "trials.csv"), show_col_types = FALSE)
+errors <- read_csv(file.path(raw_dir, "errors.csv"), show_col_types = FALSE)
+
+glimpse(participants)
+```
+
+## Exclusions
+
+Document every exclusion. Record how many participants each rule removes.
+
+```{r exclusions}
+n_started <- nrow(participants)
+complete <- participants |> filter(completed)
+
+# Example attention/performance criterion: at least 6 of 8 lexical decision trials correct.
+# Replace this with the criterion you preregistered.
+ld_accuracy <- trials |>
+  filter(task == "lexical_decision") |>
+  group_by(participant_id) |>
+  summarise(
+    ld_acc = mean(as.logical(correct), na.rm = TRUE),
+    ld_all_timed_out = all(as.logical(timed_out)),
+    .groups = "drop"
+  )
+
+# A participant who never answered a single speeded trial did not really take part: this
+# is what a phone or tablet produces, and what an abandoned-but-left-open tab produces.
+keep <- complete |>
+  left_join(ld_accuracy, by = "participant_id") |>
+  filter(!is.na(ld_acc), !ld_all_timed_out, ld_acc >= 0.75)
+
+# Funnel by condition. `.drop = FALSE` on a factor keeps zero rows visible: a step that
+# removes everyone must show as 0, not vanish from the table.
+funnel_levels <- c("started", "completed", "passed accuracy criterion")
+bind_rows(
+  participants |> mutate(step = "started"),
+  complete |> mutate(step = "completed"),
+  keep |> mutate(step = "passed accuracy criterion")
+) |>
+  mutate(step = factor(step, levels = funnel_levels)) |>
+  count(step, condition, .drop = FALSE) |>
+  pivot_wider(names_from = condition, values_from = n, values_fill = 0) |>
+  arrange(step)
+
+message("Participants: ", n_started, " started / ", nrow(complete), " completed / ",
+        nrow(keep), " kept for analysis.")
+
+# Participants excluded because they never responded to a speeded trial (e.g. no keyboard).
+n_no_response <- complete |> left_join(ld_accuracy, by = "participant_id") |>
+  filter(ld_all_timed_out %in% TRUE) |> nrow()
+if (n_no_response > 0) {
+  message("Note: ", n_no_response,
+          " completed session(s) had no response on any speeded trial. Check whether they ",
+          "were taken on a device without a keyboard.")
+}
+
+if (nrow(keep) == 0) {
+  message("No participants passed the exclusion criteria, so the analyses below will be ",
+          "empty. With pilot data this usually just means too few participants so far.")
+}
+```
+
+## Demographics
+
+```{r demographics}
+demo <- trials |>
+  filter(task == "demographics", participant_id %in% keep$participant_id) |>
+  mutate(resp = map(response, ~ fromJSON(.x))) |>
+  transmute(
+    participant_id,
+    age = map_dbl(resp, ~ as.numeric(.x$age %||% NA)),
+    gender = map_chr(resp, ~ as.character(.x$gender %||% NA)),
+    native_english = map_lgl(resp, ~ isTRUE(.x$native_english))
+  )
+
+demo |> summarise(n = n(), mean_age = mean(age, na.rm = TRUE), sd_age = sd(age, na.rm = TRUE))
+demo |> count(gender)
+```
+
+## Confirmatory analysis: framing effect
+
+Key test (preregistered): proportion choosing the risky program (B) is higher in the loss
+frame than in the gain frame. Chi-square test of independence on the 2 x 2 table.
+
+```{r framing}
+framing <- trials |>
+  filter(task == "framing", participant_id %in% keep$participant_id) |>
+  select(participant_id, condition, choice)
+
+framing_counts <- framing |> count(condition, choice) |>
+  group_by(condition) |> mutate(prop = n / sum(n)) |> ungroup()
+framing_counts
+
+tab <- table(framing$condition, framing$choice)
+tab
+
+if (all(dim(tab) == c(2, 2)) && all(rowSums(tab) > 0)) {
+  print(chisq.test(tab))
+} else {
+  message("Chi-square not run: the frame-by-choice table is ",
+          paste(dim(tab), collapse = " x "),
+          ". It needs both frames and both choices to be present. ",
+          "With ", nrow(framing), " participant(s) in the analysis set this is expected; ",
+          "come back once you have more data.")
+}
+
+# Effect size with a confidence interval: the difference in the proportion choosing the
+# risky program (loss minus gain). Compare this interval with the original effect, not
+# just the p value.
+risky <- framing |>
+  group_by(condition) |>
+  summarise(risky = sum(choice == "risky"), n = n(), .groups = "drop")
+risky
+
+have_both <- all(c("gain", "loss") %in% risky$condition)
+if (have_both && all(risky$n > 0)) {
+  # Index each frame explicitly. Do NOT write risky$risky[risky$condition == c("loss","gain")]:
+  # that compares element by element, silently returns nothing, and prop.test then fails.
+  loss <- risky[risky$condition == "loss", ]
+  gain <- risky[risky$condition == "gain", ]
+  pt <- prop.test(x = c(loss$risky, gain$risky), n = c(loss$n, gain$n), correct = FALSE)
+  print(pt)
+  tibble(
+    prop_risky_loss = loss$risky / loss$n,
+    prop_risky_gain = gain$risky / gain$n,
+    difference_loss_minus_gain = unname(pt$estimate[1] - pt$estimate[2]),
+    ci_low = pt$conf.int[1],
+    ci_high = pt$conf.int[2]
+  )
+} else {
+  message("Proportion difference not computed: need at least one kept participant in each ",
+          "frame (have ", paste(paste0(risky$condition, "=", risky$n), collapse = ", "), ").")
+}
+
+if (nrow(framing_counts) > 0) {
+  ggplot(framing_counts, aes(x = condition, y = prop, fill = choice)) +
+    geom_col() +
+    labs(x = "Frame", y = "Proportion of choices", fill = "Choice",
+         title = paste0("Framing effect (n = ", nrow(framing), ")")) +
+    theme_minimal()
+} else {
+  message("No framing data to plot yet.")
+}
+```
+
+## Exploratory: lexical decision RTs
+
+```{r rt}
+ld <- trials |>
+  filter(task == "lexical_decision", participant_id %in% keep$participant_id) |>
+  mutate(correct = as.logical(correct), is_word = as.logical(is_word), rt = as.numeric(rt))
+
+ld_correct <- ld |> filter(correct, !is.na(rt))
+
+if (nrow(ld_correct) > 0) {
+  print(ld_correct |> group_by(is_word) |>
+          summarise(mean_rt = mean(rt), sd_rt = sd(rt), n = n(), .groups = "drop"))
+  ggplot(ld_correct, aes(x = rt, fill = is_word)) +
+    geom_histogram(bins = 30, alpha = 0.6, position = "identity") +
+    labs(x = "RT (ms)", fill = "Real word") +
+    theme_minimal()
+} else {
+  message("No correct lexical-decision trials with a response time yet.")
+}
+```
+
+## Data quality
+
+Client-side errors reported by the experiment page, if any.
+
+```{r errors}
+if (nrow(errors) > 0) {
+  errors |> select(any_of(c("at", "uid", "trial_index", "message"))) |> head(20)
+} else {
+  message("No client-side errors were reported. This is what you want to see.")
+}
+```
+
+## Session info
+
+```{r session}
+sessionInfo()
+```

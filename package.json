@@ -1,0 +1,33 @@
+{
+  "name": "psych251-experiment-template",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Psych 251 template: a jsPsych 8 experiment served from GitHub Pages, logging data to the student's own Firebase project.",
+  "license": "MIT",
+  "scripts": {
+    "start": "node scripts/serve.js",
+    "emulators": "firebase emulators:start --only auth,firestore --project demo-psych251",
+    "test": "firebase emulators:exec --only auth,firestore --project demo-psych251 \"playwright test\"",
+    "export": "node scripts/export.js",
+    "vendor": "node scripts/vendor.js",
+    "bundle:firebase": "esbuild scripts/firebase-entry.js --bundle --format=iife --global-name=firebaseBundle --minify --outfile=lib/firebase-bundle.js",
+    "pretest": "node scripts/check-browsers.js",
+    "setup": "npm install && node scripts/check-browsers.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.0"
+  },
+  "devDependencies": {
+    "@jspsych/plugin-html-button-response": "^2.1.0",
+    "@jspsych/plugin-html-keyboard-response": "^2.1.0",
+    "@jspsych/plugin-instructions": "^2.1.0",
+    "@jspsych/plugin-survey": "^4.0.0",
+    "@jspsych/plugin-survey-likert": "^2.1.0",
+    "@jspsych/plugin-survey-text": "^2.1.0",
+    "@playwright/test": "^1.50.0",
+    "esbuild": "^0.25.0",
+    "firebase": "^12.18.0",
+    "firebase-tools": "^15.29.0",
+    "jspsych": "^8.3.0"
+  }
+}

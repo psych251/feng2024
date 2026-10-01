@@ -1,0 +1,66 @@
+rules_version = '2';
+
+// Psych 251 template rules.
+//
+// The whole security model in three lines:
+//   1. Participants are signed in anonymously, so every request carries a uid.
+//   2. A participant may only CREATE documents under their own uid.
+//   3. Nobody can READ anything from the browser. You read your data with
+//      scripts/export.js, which uses the Admin SDK and bypasses these rules.
+//
+// Do NOT loosen these to `allow read, write: if true` while debugging. Use the
+// emulator (`npm run emulators`) instead; it logs every denied request.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // A participant document is named "<uid>-<runId>": the browser's anonymous auth id,
+    // then a random id generated fresh on every page load. One page load writes one
+    // document, so a reload or a second run in the same browser can never overwrite an
+    // earlier run's data, and trial chunks can never collide. This checks that the part
+    // before the first "-" is the caller's own uid. Anonymous uids contain only letters
+    // and digits, so the first "-" is always the separator we added.
+    function isOwner(participantId) {
+      return signedIn()
+        && participantId.size() > request.auth.uid.size() + 1
+        && participantId[0:request.auth.uid.size()] == request.auth.uid
+        && participantId[request.auth.uid.size():request.auth.uid.size() + 1] == "-";
+    }
+
+    // Keep any single write well under Firestore's 1 MiB document limit and
+    // make it expensive to use your project as free storage.
+    function reasonableSize() {
+      return request.resource.size() < 900000;
+    }
+
+    match /experiments/{experimentId}/participants/{participantId} {
+      // The participant document: created at start, updated at the end
+      // (completion flag, timing, optionally the full dataset).
+      allow create, update: if isOwner(participantId) && reasonableSize();
+      allow read, delete: if false;
+
+      // Trial chunks: append-only.
+      match /trials/{chunkId} {
+        allow create: if isOwner(participantId) && reasonableSize();
+        allow read, update, delete: if false;
+      }
+    }
+
+    // Client-side error reports. Append-only, tagged with the reporter's uid.
+    match /experiments/{experimentId}/errors/{errorId} {
+      allow create: if signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.size() < 50000;
+      allow read, update, delete: if false;
+    }
+
+    // Everything else is closed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
