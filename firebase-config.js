@@ -13,10 +13,10 @@
 // fine for building and piloting on your own machine.
 
 window.FIREBASE_CONFIG = {
-  apiKey: "PASTE_ME",
-  authDomain: "PASTE_ME.firebaseapp.com",
-  projectId: "PASTE_ME",
-  storageBucket: "PASTE_ME.firebasestorage.app",
-  messagingSenderId: "PASTE_ME",
-  appId: "PASTE_ME",
+  apiKey: "AIzaSyDQdX0IQqzVFjxD8ey869n01FlWrHBGxBo",
+  authDomain: "feng2024-replication.firebaseapp.com",
+  projectId: "feng2024-replication",
+  storageBucket: "feng2024-replication.firebasestorage.app",
+  messagingSenderId: "532646819606",
+  appId: "1:532646819606:web:408a234de2ea62464a4237",
 };
