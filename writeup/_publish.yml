@@ -1,0 +1,4 @@
+- source: replication-report.qmd
+  posit-connect-cloud:
+    - id: 01a0fee4-f370-7b8a-f5a7-31da9bde3b1b
+      url: https://connect.posit.cloud/oliviapricilia/content/01a0fee4-f370-7b8a-f5a7-31da9bde3b1b
