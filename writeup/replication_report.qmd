@@ -1,44 +1,35 @@
 ---
-title: "Replication of Experiment 2 of Feng & Rutledge (2024, Nature Communications)"
-author: "Olivia Pricilia (YOUR_STANFORD_EMAIL@stanford.edu)"
-date: today
+title: "Replication of Feng & Rutledge (2024) Experiment 2"
+author: "Olivia Pricilia"
+date: 2 October 2026 
 format:
   html:
     toc: true
-    toc-depth: 3
+    toc-depth: 4
     embed-resources: true
 ---
 
-<!-- Replace every block marked WRITE with your own words, then delete the comments. -->
+
 
 ## AI use statement
+Claude was used to help explain some of the terminology in the paper, for template formatting suggestion, and for debugging when getting error in pushing report. The report was written without the help of any AI tools.
 
-<!-- WRITE: which AI tools you used, for which tasks, and confirm that all prose is your own. Check the course AI use policy page for what it asks you to state. -->
 
-## Introduction
+## Project Proposal 
 
-### Justification
+I’m interested in applying mathematical modelling technique to model psychological process. Coming from mathematical finance background, the Feng & Rutledge (2024)’s research on surprising sounds influence risky decision making fit my interest and bridge the gap between psychology, behavioural finance, and mathematical modelling. This paper also highlight how external stimuli like surprising sounds can influence one’s attitude towards risk taking, which also has been studied in professional traders (e.g. trading floor buzzer or surprising news announcement in trading floor) and casino floor. 
 
-<!-- WRITE (one paragraph): why this paper fits your research interests. -->
+For the specific experiment that I intended to replicate, experiment 2, each participant can decide whether they want to choose a ‘safe’ or ‘risky’ option in every trial, with the aim of maximising their cumulative wealth. Each participant start with 500 points and the outcome of risky option is revealed after 1.3 seconds delay if chosen. In total, there are 120 trials and the participants received fixed monetary reward irrespective of their final outcome. For the stimulus, each participant is presented with 6-tone auditory sequence, with 3 different frequencies, i.e. A=1000 Hz, B=1500 Hz, and C=500 Hz. In 75% of the trials participants hear ‘common sequence’ : AAAAAA, and for the remaining 25% of the trials participants hear ‘rare sequence’: AAAAAB or AAAAAC. Experimenter alternate the location of risky choice from left to right (or right to left) of the screen for every 10 trials. To run this experiment, we will recruit participants in Prolific with the following criteria: age 18+ and fluent in English, no hearing difficulty, have access to laptop or tablet, and earphone or device audio. We aim to recruit 200 participants in total and we will build the experiment in jspsych. 
 
-### Stimuli and procedure
+There are several challenges that we anticipated in running this experiment, including limited budget to recruit participants in-time, participants attention and audio quality are hard to control, moving from Gorilla (original experiment platform) to jsPsych with firebase. For the key statistical test, we will calculate the percentage difference of each participant’s risky choices in rare trial and in common trial and perform the 2-sided Wilcoxon signed-rank test (against 0), to be consistent with the authors. 
 
-<!-- WRITE (one to two paragraphs): what you need to build and the challenges you foresee. -->
+Two possible extensions to this experiment are modifying stimuli by incorporating visual surprise instead of sounds and incorporating ‘think like a trader’ reframing (Sokol-Hessner et al. 2009) to half of the participants (randomly, N=100) to test if it reduces risk aversion and effect of surprising sounds.
 
-### Key statistical test
 
-<!-- WRITE: the test you expect to preregister. -->
 
-### Possible extension
 
-<!-- WRITE (one sentence): a sketch of a possible extension. -->
 
-## Links
 
-Project repository: <https://github.com/psych251/feng2024>
 
-Original paper: <https://doi.org/10.1038/s41467-024-51729-4>
 
-Original materials, data, and analysis code (OSF): <https://doi.org/10.17605/OSF.IO/PA75Q>
 
-<!-- Later sections (Methods, Results, Discussion) get added as the project develops. -->
