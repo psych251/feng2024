@@ -1,6 +1,6 @@
 ---
-title: "Replication of Problems 1 and 2 of Tversky & Kahneman (1981, *Science*)"
-author: "Your Name (your.email@stanford.edu)"
+title: "Replication of Experiment 2 of Feng & Rutledge (2024, Nature Communication)"
+author: "Olivia Pricilia (pricilia@stanford.edu)"
 date: today
 date-format: long
 format:
@@ -75,11 +75,11 @@ original_p_loss <- original$risky[original$condition == "loss"] / original$n[ori
 ::: {.callout-note appearance="simple" icon=false}
 ## Project links
 
-- **Original paper:** Tversky, A., & Kahneman, D. (1981). The framing of decisions and the
-  psychology of choice. *Science, 211*(4481), 453–458. <https://doi.org/10.1126/science.7455683>
+- **Original paper:** Feng, G.W., Rutledge, R.B. Surprising sounds influence risky decision making. Nat Commun 15, 8027 (2024). <https://doi.org/10.1038/s41467-024-51729-4>
+
 - **Preregistration:** [OSF registration](https://osf.io/XXXXX) *(registered YYYY-MM-DD, before final data collection)*
-- **Live experiment:** <https://psych251.github.io/your-repo/> (take the study exactly as participants did)
-- **Repository:** <https://github.com/psych251/your-repo> (experiment code, data, and this report)
+- **Live experiment:** <https://psych251.github.io/feng2024/> 
+- **Repository:** <https://github.com/psych251/feng2024> (experiment code, data, and this report)
 :::
 
 # AI use statement
@@ -103,9 +103,7 @@ tools, replace the table with a sentence saying so.
 
 | Tool and model | What it was used for | How you checked the output |
 |---|---|---|
-| *e.g., Claude Code (Claude Opus 5)* | *Implemented the experiment from the original Methods section* | *Ran the automated tests; took the study myself; compared every screen with the original materials* |
-| *e.g., Claude Code (Claude Opus 5)* | *Drafted the analysis code* | *Checked the exclusion counts by hand; confirmed the key test matches the preregistration* |
-| *e.g., ChatGPT* | *Comments on my draft of the Introduction (no text generated)* | *Decided which comments to act on and made every change myself; checked any factual claim against the source* |
+| *Claude (Claude Opus 5.5)* | *Explain some of the terminology in the paper and for debugging when getting error in pushing report* | *read the original paper carefully and check if I can open the link* |
 
 I wrote all of the text in this report myself. AI tools were not used to write, rewrite or
 paraphrase it, and were not used to generate, alter, or impute any participant data. I take full
@@ -236,7 +234,13 @@ bind_rows(
 # Phase 1: Replication
 
 ## Introduction
+I’m interested in applying mathematical modelling technique to model psychological process. Coming from mathematical finance background, the Feng & Rutledge (2024)’s research on surprising sounds influence risky decision making fit my interest and bridge the gap between psychology, behavioural finance, and mathematical modelling. This paper also highlighted how external stimuli like surprising sounds can influence one’s attitude towards risk taking, which also has been studied in professional traders (e.g. trading floor buzzer or surprising news announcement in trading floor) and casino floor.
 
+For the specific experiment that I replicated, experiment 2, each participant can decide whether they want to choose a ‘safe’ or ‘risky’ option in every trial, with the aim of maximising their cumulative wealth. Each participant start with 500 points and the outcome of risky option is revealed after 1.3 seconds delay if chosen. In total, there were 120 trials and the participants received fixed monetary reward irrespective of their final outcome. For the stimulus, each participant is presented with 6-tone auditory sequence, with 3 different frequencies, i.e. A=1000 Hz, B=1500 Hz, and C=500 Hz. In 75% of the trials participants hear ‘common sequence’ : AAAAAA, and for the remaining 25% of the trials participants hear ‘rare sequence’: AAAAAB or AAAAAC. Experimenter alternate the location of risky choice from left to right (or right to left) of the screen for every 10 trials. To run this experiment, we will recruit participants in Prolific with the following criteria: age 18+ and fluent in English, no hearing difficulty, have access to laptop or tablet, and earphone or device audio. We aim to recruit 200 participants in total and we will build the experiment in jspsych. The original paper
+
+There were several challenges that we anticipated in running this experiment, including limited budget to recruit participants in-time, participants attention and audio quality are hard to control, moving from Gorilla (original experiment platform) to jsPsych with firebase. For the key statistical test, we will calculate the percentage difference of each participant’s risky choices in rare trial and in common trial and perform the 2-sided Wilcoxon signed-rank test (against 0), to be consistent with the authors.
+
+Two possible extensions to this experiment are modifying stimuli by incorporating visual surprise instead of sounds and incorporating ‘think like a trader’ reframing (Sokol-Hessner et al. 2009) to half of the participants (randomly, N=100) to test if it reduces risk aversion and effect of surprising sounds.
 ::: {.callout-tip icon=false}
 ## Guidance
 
