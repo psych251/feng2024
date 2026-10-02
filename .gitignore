@@ -60,3 +60,4 @@ identifiers.csv
 
 # agent worktrees
 .claude/worktrees/
+.RData

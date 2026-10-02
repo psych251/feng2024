@@ -60,9 +60,16 @@ experiment_id_phase2 <- "framing-demo-phase2"
 # statistics table, and the side-by-side figures. Replace these with your original study's
 # values, and say in a comment exactly where in the paper each one comes from.
 #
-# Tversky & Kahneman (1981), Problem 1 (gain frame, N = 152): 72% chose the certain program,
-# 28% the risky one. Problem 2 (loss frame, N = 155): 22% certain, 78% risky. The paper
-# reports percentages, so the counts below are reconstructed from them.
+# Feng & Rutledge (2024), Experiment 2 (Results, p. 3; Fig. 2A):
+# rare minus common risk taking = 4.03 +/- 1.06 % (mean +/- SEM), n = 200.
+original_n    <- 200
+original_mean <- 4.03
+original_sem  <- 1.06
+original_sd   <- original_sem * sqrt(original_n)   # about 15.0 percentage points
+original_dz   <- original_mean / original_sd       # about 0.27
+
+# TEMPORARY: the template demo's numbers, still used by the Key statistics table,
+# the figures and the Phase 2 power section. Remove once those are adapted to this study.
 original <- tibble(
   condition = c("gain", "loss"),
   n         = c(152, 155),
@@ -71,7 +78,6 @@ original <- tibble(
 original_p_gain <- original$risky[original$condition == "gain"] / original$n[original$condition == "gain"]
 original_p_loss <- original$risky[original$condition == "loss"] / original$n[original$condition == "loss"]
 ```
-
 ::: {.callout-note appearance="simple" icon=false}
 ## Project links
 
@@ -103,7 +109,7 @@ tools, replace the table with a sentence saying so.
 
 | Tool and model | What it was used for | How you checked the output |
 |---|---|---|
-| *Claude (Claude Opus 5.5)* | *Explain some of the terminology in the paper and for debugging when getting error in pushing report* | *read the original paper carefully and check if I can open the link* |
+| *Claude (Claude Opus 5.5)* | *Explain some of the terminology in the paper, debugging when getting error in pushing report, debugging R code for power analysis and key stats table of original studies* | *read the original paper carefully, manually check the output and code, and check if I can open the link* |
 
 I wrote all of the text in this report myself. AI tools were not used to write, rewrite or
 paraphrase it, and were not used to generate, alter, or impute any participant data. I take full
@@ -211,24 +217,25 @@ have_phase2 <- !is.null(phase2)
 ```{r}
 #| label: key-stats
 #| echo: false
-fmt_row <- function(study, r) {
-  if (is.null(r)) {
-    return(tibble(Study = study, N = "", `Effect (loss − gain)` = "not yet collected",
-                  `95% CI` = "", `χ²(1)` = "", p = ""))
-  }
-  tibble(Study = study, N = as.character(r$N),
-         `Effect (loss − gain)` = sprintf("%.0f points", 100 * r$estimate),
-         `95% CI` = sprintf("[%.0f, %.0f]", 100 * r$ci_low, 100 * r$ci_high),
-         `χ²(1)` = sprintf("%.2f", r$statistic),
-         p = format.pval(r$p, digits = 2, eps = 0.001))
+# Feng & Rutledge (2024), Experiment 2 reports mean +/- SEM (p. 3, Fig. 2A);
+# the 95% CI is computed from those two numbers, since the paper does not report one.
+orig_ci <- original_mean + c(-1, 1) * qt(0.975, original_n - 1) * original_sem
+
+key_row <- function(study, n = "", effect = "not yet collected", ci = "", dz = "", p = "") {
+  tibble(Study = study, N = n, `Effect (rare − common)` = effect,
+         `95% CI` = ci, `d_z` = dz, p = p)
 }
+
 bind_rows(
-  fmt_row("Original", diff_ci(original)),
-  fmt_row("Phase 1: replication", if (have_data) diff_ci(risky_counts(phase1))),
-  fmt_row("Phase 2: extension", if (have_phase2) diff_ci(risky_counts(phase2)))
+  key_row("Original (Experiment 2)", n = as.character(original_n),
+          effect = sprintf("%.2f points", original_mean),
+          ci = sprintf("[%.2f, %.2f]", orig_ci[1], orig_ci[2]),
+          dz = sprintf("%.2f", original_dz), p = "< .001 (Wilcoxon)"),
+  key_row("Phase 1: replication"),
+  key_row("Phase 2: extension")
 ) |>
   knitr::kable(align = "lrlllr",
-               caption = "Key comparison: difference in the percentage of analysed participants choosing the risky program, loss frame minus gain frame.")
+    caption = "Key comparison: percentage of risky choices on rare minus common trials.")
 ```
 
 # Phase 1: Replication
@@ -236,19 +243,12 @@ bind_rows(
 ## Introduction
 I’m interested in applying mathematical modelling technique to model psychological process. Coming from mathematical finance background, the Feng & Rutledge (2024)’s research on surprising sounds influence risky decision making fit my interest and bridge the gap between psychology, behavioural finance, and mathematical modelling. This paper also highlighted how external stimuli like surprising sounds can influence one’s attitude towards risk taking, which also has been studied in professional traders (e.g. trading floor buzzer or surprising news announcement in trading floor) and casino floor.
 
-For the specific experiment that I replicated, experiment 2, each participant can decide whether they want to choose a ‘safe’ or ‘risky’ option in every trial, with the aim of maximising their cumulative wealth. Each participant start with 500 points and the outcome of risky option is revealed after 1.3 seconds delay if chosen. In total, there were 120 trials and the participants received fixed monetary reward irrespective of their final outcome. For the stimulus, each participant is presented with 6-tone auditory sequence, with 3 different frequencies, i.e. A=1000 Hz, B=1500 Hz, and C=500 Hz. In 75% of the trials participants hear ‘common sequence’ : AAAAAA, and for the remaining 25% of the trials participants hear ‘rare sequence’: AAAAAB or AAAAAC. Experimenter alternate the location of risky choice from left to right (or right to left) of the screen for every 10 trials. To run this experiment, we will recruit participants in Prolific with the following criteria: age 18+ and fluent in English, no hearing difficulty, have access to laptop or tablet, and earphone or device audio. We aim to recruit 200 participants in total and we will build the experiment in jspsych. The original paper
+For the specific experiment that I replicated, experiment 2, each participant can decide whether they want to choose a ‘safe’ or ‘risky’ option in every trial, with the aim of maximising their cumulative wealth. Each participant start with 500 points and the outcome of risky option is revealed after 1.3 seconds delay if chosen. In total, there were 120 trials and the participants received fixed monetary reward irrespective of their final outcome. For the stimulus, each participant is presented with 6-tone auditory sequence, with 3 different frequencies, i.e. A=1000 Hz, B=1500 Hz, and C=500 Hz. In 75% of the trials participants hear ‘common sequence’ : AAAAAA, and for the remaining 25% of the trials participants hear ‘rare sequence’: AAAAAB or AAAAAC. Experimenter alternate the location of risky choice from left to right (or right to left) of the screen for every 10 trials. To run this experiment, we will recruit participants in Prolific with the following criteria: age 18+ and fluent in English, no hearing difficulty, have access to laptop or tablet, and earphone or device audio. We aim to recruit 200 participants in total and we will build the experiment in jspsych. 
 
-There were several challenges that we anticipated in running this experiment, including limited budget to recruit participants in-time, participants attention and audio quality are hard to control, moving from Gorilla (original experiment platform) to jsPsych with firebase. For the key statistical test, we will calculate the percentage difference of each participant’s risky choices in rare trial and in common trial and perform the 2-sided Wilcoxon signed-rank test (against 0), to be consistent with the authors.
+There were several challenges that we anticipated in running this experiment, including limited budget to recruit participants in-time, participants attention and audio quality are hard to control, moving from Gorilla (original experiment platform) to jsPsych with firebase. 
+For the **key statistical test**, we will calculate the percentage difference of each participant’s risky choices in rare trial and in common trial and perform the 2-sided Wilcoxon signed-rank test (against 0), to be consistent with the authors.
 
 Two possible extensions to this experiment are modifying stimuli by incorporating visual surprise instead of sounds and incorporating ‘think like a trader’ reframing (Sokol-Hessner et al. 2009) to half of the participants (randomly, N=100) to test if it reduces risk aversion and effect of surprising sounds.
-::: {.callout-tip icon=false}
-## Guidance
-
-One or two paragraphs, no abstract and no literature review: that is in the original paper.
-Say what the original study found, which specific finding you are replicating, and why it
-matters to you. Write the Introduction and Methods in the past tense, even though you write
-them before collecting data.
-:::
 
 ## Methods
 
@@ -271,22 +271,18 @@ what the course's participant budget allowed.
 ```{r}
 #| label: power
 power_rows <- map_dfr(c(0.80, 0.90, 0.95), function(pw) {
-  n <- power.prop.test(p1 = original_p_gain, p2 = original_p_loss,
-                       power = pw, sig.level = 0.05)$n
-  tibble(power = scales::percent(pw), n_per_group = ceiling(n), n_total = 2 * ceiling(n))
+  n_t <- power.t.test(delta = original_mean, sd = original_sd, power = pw,
+                      sig.level = 0.05, type = "one.sample")$n
+  tibble(Power = scales::percent(pw), `N (t-test)` = ceiling(n_t),
+         `N (Wilcoxon, ~5% more)` = ceiling(n_t / 0.955))
 })
-
-original_effect <- original_p_loss - original_p_gain
-two_and_half <- ceiling(2.5 * original$n)
-
-knitr::kable(power_rows, col.names = c("Power", "N per frame", "N total"),
-             caption = sprintf(
-               "Sample needed to detect the original effect (risky choice: %.0f%% gain vs %.0f%% loss, a difference of %.0f points), two-sided alpha = .05.",
-               100 * original_p_gain, 100 * original_p_loss, 100 * original_effect))
+knitr::kable(power_rows, caption = sprintf(
+  "Sample needed to detect the original effect (%.2f%% rare minus common, d_z = %.2f), two-sided alpha = .05.",
+  original_mean, original_dz))
+two_and_half <- ceiling(2.5 * original_n)
 ```
 
-For comparison, 2.5 times the original sample would be `r two_and_half[1]` in the gain frame
-and `r two_and_half[2]` in the loss frame (`r sum(two_and_half)` in total).
+For comparison, 2.5 times the original sample would be `r two_and_half`.
 
 ### Planned sample
 
