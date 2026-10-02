@@ -29,15 +29,21 @@ firestore-debug.log
 ui-debug.log
 *-debug.log
 
-# knitted analysis output: regenerate it with Knit rather than committing it
-analysis/*.html
-analysis/*_files/
-analysis/*_cache/
+# rendered report output: regenerate it with Render rather than committing it
+writeup/*.html
+writeup/*_files/
+writeup/*_cache/
+writeup/.quarto/
+.quarto/
 
 # test output
 test-results/
 playwright-report/
 playwright/.cache/
+
+# The paper being replicated. Keep a copy here locally if it helps you or your agent, but it is
+# never committed: the repository is public and most papers cannot be redistributed.
+original_paper/
 
 # Exported data: the CSVs are anonymous and meant to be committed (see docs/student-guide.md).
 # The one exception is the identifier mapping, which links anonymous ids to Prolific ids.

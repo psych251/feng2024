@@ -7,7 +7,8 @@ Everything you need to run a web experiment for your replication project:
 - Trial-by-trial saving so dropouts leave partial data, client-side **error logging**, and a
   download fallback so no participant's data is ever silently lost.
 - **Prolific** integration (URL parameters in, completion redirect out).
-- An **export script** to tidy CSV and an **R Markdown** analysis stub.
+- An **export script** to tidy CSV, and the **replication report** template, whose Results
+  section runs the analysis on the exported data.
 - An automated **end-to-end test** that plays the experiment against a local Firestore emulator.
 - Skill files in `.claude/skills/` so Claude Code (or another agent) can do the fiddly parts.
 
@@ -24,7 +25,7 @@ npm test           # robot participant + emulator; 10 tests, should pass out of 
 #    paste the config into firebase-config.js, paste firebase/firestore.rules into the console.
 # 3. Settings -> Pages -> deploy from branch main, root. Your experiment is live.
 # 4. Edit experiment.js. Keep `npm test` green.
-# 5. npm run export -- --experiment <id>   then knit analysis/analysis.Rmd
+# 5. npm run export -- --experiment <id>   then render writeup/replication-report.qmd
 ```
 
 ## Layout
@@ -40,7 +41,7 @@ npm test           # robot participant + emulator; 10 tests, should pass out of 
 | `lib/` | Pinned browser builds of jsPsych, its plugins, and a bundled Firebase SDK (`lib/VERSIONS.json`). |
 | `scripts/export.js` | Firestore to CSV via the Admin SDK. |
 | `scripts/serve.js` | Local static server (`npm start`). |
-| `analysis/analysis.Rmd` | Analysis stub that reads the exported CSVs. |
+| `writeup/replication-report.qmd` | The report (Quarto): Phase 1 replication and Phase 2 extension. Its results sections read the exported CSVs and run the analysis. |
 | `tests/` | Playwright end-to-end test (`npm test`). |
 | `.claude/skills/` | Agent skills: building experiments, Firebase setup, deploying, data, and design review. |
 | `docs/student-guide.md` | The human walkthrough, including the things that usually go wrong. |

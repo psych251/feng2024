@@ -54,7 +54,7 @@ Use `identifiers.csv` (Prolific id) to reconcile a participant across records.
 ## Tidying in R
 
 `trials.csv` columns that hold objects are JSON strings (e.g. the survey plugin's `response`).
-Parse them with `jsonlite::fromJSON`, as `analysis/analysis.Rmd` shows. Logical columns
+Parse them with `jsonlite::fromJSON`, as the Results code in `writeup/replication-report.qmd` shows. Logical columns
 come through as `TRUE`/`FALSE` text; coerce with `as.logical`. `rt` is milliseconds; a
 `null` response means the trial timed out.
 
@@ -66,7 +66,7 @@ another, and print the exclusion funnel (started → completed → passed checks
 
 If Firebase was unreachable, the page offered the participant a `data-<uid>.json` download.
 It is a jsPsych JSON array (same rows as `full_data`). Put such files in
-`data/raw/<id>/manual/` and read them in the Rmd with `jsonlite::fromJSON` and `bind_rows`
+`data/raw/<id>/manual/` and read them in the report with `jsonlite::fromJSON` and `bind_rows`
 after the CSV; tag them `trials_source = "manual"`.
 
 ## Deleting pilot data

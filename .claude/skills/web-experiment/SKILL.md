@@ -31,8 +31,10 @@ in `src/save.js` and must not be bypassed.
      the demo's `condition` assignment, drop the `condition` assertions in the test, and record
      another participant-level fact instead (e.g. `design: "within-subjects"`, key mapping).
      `scripts/export.js` tolerates a missing `condition` column.
-   - When replacing the demo entirely, also retarget `analysis/analysis.Rmd`, `README.md`, and
-     `docs/student-guide.md`, and `grep -rn framing-demo` to catch stale ids.
+   - When replacing the demo entirely, also retarget the code in
+     `writeup/replication-report.qmd`: `experiment_id`, the original study's numbers, the
+     exclusion rule, and the confirmatory analysis. Then `grep -rn framing-demo` for stale ids.
+     Leave the report's prose and the README and guide alone unless asked (see Boundaries).
 4. **Stimuli**: put files in `stimuli/` and load with the `preload` plugin as the first trial
    after consent. Reference them with relative paths (`stimuli/img1.png`, no leading slash)
    because GitHub Pages serves the site under `/<repo>/`. Keep the repo under a few hundred MB;
@@ -130,6 +132,21 @@ Do not: load plugins from unpkg/jsdelivr; use `jsPsych.init` (v6); use `jsPsych.
 (v7 immediate form, removed); write Firestore directly from trial code; put `on_finish` data
 saving anywhere except through `DataSaver`.
 
+## Phase 2 (the extension)
+
+Phase 2 modifies the Phase 1 experiment, and the course rule is that every change is listed and
+tagged in the report's "Changes from Phase 1" table while everything else stays identical. So:
+
+- Read that table first. Implement exactly the rows it lists and nothing else.
+- Before changing anything not in the table, ask; if the student agrees, they add the row.
+- Set a new `EXPERIMENT.id` (for example `smith2016-phase2`) and check `experiment_id_phase2` in
+  the report matches.
+- Exploratory measures go at the **end** of the study, after every confirmatory measure.
+- On the scientific-extension track, the original conditions run unchanged and one condition
+  is added; update the report's `risky_counts`/`diff_ci` functions only if the key comparison
+  changes, and say so.
+- Afterwards, `git diff <phase-1 commit> -- experiment.js` should show only the listed changes.
+
 ## Ask before deciding these
 
 They are methodological choices the student has to defend in a writeup, and an agent
@@ -143,7 +160,7 @@ rewriting a study will otherwise quietly make all of them:
 
 Propose a default, say what you would pick and why, and wait. Likewise, do not edit
 `README.md` or `docs/` unless the task is about them: a timeline change does not license a
-documentation rewrite. Retargeting `analysis/analysis.Rmd` and the test **is** part of the
+documentation rewrite. Retargeting the report's code and the test **is** part of the
 task, because the study will not run or analyse without it.
 
 ## Reporting back

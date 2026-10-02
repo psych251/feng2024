@@ -18,7 +18,7 @@ the term is defined the first time it appears; there is also a glossary at the e
 | **Node.js 18 or newer** | The program that runs the template's tools. Check with `node --version`. Install from <https://nodejs.org> (the "LTS" download). |
 | **Git** | Check with `git --version`. macOS installs it when you first run the command. |
 | **Java 17 or newer** | **Required**, not optional: `npm test` runs a local copy of the database to check your experiment, and that copy is a Java program. Get it from <https://adoptium.net>, or on a Mac `brew install --cask temurin`. Do not follow the "install Java" link macOS pops up: it offers Java 8, which is too old. |
-| **R and RStudio**, with `tidyverse`, `jsonlite`, `knitr` and `rmarkdown` | For the analysis. RStudio offers to install the missing ones the first time you open the analysis file; say yes. |
+| **R and RStudio** (2022.07 or newer, which includes Quarto), with `tidyverse`, `jsonlite`, `knitr` and `rmarkdown` | For the replication report, which also runs your analysis. RStudio offers to install missing packages the first time you open the report; say yes. |
 | **A laptop or desktop** | You do not need a phone. The demo deliberately refuses to run on one, because its word task needs a keyboard. |
 
 You do **not** need a credit card at any point. Everything here is free.
@@ -340,20 +340,80 @@ script is you. It is the one real secret in this whole setup.
    The first four contain no Prolific ids, no URL parameters and no IP addresses, so they are
    safe to commit.
 
-4. Open `analysis/analysis.Rmd` in RStudio. If it prompts you to install `knitr`, `rmarkdown`
-   or `jsonlite`, accept. Change two things: `author:` at the top, and `experiment_id` on the
-   first line of the first code chunk, which must match what you passed to `--experiment`.
-   Then press **Knit** (the Knit button, or `Cmd+Shift+K` / `Ctrl+Shift+K`) to run the whole
-   file and produce an HTML report.
+4. Render your replication report (section 7). Its Results section reads these files and runs
+   the analysis, so there is no separate analysis file to keep in step with it. Check that
+   `experiment_id` in the report's first code chunk matches what you passed to `--experiment`.
 
-   The stub prints an exclusion summary, the confirmatory analysis, and some exploratory
-   analyses. With very few participants it will tell you which analyses it skipped and why
-   rather than printing nothing. Replace the confirmatory section with the analysis you
-   preregistered.
+5. **Commit your data** so the repository is a complete record. Read the free-text columns
+   first and blank anything a participant typed that could identify them. Leave
+   `identifiers.csv` where it is.
 
-5. **Commit your data and your analysis** so the repository is a complete record. Read the
-   free-text columns first and blank anything a participant typed that could identify them.
-   Leave `identifiers.csv` where it is.
+---
+
+## 7. Write your replication report
+
+Your report is `writeup/replication-report.qmd`, a **Quarto** document: text and R code in one
+file, which RStudio turns into a web page. It is also where your analysis lives: its results
+sections read the CSVs from section 6 and compute everything themselves.
+
+The project has two phases, and the report has a part for each:
+
+- **Phase 1, the replication**, in the standard replication-report structure used for every
+  project in the course.
+- **Phase 2, the extension**: a modification of your Phase 1 experiment, proposed once Phase 1
+  is done. Follow the Extension guidelines page on Canvas.
+
+At the top sit the **AI use statement** and the **Key statistics** table, which has one row each
+for the original study, Phase 1 and Phase 2 and fills itself in as each phase is exported.
+
+**Render it** by opening it in RStudio and pressing **Render** (`Cmd+Shift+K` /
+`Ctrl+Shift+K`). The output, `writeup/replication-report.html`, is self-contained, so you can
+send it to anyone. It is gitignored: commit the `.qmd` and regenerate the HTML.
+
+You write the report across the whole project, not at the end:
+
+| When | What to write |
+| --- | --- |
+| Proposal | Fill in the **Project links** box and the **Introduction**, and start the **AI use statement** at the top. |
+| Before Pilot A | **Methods**: power analysis, planned sample, materials, procedure, analysis plan, and the **differences from the original** table. Enter the original study's numbers in the code chunk near the top, which the power analysis and the side-by-side figure both use. Edit the Results code to match your design. |
+| Pilot A | Render with your pilot data. This is the point of Pilot A: proving your analysis runs on data your experiment actually produces. |
+| Preregistration | Register the Introduction and Methods on OSF before final data collection, then add the link to the Project links box. Leave the Methods addendum out of what you register. |
+| Phase 1 complete | Phase 1 **Methods addendum** (actual sample, deviations), **Results** (with the side-by-side plot) and **Discussion**. The Phase 1 row of **Key statistics** fills in from your data. |
+| Extension proposal | Phase 2 **Rationale**, **Changes from Phase 1**, **Power and sample** and **Analysis plan**, following the Extension guidelines page on Canvas. |
+| Phase 2 | Change `EXPERIMENT.id` in `experiment.js` to a new id (for example `smith2016-phase2`), set `experiment_id_phase2` at the top of the report to match, run the study, export it, and write the Phase 2 **Results** and **Discussion**. The Phase 2 row of Key statistics fills in. |
+| Throughout | Keep the **AI use statement** current. Finish with the data and code availability statement at the end. |
+
+Some things to know:
+
+- **Grey "Guidance" boxes are instructions.** Delete each one when you have written that
+  section. A box left in your final report means a section was not done.
+- **It renders before you have data.** The Results section shows a "No data yet" box and skips
+  itself, so you can render and share your Methods for feedback from the start.
+- **Show the original next to your replication.** Every report should include a figure with
+  the original finding and yours side by side, on the same scale. Replot both from the
+  original's reported numbers if you can, replot the original from its data if the authors
+  shared it, and otherwise place a screenshot of the original figure next to your plot. The
+  report's guidance shows how to do each.
+- **Phase 2 changes exactly what you list.** Every change from Phase 1 goes in the Changes
+  table with a category, and everything else stays identical: same materials, wording,
+  procedure, exclusion rule and analysis. The report analyses both phases with the same code, so
+  they stay comparable. Run Phase 2 under its own experiment id so its data never mix with
+  Phase 1's.
+- **The replication judgment is about effect size.** Base your summary on how the size of your
+  effect compares with the original's, with confidence intervals, not only on whether your key
+  test is significant.
+- **You write all of the report's text yourself.** That is course policy. AI tools may help
+  with code, and may comment on drafts you have written, but may not write, rewrite or
+  paraphrase the text. The coding agent in this repository is told the same thing, so asking
+  it to draft a section will get you comments rather than text.
+- **The AI use statement is required, and comes first.** List every AI tool you used,
+  including coding agents, what each was used for, and how you checked what it produced. It
+  sits at the top of the report so readers see it before anything else. Fill it in as you go;
+  it is much harder to reconstruct at the end.
+- **Do not commit the original paper.** The repository is public and most papers cannot be
+  redistributed. Cite it with its DOI in the Project links box. If you want a local copy for
+  yourself or your agent, put it in an `original_paper/` folder, which is set up never to be
+  committed.
 
 ---
 
@@ -416,5 +476,6 @@ tells them all of this in `CLAUDE.md`; repeat it if you see one drifting:
 - **Service account / private key**: the file letting your export script read your data as you.
 - **Long format**: one row per observation, rather than one row per participant.
 - **Query parameter**: the `name=value` pairs after a `?` in a URL.
-- **Knit**: run an R Markdown file top to bottom and produce a report.
+- **Quarto / Render**: a document format mixing text and R code; rendering runs the code and
+  produces a web page.
 - **Emulator**: a local practice copy of the database, used by `npm test`.
