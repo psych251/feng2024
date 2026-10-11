@@ -1,0 +1,226 @@
+participant_id,trial_index,task,condition,trial_type,rt,response,time_elapsed,stimulus,plugin_version,experiment_id,design,risky_start_side,consented,page_set,view_history,plays,quiet_position,antiphase_position,answer,correct,headphone_passed,headphone_correct,check_phase,common_side,rare_sequence,trial_number,block12,side_block,option_type,certain,gamble_win,gamble_loss,multiplier,sequence,rare,deviant,risky_side,rt_key_duration,audio_ok,audio_state,audio_base_latency,audio_output_latency,chosen_side,chose_risky,stay,points_before,gamble_won,outcome,points_after,phq8_total,phq8_answered,gad7_total,gad7_answered
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,0,consent,,html-button-response,1586,0,1595,"
+      <div class=""consent"">
+        <h2>Consent</h2>
+        <p>By answering the following questions, you are participating in a study being performed by
+        cognitive scientists in the Stanford Department of Psychology. If you have questions about
+        this research, please contact us at <a href=""mailto:stanfordpsych251@gmail.com"">stanfordpsych251@gmail.com</a>.
+        You must be at least 18 years old to participate. Your participation in this research is
+        voluntary. You may decline to answer any or all of the following questions. You may decline
+        further participation, at any time, without adverse consequences. Your anonymity is assured;
+        the researchers who have requested your participation will not receive any personal
+        information about you.</p>
+      </div>",2.1.0,feng2024-pilot-a,within-subjects,right,true,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,1,instructions,,instructions,7395,,8994,,2.1.0,feng2024-pilot-a,within-subjects,right,,welcome,"[{""page_index"":0,""viewing_time"":7394}]",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,2,calibration,,html-button-response,9146,0,18142,"
+      <h2>Volume calibration</h2>
+      <p>Put on your headphones. Press the button, then turn up the volume on your computer until
+      the sound is at a loud but comfortable level. Play it as many times as you like.</p>
+      <p style=""text-align:center""><button type=""button"" class=""jspsych-btn play-btn"" data-play=""cal"">&#9654; Play calibration sound</button></p>
+      <p>Press Continue when the volume is set.</p>",2.1.0,feng2024-pilot-a,within-subjects,right,,,,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,3,instructions,,instructions,153070,,171215,,2.1.0,feng2024-pilot-a,within-subjects,right,,headphone,"[{""page_index"":0,""viewing_time"":153070}]",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,4,headphone_check,,html-button-response,7645,0,178863,"
+      <div class=""hp-trial"" data-n=""1"" data-correct=""1"">
+        <p>Which tone was the quietest?</p>
+        <p class=""hp-status"">Listen…</p>
+      </div>",2.1.0,feng2024-pilot-a,within-subjects,right,,,,,1,2,1,true,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,5,headphone_check,,html-button-response,4731,1,183596,"
+      <div class=""hp-trial"" data-n=""2"" data-correct=""2"">
+        <p>Which tone was the quietest?</p>
+        <p class=""hp-status"">Listen…</p>
+      </div>",2.1.0,feng2024-pilot-a,within-subjects,right,,,,,2,1,2,true,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,6,headphone_check,,html-button-response,4650,2,188248,"
+      <div class=""hp-trial"" data-n=""3"" data-correct=""3"">
+        <p>Which tone was the quietest?</p>
+        <p class=""hp-status"">Listen…</p>
+      </div>",2.1.0,feng2024-pilot-a,within-subjects,right,,,,,3,2,3,true,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,7,headphone_check,,html-button-response,4529,0,192779,"
+      <div class=""hp-trial"" data-n=""4"" data-correct=""1"">
+        <p>Which tone was the quietest?</p>
+        <p class=""hp-status"">Listen…</p>
+      </div>",2.1.0,feng2024-pilot-a,within-subjects,right,,,,,1,3,1,true,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,8,headphone_check,,html-button-response,4616,2,197396,"
+      <div class=""hp-trial"" data-n=""5"" data-correct=""3"">
+        <p>Which tone was the quietest?</p>
+        <p class=""hp-status"">Listen…</p>
+      </div>",2.1.0,feng2024-pilot-a,within-subjects,right,,,,,3,2,3,true,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,9,headphone_check,,html-button-response,4198,2,201596,"
+      <div class=""hp-trial"" data-n=""6"" data-correct=""3"">
+        <p>Which tone was the quietest?</p>
+        <p class=""hp-status"">Listen…</p>
+      </div>",2.1.0,feng2024-pilot-a,within-subjects,right,,,,,3,2,3,true,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,10,familiarization,,html-button-response,18530,0,220129,"
+      <h2>Tone sequences</h2>
+      <p>During this experiment, you will hear different tone sequences. Listen carefully to each one.
+      Pay attention to which sequences are common and which are rare.</p>
+      <div class=""fam-row""><strong>COMMON</strong><br><button type=""button"" class=""jspsych-btn play-btn"" data-play=""AAAAAA"">&#9654; Play</button></div>
+      <div class=""fam-row""><strong>RARE</strong><br><button type=""button"" class=""jspsych-btn play-btn"" data-play=""AAAAAB"">&#9654; Play</button> <button type=""button"" class=""jspsych-btn play-btn"" data-play=""AAAAAC"">&#9654; Play</button></div>
+      <p>Play each sequence at least once, then press Continue.</p>",2.1.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,11,instructions,,instructions,3365,,223496,,2.1.0,feng2024-pilot-a,within-subjects,right,,sequence_check,"[{""page_index"":0,""viewing_time"":3365}]",,,,,,true,6,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,12,sequence_check,,html-button-response,13848,0,237346,"
+        <div class=""seq-check"" data-n=""7"" data-correct=""left"">
+          <p>Listen to both sequences. Which is the more common sequence?</p>
+          <div class=""seq-pair"">
+            <div><strong>LEFT</strong><br><button type=""button"" class=""jspsych-btn play-btn"" data-play=""left"">&#9654; Play</button></div>
+            <div><strong>RIGHT</strong><br><button type=""button"" class=""jspsych-btn play-btn"" data-play=""right"">&#9654; Play</button></div>
+          </div>
+        </div>",2.1.0,feng2024-pilot-a,within-subjects,right,,,,,,,left,true,true,6,pre,left,AAAAAB,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,14,sequence_check,,html-button-response,9826,0,248678,"
+        <div class=""seq-check"" data-n=""8"" data-correct=""left"">
+          <p>Listen to both sequences. Which is the more common sequence?</p>
+          <div class=""seq-pair"">
+            <div><strong>LEFT</strong><br><button type=""button"" class=""jspsych-btn play-btn"" data-play=""left"">&#9654; Play</button></div>
+            <div><strong>RIGHT</strong><br><button type=""button"" class=""jspsych-btn play-btn"" data-play=""right"">&#9654; Play</button></div>
+          </div>
+        </div>",2.1.0,feng2024-pilot-a,within-subjects,right,,,,,,,left,true,true,6,pre,left,AAAAAC,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,16,instructions,,instructions,17497,,267678,,2.1.0,feng2024-pilot-a,within-subjects,right,,task,"[{""page_index"":0,""viewing_time"":16230},{""page_index"":1,""viewing_time"":1267}]",,,,,,true,6,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,18,choice,,html-keyboard-response,118003,n,388686,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,1,1,1,loss,-25,0,-63,2.5,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,,500,1,0,500,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,22,choice,,html-keyboard-response,168,n,394165,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,2,1,1,mixed,0,40,-22,0.55,AAAAAC,true,C,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,1,500,0,-22,478,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,26,choice,,html-keyboard-response,26508,n,425982,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,3,1,1,mixed,0,80,-64,0.8,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,1,478,1,80,558,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,30,choice,,html-keyboard-response,963,n,432253,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,4,1,1,loss,-25,0,-44,1.76,AAAAAB,true,B,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,1,558,0,-44,514,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,34,choice,,html-keyboard-response,3826,b,441387,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,5,1,1,mixed,0,40,-8,0.2,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,0,514,,0,514,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,38,choice,,html-keyboard-response,3091,n,449483,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,6,1,1,mixed,0,40,-32,0.8,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,0,514,0,-32,482,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,42,choice,,html-keyboard-response,4659,n,459452,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,7,1,1,gain,25,50,0,2,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,1,482,0,0,482,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,46,choice,,html-keyboard-response,2502,n,467262,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,8,1,1,gain,25,100,0,4,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,1,482,0,0,482,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,50,choice,,html-keyboard-response,2624,n,475198,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,9,1,1,gain,25,55,0,2.2,AAAAAC,true,C,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,1,482,1,55,537,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,54,choice,,html-keyboard-response,1757,b,482264,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,10,1,1,loss,-25,0,-41,1.64,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,0,537,,-25,512,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,58,choice,,html-keyboard-response,2359,n,489628,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,11,1,2,loss,-25,0,-100,4,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,right,0,1,512,,-25,487,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,62,choice,,html-keyboard-response,1312,b,495948,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,12,1,2,mixed,0,80,-64,0.8,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,0,487,1,80,567,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,66,choice,,html-keyboard-response,1197,b,502453,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,13,2,2,gain,50,100,0,2,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,567,1,100,667,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,70,choice,,html-keyboard-response,2554,n,510317,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,14,2,2,loss,-25,0,-50,2,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,right,0,0,667,,-25,642,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,74,choice,,html-keyboard-response,2633,n,517957,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,15,2,2,gain,50,94,0,1.88,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,right,0,1,642,,50,692,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,78,choice,,html-keyboard-response,2203,b,525165,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,16,2,2,gain,50,88,0,1.76,AAAAAC,true,C,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,0,692,1,88,780,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,82,choice,,html-keyboard-response,1015,b,531489,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,17,2,2,mixed,0,80,-32,0.4,AAAAAB,true,B,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,780,1,80,860,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,86,choice,,html-keyboard-response,1141,b,537939,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,18,2,2,gain,25,100,0,4,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,860,0,0,860,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,90,choice,,html-keyboard-response,1179,b,544428,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,19,2,2,gain,50,82,0,1.64,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,860,1,82,942,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,94,choice,,html-keyboard-response,927,n,550664,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,20,2,2,loss,-25,0,-47,1.88,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,right,0,0,942,,-25,917,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,98,choice,,html-keyboard-response,1148,n,556819,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,21,2,3,mixed,0,80,-160,2,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,0,917,0,-160,757,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,102,choice,,html-keyboard-response,1241,b,563367,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,22,2,3,loss,-25,0,-47,1.88,AAAAAB,true,B,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,0,757,,-25,732,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,106,choice,,html-keyboard-response,1595,n,569968,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,23,2,3,loss,-25,0,-47,1.88,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,0,732,1,0,732,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,110,choice,,html-keyboard-response,1589,b,576866,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,24,2,3,mixed,0,40,-32,0.8,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,0,732,,0,732,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,114,choice,,html-keyboard-response,1651,b,583523,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,25,3,3,gain,50,110,0,2.2,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,1,732,,50,782,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,118,choice,,html-keyboard-response,930,n,589458,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,26,3,3,gain,50,94,0,1.88,AAAAAC,true,C,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,0,782,0,0,782,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,122,choice,,html-keyboard-response,1069,b,595836,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,27,3,3,gain,25,47,0,1.88,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,0,782,,25,807,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,126,choice,,html-keyboard-response,1109,b,601951,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,28,3,3,loss,-25,0,-55,2.2,AAAAAB,true,B,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,1,807,,-25,782,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,130,choice,,html-keyboard-response,1130,n,608087,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,29,3,3,mixed,0,80,-32,0.4,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,0,782,1,80,862,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,134,choice,,html-keyboard-response,1648,b,615045,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,30,3,3,loss,-25,0,-50,2,AAAAAB,true,B,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,0,862,,-25,837,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,138,choice,,html-keyboard-response,1328,b,621380,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,31,3,4,gain,25,55,0,2.2,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,0,837,1,55,892,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,142,choice,,html-keyboard-response,2414,n,629103,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,32,3,4,loss,-25,0,-41,1.64,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,right,0,0,892,,-25,867,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,146,choice,,html-keyboard-response,116440,b,750549,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,33,3,4,mixed,0,80,-54,0.67,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,0,867,0,-54,813,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,150,choice,,html-keyboard-response,1316,n,757174,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,34,3,4,mixed,0,80,-160,2,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,right,0,0,813,,0,813,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,154,choice,,html-keyboard-response,1218,b,763399,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,35,3,4,loss,-25,0,-63,2.5,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,0,813,0,-63,750,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,158,choice,,html-keyboard-response,1860,b,770565,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,36,3,4,gain,25,41,0,1.64,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,750,0,0,750,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,162,choice,,html-keyboard-response,2115,b,777989,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,37,4,4,mixed,0,80,-54,0.67,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,750,0,-54,696,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,166,choice,,html-keyboard-response,1443,n,784740,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,38,4,4,loss,-25,0,-75,3,AAAAAB,true,B,left,,true,running,0.0026666666666666666,0.012333333333333333,right,0,0,696,,-25,671,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,170,choice,,html-keyboard-response,1031,b,790777,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,39,4,4,gain,25,75,0,3,AAAAAB,true,B,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,0,671,1,75,746,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,174,choice,,html-keyboard-response,1459,b,797544,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,40,4,4,loss,-25,0,-55,2.2,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,746,1,0,746,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,178,choice,,html-keyboard-response,1331,n,804184,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,41,4,5,mixed,0,80,-16,0.2,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,1,746,0,-16,730,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,182,choice,,html-keyboard-response,1211,n,810703,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,42,4,5,loss,-25,0,-75,3,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,1,730,0,-75,655,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,186,choice,,html-keyboard-response,862,b,816872,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,43,4,5,gain,25,41,0,1.64,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,0,655,,25,680,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,190,choice,,html-keyboard-response,1088,n,822965,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,44,4,5,mixed,0,80,-106,1.33,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,0,680,1,80,760,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,194,choice,,html-keyboard-response,831,b,829103,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,45,4,5,gain,50,126,0,2.5,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,0,760,,50,810,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,198,choice,,html-keyboard-response,583,b,834692,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,46,4,5,mixed,0,80,-80,1,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,1,810,,0,810,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,202,choice,,html-keyboard-response,579,n,840276,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,47,4,5,gain,50,82,0,1.64,AAAAAB,true,B,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,0,810,1,82,892,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,206,choice,,html-keyboard-response,1463,n,847047,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,48,4,5,loss,-25,0,-75,3,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,1,892,0,-75,817,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,210,choice,,html-keyboard-response,795,b,853151,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,49,5,5,gain,50,200,0,4,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,0,817,,50,867,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,214,choice,,html-keyboard-response,999,n,859155,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,50,5,5,gain,25,75,0,3,AAAAAC,true,C,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,0,867,0,0,867,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,218,choice,,html-keyboard-response,1105,b,865569,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,51,5,6,gain,50,100,0,2,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,867,1,100,967,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,222,choice,,html-keyboard-response,860,n,871738,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,52,5,6,mixed,0,40,-53,1.33,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,right,0,0,967,,0,967,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,226,choice,,html-keyboard-response,796,n,877541,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,53,5,6,loss,-25,0,-75,3,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,right,0,1,967,,-25,942,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,230,choice,,html-keyboard-response,1028,n,883575,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,54,5,6,loss,-25,0,-100,4,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,right,0,1,942,,-25,917,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,234,choice,,html-keyboard-response,1036,n,889617,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,55,5,6,loss,-25,0,-75,3,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,right,0,1,917,,-25,892,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,238,choice,,html-keyboard-response,841,b,895463,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,56,5,6,gain,50,150,0,3,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,0,892,1,150,1042,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,242,choice,,html-keyboard-response,1343,n,902113,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,57,5,6,gain,25,55,0,2.2,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,right,0,0,1042,,25,1067,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,246,choice,,html-keyboard-response,1439,n,908559,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,58,5,6,mixed,0,40,-40,1,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,right,0,1,1067,,0,1067,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,250,choice,,html-keyboard-response,1185,b,914752,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,59,5,6,mixed,0,40,-27,0.67,AAAAAB,true,B,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,0,1067,1,40,1107,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,254,choice,,html-keyboard-response,775,n,920837,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,60,5,6,loss,-25,0,-41,1.64,AAAAAC,true,C,left,,true,running,0.0026666666666666666,0.012333333333333333,right,0,0,1107,,-25,1082,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,258,choice,,html-keyboard-response,2708,b,928551,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,61,6,7,mixed,0,80,-80,1,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,1,1082,,0,1082,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,262,choice,,html-keyboard-response,1038,b,934596,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,62,6,7,mixed,0,80,-80,1,AAAAAB,true,B,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,1,1082,,0,1082,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,266,choice,,html-keyboard-response,3481,b,943083,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,63,6,7,mixed,0,80,-106,1.33,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,1,1082,,0,1082,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,270,choice,,html-keyboard-response,1315,n,949404,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,64,6,7,loss,-25,0,-44,1.76,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,0,1082,0,-44,1038,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,274,choice,,html-keyboard-response,1287,n,955999,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,65,6,7,loss,-25,0,-44,1.76,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,1,1038,0,-44,994,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,278,choice,,html-keyboard-response,957,b,962264,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,66,6,7,gain,50,82,0,1.64,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,0,994,,50,1044,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,282,choice,,html-keyboard-response,892,b,968163,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,67,6,7,loss,-25,0,-50,2,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,1,1044,,-25,1019,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,286,choice,,html-keyboard-response,749,b,973919,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,68,6,7,loss,-25,0,-100,4,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,1,1019,,-25,994,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,290,choice,,html-keyboard-response,1891,n,980818,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,69,6,7,mixed,0,80,-54,0.67,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,0,994,1,80,1074,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,294,choice,,html-keyboard-response,895,n,987022,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,70,6,7,mixed,0,80,-16,0.2,AAAAAC,true,C,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,1,1074,0,-16,1058,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,298,choice,,html-keyboard-response,970,b,993299,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,71,6,8,gain,50,88,0,1.76,AAAAAC,true,C,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,1058,1,88,1146,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,302,choice,,html-keyboard-response,1039,b,999647,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,72,6,8,loss,-25,0,-50,2,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,1146,0,-50,1096,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,306,choice,,html-keyboard-response,1068,b,1006024,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,73,7,8,gain,25,55,0,2.2,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,1096,0,0,1096,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,310,choice,,html-keyboard-response,813,b,1012145,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,74,7,8,gain,25,63,0,2.5,AAAAAB,true,B,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,1096,0,0,1096,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,314,choice,,html-keyboard-response,927,b,1018381,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,75,7,8,loss,-25,0,-55,2.2,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,1096,1,0,1096,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,318,choice,,html-keyboard-response,891,b,1024580,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,76,7,8,gain,50,88,0,1.76,AAAAAC,true,C,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,1096,0,0,1096,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,322,choice,,html-keyboard-response,963,b,1030851,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,77,7,8,mixed,0,40,-32,0.8,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,1096,0,-32,1064,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,326,choice,,html-keyboard-response,500,b,1036659,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,78,7,8,mixed,0,40,-22,0.55,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,1064,0,-22,1042,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,330,choice,,html-keyboard-response,1246,n,1043214,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,79,7,8,mixed,0,40,-80,2,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,right,0,0,1042,,0,1042,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,334,choice,,html-keyboard-response,1577,b,1049797,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,80,7,8,gain,25,100,0,4,AAAAAC,true,C,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,0,1042,0,0,1042,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,338,choice,,html-keyboard-response,1011,n,1056115,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,81,7,9,gain,50,150,0,3,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,1,1042,0,0,1042,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,342,choice,,html-keyboard-response,1241,b,1062663,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,82,7,9,mixed,0,80,-80,1,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,0,1042,,0,1042,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,346,choice,,html-keyboard-response,904,b,1068574,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,83,7,9,mixed,0,80,-44,0.55,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,1,1042,,0,1042,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,350,choice,,html-keyboard-response,1043,b,1074623,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,84,7,9,loss,-25,0,-41,1.64,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,1,1042,,-25,1017,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,354,choice,,html-keyboard-response,896,b,1080524,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,85,8,9,mixed,0,40,-16,0.4,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,1,1017,,0,1017,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,358,choice,,html-keyboard-response,1550,n,1087080,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,86,8,9,loss,-25,0,-41,1.64,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,0,1017,0,-41,976,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,362,choice,,html-keyboard-response,1042,n,1093429,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,87,8,9,mixed,0,80,-32,0.4,AAAAAC,true,C,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,1,976,1,80,1056,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,366,choice,,html-keyboard-response,1057,n,1099795,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,88,8,9,gain,50,94,0,1.88,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,1,1056,0,0,1056,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,370,choice,,html-keyboard-response,3412,n,1108515,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,89,8,9,mixed,0,80,-44,0.55,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,1,1056,1,80,1136,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,374,choice,,html-keyboard-response,3990,b,1117813,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,90,8,9,loss,-25,0,-50,2,AAAAAC,true,C,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,0,1136,,-25,1111,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,378,choice,,html-keyboard-response,1915,n,1124734,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,91,8,10,loss,-25,0,-63,2.5,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,right,0,1,1111,,-25,1086,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,382,choice,,html-keyboard-response,1479,b,1131219,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,92,8,10,gain,25,44,0,1.76,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,0,1086,0,0,1086,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,386,choice,,html-keyboard-response,1326,b,1137853,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,93,8,10,gain,25,100,0,4,AAAAAB,true,B,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,1086,1,100,1186,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,390,choice,,html-keyboard-response,981,b,1144142,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,94,8,10,gain,50,150,0,3,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,1186,0,0,1186,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,394,choice,,html-keyboard-response,880,n,1150329,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,95,8,10,mixed,0,40,-53,1.33,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,right,0,0,1186,,0,1186,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,398,choice,,html-keyboard-response,1291,b,1156625,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,96,8,10,mixed,0,40,-53,1.33,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,0,1186,0,-53,1133,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,402,choice,,html-keyboard-response,987,b,1162921,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,97,9,10,loss,-25,0,-55,2.2,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,1133,1,0,1133,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,406,choice,,html-keyboard-response,1070,b,1169300,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,98,9,10,mixed,0,40,-27,0.67,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,1133,0,-27,1106,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,410,choice,,html-keyboard-response,902,b,1175510,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,99,9,10,mixed,0,40,-16,0.4,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,1106,1,40,1146,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,414,choice,,html-keyboard-response,685,b,1181503,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,100,9,10,mixed,0,80,-160,2,AAAAAB,true,B,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,1146,0,-160,986,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,418,choice,,html-keyboard-response,953,n,1187763,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,101,9,11,loss,-25,0,-44,1.76,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,1,986,1,0,986,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,422,choice,,html-keyboard-response,391,n,1193463,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,102,9,11,loss,-25,0,-44,1.76,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,1,986,0,-44,942,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,426,choice,,html-keyboard-response,458,n,1199227,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,103,9,11,gain,50,94,0,1.88,AAAAAB,true,B,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,1,942,0,0,942,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,430,choice,,html-keyboard-response,760,n,1205295,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,104,9,11,gain,25,50,0,2,AAAAAB,true,B,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,1,942,0,0,942,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,434,choice,,html-keyboard-response,867,b,1211469,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,105,9,11,loss,-25,0,-63,2.5,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,0,942,,-25,917,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,438,choice,,html-keyboard-response,1289,n,1217765,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,106,9,11,mixed,0,40,-8,0.2,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,0,917,1,40,957,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,442,choice,,html-keyboard-response,1020,b,1224093,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,107,9,11,loss,-25,0,-100,4,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,0,957,,-25,932,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,446,choice,,html-keyboard-response,1727,b,1230825,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,108,9,11,loss,-25,0,-63,2.5,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,1,932,,-25,907,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,450,choice,,html-keyboard-response,1183,n,1237014,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,109,10,11,mixed,0,80,-44,0.55,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012333333333333333,right,1,0,907,0,-44,863,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,454,choice,,html-keyboard-response,2725,b,1245047,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,110,10,11,gain,25,50,0,2,AAAAAC,true,C,right,,true,running,0.0026666666666666666,0.012333333333333333,left,0,0,863,,25,888,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,458,choice,,html-keyboard-response,688,b,1250741,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,111,10,12,gain,50,126,0,2.5,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,0,888,0,0,888,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,462,choice,,html-keyboard-response,3549,n,1259599,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,112,10,12,loss,-25,0,-47,1.88,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,right,0,0,888,,-25,863,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,466,choice,,html-keyboard-response,760,b,1265365,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,113,10,12,gain,25,63,0,2.5,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,0,863,1,63,926,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,470,choice,,html-keyboard-response,1079,n,1271752,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,114,10,12,loss,-25,0,-47,1.88,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,right,0,0,926,,-25,901,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,474,choice,,html-keyboard-response,881,b,1277640,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,115,10,12,loss,-25,0,-55,2.2,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,0,901,0,-55,846,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,478,choice,,html-keyboard-response,986,b,1283935,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,116,10,12,mixed,0,40,-8,0.2,AAAAAB,true,B,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,846,0,-8,838,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,482,choice,,html-keyboard-response,823,b,1290066,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,117,10,12,gain,25,63,0,2.5,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,838,1,63,901,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,486,choice,,html-keyboard-response,595,b,1295970,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,118,10,12,gain,25,44,0,1.76,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,left,1,1,901,1,44,945,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,490,choice,,html-keyboard-response,1511,n,1302790,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,119,10,12,loss,-25,0,-100,4,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012333333333333333,right,0,0,945,,-25,920,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,494,choice,,html-keyboard-response,1272,n,1309068,,2.2.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,120,10,12,mixed,0,80,-160,2,AAAAAB,true,B,left,,true,running,0.0026666666666666666,0.012333333333333333,right,0,1,920,,0,920,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,497,instructions,,instructions,3548,,1314621,,2.1.0,feng2024-pilot-a,within-subjects,right,,task_done,"[{""page_index"":0,""viewing_time"":3548}]",,,,,,true,6,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,498,sequence_check,,html-button-response,13266,1,1327888,"
+        <div class=""seq-check"" data-n=""9"" data-correct=""right"">
+          <p>Listen to both sequences. Which is the more common sequence?</p>
+          <div class=""seq-pair"">
+            <div><strong>LEFT</strong><br><button type=""button"" class=""jspsych-btn play-btn"" data-play=""left"">&#9654; Play</button></div>
+            <div><strong>RIGHT</strong><br><button type=""button"" class=""jspsych-btn play-btn"" data-play=""right"">&#9654; Play</button></div>
+          </div>
+        </div>",2.1.0,feng2024-pilot-a,within-subjects,right,,,,,,,right,true,true,6,post,right,AAAAAB,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,499,sequence_check,,html-button-response,21864,0,1349754,"
+        <div class=""seq-check"" data-n=""10"" data-correct=""left"">
+          <p>Listen to both sequences. Which is the more common sequence?</p>
+          <div class=""seq-pair"">
+            <div><strong>LEFT</strong><br><button type=""button"" class=""jspsych-btn play-btn"" data-play=""left"">&#9654; Play</button></div>
+            <div><strong>RIGHT</strong><br><button type=""button"" class=""jspsych-btn play-btn"" data-play=""right"">&#9654; Play</button></div>
+          </div>
+        </div>",2.1.0,feng2024-pilot-a,within-subjects,right,,,,,,,left,true,true,6,post,left,AAAAAC,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,500,questionnaires,,survey,120717,"{""phq8"":{""phq8_1"":1,""phq8_2"":2,""phq8_3"":1,""phq8_4"":2,""phq8_5"":0,""phq8_6"":2,""phq8_7"":1,""phq8_8"":0},""gad7"":{""gad7_1"":2,""gad7_2"":2,""gad7_3"":2,""gad7_4"":2,""gad7_5"":1,""gad7_6"":1,""gad7_7"":2}}",1470510,,4.0.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,,,,,,,,,,,,,,,,,,,,,,,,,9,8,12,7
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,501,demographics,,survey,6691,"{""gender"":""Woman"",""age"":26}",1477227,,4.0.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,502,comments,,survey-text,2627,"{""comments"":""""}",1479857,,2.1.1,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+9N2Rnz9YaHh4wkCX37CdZFvjyBF2-14bd725c,503,debrief,,html-button-response,47861,0,1527720,"
+      <h2>Debrief</h2>
+      <p>Thank you. This study tests whether hearing an unexpected sound changes the decisions people
+      make. Most choices followed the common tone sequence, and some followed a rare one. The tones
+      had no connection to the gambles: every gamble was a true 50/50 chance, whatever you heard.
+      The points did not affect your payment. The mood questions were included because the original
+      study asked them; they are not a diagnosis.</p>
+      <p>If you have questions about this research, contact
+      <a href=""mailto:stanfordpsych251@gmail.com"">stanfordpsych251@gmail.com</a>.
+      Press the button to save your responses and finish.</p>",2.1.0,feng2024-pilot-a,within-subjects,right,,,,,,,,,true,6,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
