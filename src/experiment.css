@@ -9,3 +9,34 @@
 .framing .programs { margin: 1em 0; padding-left: 1.2em; }
 #jspsych-html-button-response-btngroup { text-align: center; }
 .thanks { text-align: center; }
+
+/* ---- Feng & Rutledge (2024) task display (after Figure 1 of the paper) ---- */
+.score { text-align: center; font: 600 18px system-ui, sans-serif; margin-bottom: 10px; }
+.task-panel { position: relative; width: 620px; max-width: 92vw; height: 300px; margin: 0 auto;
+  background: #8a8a8a; border-radius: 4px; }
+.task-panel .fix { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  font: 40px system-ui, sans-serif; color: #000; }
+.task-panel .slot { position: absolute; top: 50%; transform: translateY(-50%); width: 150px; }
+.task-panel .slot.left { left: 12%; }
+.task-panel .slot.right { right: 12%; }
+.opt { background: #fff; border: 2px solid #fff; }
+.opt .cell { height: 64px; font: 600 30px/64px system-ui, sans-serif; text-align: center; }
+.opt.gamble .cell + .cell { border-top: 3px solid #8a8a8a; }
+.opt.gamble.resolved { background: transparent; border-color: transparent; }
+.opt.gamble.resolved .cell { background: #fff; border: 3px solid #000; }
+.opt.gamble.resolved .cell.blank { background: transparent; border: none; }
+.opt .pos { color: #2e9b3a; }
+.opt .neg { color: #d0342c; }
+.opt .zero { color: #000; }
+.example { margin: 12px 0; }
+.example .task-panel { height: 220px; }
+.example .score { display: none; }
+.example-labels { display: flex; justify-content: space-between; width: 620px; max-width: 92vw;
+  margin: 6px auto 0; font-size: 14px; color: #444; padding: 0 9%; box-sizing: border-box; }
+.play-btn { margin: 6px; }
+.fam-row { text-align: center; margin: 16px 0; }
+.seq-pair { display: flex; justify-content: center; gap: 80px; text-align: center; margin: 16px 0; }
+.hp-trial, .seq-check { text-align: center; }
+.feedback { text-align: center; font-size: 22px; }
+.feedback.ok { color: #2e7d32; }
+.feedback.no { color: #c62828; }
