@@ -1,0 +1,22 @@
+/* Extra styles for the phone / tablet, English / Indonesian version (loaded after ../src/experiment.css). */
+/* ---- Phone / tablet support and language screen (mobile-bilingual version) ---- */
+.lang-title { text-align: center; }
+.lang-title span { font-weight: 400; color: #555; }
+.choice-screen .slot { cursor: pointer; }
+.choice-screen .opt:hover { outline: 3px solid #fff8; }
+.task-panel { touch-action: manipulation; -webkit-user-select: none; user-select: none;
+  -webkit-tap-highlight-color: transparent; }
+/* Questionnaire table: let long column headings wrap instead of being cut off. */
+.sd-matrix__table .sd-table__cell { min-width: 60px !important; padding-left: 6px !important; padding-right: 6px !important; }
+.sd-table__cell--header { white-space: normal !important; }
+@media (max-width: 640px) {
+  .task-panel { height: 230px; }
+  .task-panel .slot { width: 36%; }
+  .task-panel .slot.left { left: 5%; }
+  .task-panel .slot.right { right: 5%; }
+  .opt .cell { height: 50px; font: 600 24px/50px system-ui, sans-serif; }
+  .task-panel .fix { font-size: 28px; }
+  .example .task-panel { height: 190px; }
+  .example-labels { font-size: 12px; padding: 0 4%; }
+  .seq-pair { gap: 32px; }
+}
