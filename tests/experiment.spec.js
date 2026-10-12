@@ -14,10 +14,11 @@ const { test, expect, devices } = require("@playwright/test");
 
 const EMULATOR = process.env.EMULATOR === "1" || !!process.env.FIRESTORE_EMULATOR_HOST;
 const PROJECT = "demo-psych251";
-const EXPERIMENT_ID = "feng2024-pilot-a";
+const EXPERIMENT_ID = "feng2024-short-pilot-a";
+const N_CHOICE = 60; // short version
 const FS = `http://localhost:8080/v1/projects/${PROJECT}/databases/(default)/documents`;
 
-// `fast=1` shrinks every timing (localhost only) so 120 trials take seconds, not 15 minutes.
+// `fast=1` shrinks every timing (localhost only) so the trials take seconds, not minutes.
 const START = EMULATOR ? "/?emulator=1&fast=1" : "/?fast=1";
 
 async function clickButton(page, name) {
@@ -67,7 +68,7 @@ async function runUntilDebrief(page) {
   await page.locator("#jspsych-instructions-next").click();              // task instructions p1
   await page.locator("#jspsych-instructions-next").click();              // task instructions p2
 
-  for (let i = 0; i < 120; i++) {
+  for (let i = 0; i < N_CHOICE; i++) {
     const screen = page.locator(".choice-screen");
     await screen.waitFor({ state: "visible", timeout: 10000 });
     const trial = Number(await screen.getAttribute("data-trial"));
@@ -79,12 +80,6 @@ async function runUntilDebrief(page) {
 
   await page.locator("#jspsych-instructions-next").click();              // game complete
   await sequenceChecks(page);                                            // post, no feedback
-  // PHQ-8: all "Not at all" (0); GAD-7: all "Several days" (1).
-  await page.locator('[data-name="phq8"]').waitFor({ state: "visible" });
-  for (const r of await page.locator('[data-name="phq8"] input[type="radio"][value="0"]').all()) await r.check({ force: true });
-  await page.locator('input[value="Next"]').click();
-  for (const r of await page.locator('[data-name="gad7"] input[type="radio"][value="1"]').all()) await r.check({ force: true });
-  await page.locator('input[value="Continue"]').click();
   await page.locator('input[type="number"]').fill("34");                 // demographics
   await page.getByText("Woman", { exact: true }).click();
   await page.locator('input[value="Continue"]').click();
@@ -103,20 +98,22 @@ async function runThroughExperiment(page) {
 async function checkTaskData(page) {
   const rows = await page.evaluate(() => window.__jsPsych.data.get().values());
   const choices = rows.filter((r) => r.task === "choice");
-  expect(choices.length).toBe(120);
-  expect(choices.map((r) => r.trial_number)).toEqual([...Array(120)].map((_, i) => i + 1));
-  expect(choices.filter((r) => r.rare).length).toBe(30);
-  for (let b = 1; b <= 10; b++) expect(choices.filter((r) => r.block12 === b && r.rare).length).toBe(3);
+  expect(choices.length).toBe(N_CHOICE);
+  expect(choices.map((r) => r.trial_number)).toEqual([...Array(N_CHOICE)].map((_, i) => i + 1));
+  expect(choices.filter((r) => r.rare).length).toBe(N_CHOICE / 4);
+  for (let b = 1; b <= N_CHOICE / 12; b++) expect(choices.filter((r) => r.block12 === b && r.rare).length).toBe(3);
   for (const type of ["gain", "mixed", "loss"]) {
     const ofType = choices.filter((r) => r.option_type === type);
-    expect(ofType.length).toBe(40);
-    for (const m of new Set(ofType.map((r) => r.multiplier))) expect(ofType.filter((r) => r.multiplier === m).length).toBe(5);
+    expect(ofType.length).toBe(N_CHOICE / 3);
+    const mults = [...new Set(ofType.map((r) => r.multiplier))];
+    expect(mults.length).toBe(8); // every multiplier appears
+    for (const m of mults) expect([2, 3]).toContain(ofType.filter((r) => r.multiplier === m).length);
   }
   expect(choices.filter((r) => r.option_type === "loss").every((r) => r.certain === -25)).toBe(true);
   expect(choices.every((r) => (r.rare ? ["AAAAAB", "AAAAAC"] : ["AAAAAA"]).includes(r.sequence))).toBe(true);
   // risky side constant within each block of 10 and swapping between blocks
-  for (let b = 1; b <= 12; b++) expect(new Set(choices.filter((r) => r.side_block === b).map((r) => r.risky_side)).size).toBe(1);
-  for (let b = 1; b < 12; b++) {
+  for (let b = 1; b <= N_CHOICE / 10; b++) expect(new Set(choices.filter((r) => r.side_block === b).map((r) => r.risky_side)).size).toBe(1);
+  for (let b = 1; b < N_CHOICE / 10; b++) {
     expect(choices.find((r) => r.side_block === b).risky_side).not.toBe(choices.find((r) => r.side_block === b + 1).risky_side);
   }
   // the robot's choices were recorded correctly, and points add up
@@ -137,9 +134,7 @@ async function checkTaskData(page) {
   const checks = rows.filter((r) => r.task === "sequence_check");
   expect(checks.map((r) => r.check_phase)).toEqual(["pre", "pre", "post", "post"]);
   expect(checks.every((r) => r.correct)).toBe(true);
-  const q = rows.find((r) => r.task === "questionnaires");
-  expect(q.phq8_total).toBe(0);
-  expect(q.gad7_total).toBe(7);
+  expect(rows.filter((r) => r.task === "questionnaires").length).toBe(0); // none in the short version
   expect(rows.find((r) => r.task === "demographics").response.age).toBe(34);
 }
 
@@ -219,8 +214,8 @@ test.describe("experiment", () => {
     const trials = docs.flatMap((d) => d.trials);
     expect(trials.length).toBe(pdoc.n_trials);
     const choices = trials.filter((t) => t.task === "choice");
-    expect(choices.length).toBe(120);
-    expect(choices.filter((t) => t.rare).length).toBe(30);
+    expect(choices.length).toBe(N_CHOICE);
+    expect(choices.filter((t) => t.rare).length).toBe(N_CHOICE / 4);
     const demo = trials.find((t) => t.task === "demographics");
     expect(demo.response.age).toBe(34);
 

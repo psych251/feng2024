@@ -1,15 +1,23 @@
 /*
- * Replication of Feng & Rutledge (2024), "Surprising sounds influence risky decision making",
- * Nature Communications 15, 8027, Experiment 2.
+ * SHORT (about 10-minute) VERSION of the replication of Feng & Rutledge (2024), "Surprising
+ * sounds influence risky decision making", Nature Communications 15, 8027, Experiment 2.
+ *
+ * Differences from the full version (keep these in the report's Differences table if used):
+ *   - 60 choice trials instead of 120 (15 rare, 45 common), so about half the task time.
+ *   - Trial lists: 20 Gain, 20 Mixed, 20 Loss per person. Each of the 8 multipliers appears
+ *     twice per type, plus 4 more multipliers per type drawn at random (so 2 or 3 times each).
+ *   - PHQ-8 and GAD-7 removed.
+ *   Everything else (tones, timings, keys, headphone check, sequence checks, 3 rare trials in
+ *   every block of 12, side swap every 10 trials) is identical to the full version.
  *
  * Design summary
- *   IV       Tone sequence before each choice, within subjects: common AAAAAA (90 trials) vs
- *            rare AAAAAB / AAAAAC (30 trials). A = 1000 Hz, B = 1500 Hz, C = 500 Hz.
+ *   IV       Tone sequence before each choice, within subjects: common AAAAAA (45 trials) vs
+ *            rare AAAAAB / AAAAAC (15 trials). A = 1000 Hz, B = 1500 Hz, C = 500 Hz.
  *   DV       Choice of the 50/50 gamble vs the sure option on every trial: field `chose_risky`
  *            (1/0) on rows with task "choice". Key test: % risky on rare minus common trials,
  *            per participant, two-sided Wilcoxon signed-rank test. Also logged: rt, outcome,
  *            points, `stay` (same choice as the previous trial).
- *   Trials   120 choice trials (field option_type = gain, mixed or loss). Each: 3-s fixation
+ *   Trials   60 choice trials (field option_type = gain, mixed or loss). Each: 3-s fixation
  *            while six 100-ms tones play 400 ms apart;
  *            options (self-paced, keys b = left, n = right); a chosen gamble resolves after
  *            1.3 s and its outcome shows for 1 s; a chosen sure option shows for 2 s.
@@ -23,7 +31,7 @@
  *   Checks   Headphone screen (Woods et al., 2017: 6 trials, pass = 5 or more correct; failing
  *            ends the study). Common-sequence identification: 2 trials with feedback before the
  *            task, 2 without feedback after it. No other exclusions.
- *   After    PHQ-8, GAD-7 (as in the original), demographics, optional comments (pilot only).
+ *   After    Demographics, optional comments (pilot only). No PHQ-8 / GAD-7 in this version.
  */
 
 // ---------------------------------------------------------------------------
@@ -32,11 +40,12 @@
 window.TEMPLATE_VERSION = "0.1.0";
 
 const EXPERIMENT = {
-  // Firestore path: experiments/<id>/participants/... New id for every phase so data never mix:
-  // feng2024-pilot-a -> feng2024-pilot-b -> feng2024-final.
-  id: "feng2024-pilot-a",
+  // Firestore path: experiments/<id>/participants/... New id for every phase so data never mix.
+  // The "short" in the id keeps this version's data apart from the full 120-trial version:
+  // feng2024-short-pilot-a -> feng2024-short-pilot-b -> feng2024-short-final.
+  id: "feng2024-short-pilot-a",
 
-  // Trials per Firestore write. About 135 rows per participant, so 10 gives ~17 writes each,
+  // Trials per Firestore write. About 80 rows per participant, so 10 gives ~11 writes each,
   // well inside the free tier's 20,000 writes/day.
   chunk_size: 10,
 
@@ -78,7 +87,7 @@ const URL_PARAMS = new URLSearchParams(window.location.search);
 const USE_EMULATOR = URL_PARAMS.get("emulator") === "1";
 const CHUNK_SIZE = Number(URL_PARAMS.get("chunk_size")) || EXPERIMENT.chunk_size;
 if (USE_EMULATOR && URL_PARAMS.get("cc")) EXPERIMENT.prolific_completion_code = URL_PARAMS.get("cc");
-// Test-only: `?fast=1` shrinks every timing so the robot can run 120 trials quickly. Only
+// Test-only: `?fast=1` shrinks every timing so the robot can run all trials quickly. Only
 // honoured on localhost, so it can never affect a real participant.
 const FAST = URL_PARAMS.get("fast") === "1" && ["localhost", "127.0.0.1"].includes(window.location.hostname);
 const T = (ms) => (FAST ? Math.max(10, Math.round(ms * 0.02)) : ms);
@@ -170,17 +179,27 @@ const GAIN_WIN = { 25: [41, 44, 47, 50, 55, 63, 75, 100], 50: [82, 88, 94, 100, 
 const LOSS_LOSS = [-41, -44, -47, -50, -55, -63, -75, -100]; // sure loss is always -25
 const MIXED_LOSS = { 40: [-8, -16, -22, -27, -32, -40, -53, -80], 80: [-16, -32, -44, -54, -64, -80, -106, -160] };
 
+const TRIALS_PER_TYPE = 20; // 60 choice trials in total
+
 function makeTrialList(jsPsych) {
   const coin = () => Math.random() < 0.5;
   const items = [];
-  for (let m = 0; m < 8; m++) {
-    for (let rep = 0; rep < 5; rep++) {
-      const g = coin() ? 25 : 50;
-      items.push({ trial_type: "gain", certain: g, gamble_win: GAIN_WIN[g][m], gamble_loss: 0, multiplier: MULTIPLIERS.gain[m] });
-      items.push({ trial_type: "loss", certain: -25, gamble_win: 0, gamble_loss: LOSS_LOSS[m], multiplier: MULTIPLIERS.gain[m] });
-      const x = coin() ? 40 : 80;
-      items.push({ trial_type: "mixed", certain: 0, gamble_win: x, gamble_loss: MIXED_LOSS[x][m], multiplier: MULTIPLIERS.mixed[m] });
-    }
+  // Multiplier indices for each type: every multiplier twice (16), plus 4 drawn at random
+  // without replacement, so each multiplier appears 2 or 3 times per type.
+  const multiplierList = () => [
+    ...[...Array(8).keys()], ...[...Array(8).keys()],
+    ...jsPsych.randomization.sampleWithoutReplacement([...Array(8).keys()], TRIALS_PER_TYPE - 16),
+  ];
+  for (const m of multiplierList()) {
+    const g = coin() ? 25 : 50;
+    items.push({ trial_type: "gain", certain: g, gamble_win: GAIN_WIN[g][m], gamble_loss: 0, multiplier: MULTIPLIERS.gain[m] });
+  }
+  for (const m of multiplierList()) {
+    items.push({ trial_type: "loss", certain: -25, gamble_win: 0, gamble_loss: LOSS_LOSS[m], multiplier: MULTIPLIERS.gain[m] });
+  }
+  for (const m of multiplierList()) {
+    const x = coin() ? 40 : 80;
+    items.push({ trial_type: "mixed", certain: 0, gamble_win: x, gamble_loss: MIXED_LOSS[x][m], multiplier: MULTIPLIERS.mixed[m] });
   }
   const order = jsPsych.randomization.shuffle(items);
 
@@ -366,7 +385,7 @@ function lockButtons(ready) {
     pages: [
       `<h2>Welcome</h2>
        <p>In this study you will play a short decision game while listening to sequences of tones.
-       It takes about 20 minutes.</p>
+       It takes about 10 minutes.</p>
        <p><strong>Please wear headphones</strong> and complete the study in one sitting, in a quiet
        place, on a laptop or desktop computer.</p>`,
     ],
@@ -574,14 +593,14 @@ function lockButtons(ready) {
        of tones. Just listen to the tones.</p>
        <p>The left and right positions of the risky and safe options may switch during the game,
        so check where each option is before you respond.</p>
-       <p>There are 120 choices. Press Next when you are ready to begin.</p>`,
+       <p>There are 60 choices. Press Next when you are ready to begin.</p>`,
     ],
     show_clickable_nav: true,
     data: { task: "instructions", page_set: "task" },
   };
 
   // -------------------------------------------------------------------------
-  // 7. The 120 choice trials
+  // 7. The 60 choice trials
   // -------------------------------------------------------------------------
   let points = 500;
   let previousChoice = null;
@@ -679,60 +698,8 @@ function lockButtons(ready) {
   };
 
   // -------------------------------------------------------------------------
-  // 8. Questionnaires (PHQ-8 and GAD-7, as in the original), demographics, comments
+  // 8. Demographics and comments (no PHQ-8 / GAD-7 in this short version)
   // -------------------------------------------------------------------------
-  const freqCols = [
-    { value: 0, text: "Not at all" },
-    { value: 1, text: "Several days" },
-    { value: 2, text: "More than half the days" },
-    { value: 3, text: "Nearly every day" },
-  ];
-  const phqItems = [
-    "Little interest or pleasure in doing things",
-    "Feeling down, depressed, or hopeless",
-    "Trouble falling or staying asleep, or sleeping too much",
-    "Feeling tired or having little energy",
-    "Poor appetite or overeating",
-    "Feeling bad about yourself, or that you are a failure or have let yourself or your family down",
-    "Trouble concentrating on things, such as reading the newspaper or watching television",
-    "Moving or speaking so slowly that other people could have noticed, or the opposite: being so fidgety or restless that you have been moving around a lot more than usual",
-  ];
-  const gadItems = [
-    "Feeling nervous, anxious, or on edge",
-    "Not being able to stop or control worrying",
-    "Worrying too much about different things",
-    "Trouble relaxing",
-    "Being so restless that it is hard to sit still",
-    "Becoming easily annoyed or irritable",
-    "Feeling afraid, as if something awful might happen",
-  ];
-  const matrix = (name, items, title) => ({
-    type: "matrix", name, title, columns: freqCols,
-    rows: items.map((text, i) => ({ value: `${name}_${i + 1}`, text })),
-  });
-  const totals = (resp, name, n) => {
-    const vals = [...Array(n).keys()].map((i) => resp?.[name]?.[`${name}_${i + 1}`]).filter((v) => v !== undefined && v !== null);
-    return { total: vals.length === n ? vals.reduce((a, b) => a + Number(b), 0) : null, answered: vals.length };
-  };
-  const questionnaires = {
-    type: jsPsychSurvey,
-    survey_json: {
-      showQuestionNumbers: "off",
-      completeText: "Continue",
-      pageNextText: "Next",
-      pages: [
-        { elements: [matrix("phq8", phqItems, "Over the last 2 weeks, how often have you been bothered by any of the following problems?")] },
-        { elements: [matrix("gad7", gadItems, "Over the last 2 weeks, how often have you been bothered by the following problems?")] },
-      ],
-    },
-    data: { task: "questionnaires" },
-    on_finish: (data) => {
-      const phq = totals(data.response, "phq8", 8), gad = totals(data.response, "gad7", 7);
-      data.phq8_total = phq.total; data.phq8_answered = phq.answered;
-      data.gad7_total = gad.total; data.gad7_answered = gad.answered;
-    },
-  };
-
   const demographics = {
     type: jsPsychSurvey,
     survey_json: {
@@ -768,8 +735,7 @@ function lockButtons(ready) {
       <p>Thank you. This study tests whether hearing an unexpected sound changes the decisions people
       make. Most choices followed the common tone sequence, and some followed a rare one. The tones
       had no connection to the gambles: every gamble was a true 50/50 chance, whatever you heard.
-      The points did not affect your payment. The mood questions were included because the original
-      study asked them; they are not a diagnosis.</p>
+      The points did not affect your payment.</p>
       <p>If you have questions about this research, contact
       <a href="mailto:${EXPERIMENT.contact_email}">${EXPERIMENT.contact_email}</a>.
       Press the button to save your responses and finish.</p>`,
@@ -790,7 +756,6 @@ function lockButtons(ready) {
     ...taskTrials,
     taskDone,
     sequenceCheck("post", false),
-    questionnaires,
     demographics,
     comments,
     debrief,
