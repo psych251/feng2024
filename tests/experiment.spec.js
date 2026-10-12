@@ -14,7 +14,7 @@ const { test, expect, devices } = require("@playwright/test");
 
 const EMULATOR = process.env.EMULATOR === "1" || !!process.env.FIRESTORE_EMULATOR_HOST;
 const PROJECT = "demo-psych251";
-const EXPERIMENT_ID = "feng2024-pilot-a";
+const EXPERIMENT_ID = "feng2024-mb-pilot-a";
 const FS = `http://localhost:8080/v1/projects/${PROJECT}/databases/(default)/documents`;
 
 // `fast=1` shrinks every timing (localhost only) so 120 trials take seconds, not 15 minutes.
@@ -42,28 +42,44 @@ async function headphoneCheck(page, nWrong) {
   }
 }
 
-async function sequenceChecks(page) {
+const LABELS = {
+  en: { lang: "English", agree: "I agree to participate", cont: "Continue", left: "Left", right: "Right",
+        answer: "Answer the questions", skip: "Skip these questions", woman: "Woman", finish: "Finish", done: "All done" },
+  id: { lang: "Bahasa Indonesia", agree: "Saya setuju untuk berpartisipasi", cont: "Lanjutkan", left: "Kiri", right: "Kanan",
+        answer: "Isi pertanyaan", skip: "Lewati pertanyaan ini", woman: "Perempuan", finish: "Selesai", done: "Selesai" },
+};
+
+async function chooseLanguage(page, lang = "en") {
+  await page.getByRole("button", { name: LABELS[lang].lang, exact: true }).click();
+}
+
+async function sequenceChecks(page, lang = "en") {
   for (let i = 0; i < 2; i++) {
     const check = page.locator(".seq-check");
     await check.waitFor({ state: "visible" });
     const n = await check.getAttribute("data-n");
     for (const btn of await page.locator(".play-btn").all()) await btn.click();
     const correct = await check.getAttribute("data-correct");
-    await clickButton(page, correct === "left" ? "Left" : "Right");
+    await clickButton(page, correct === "left" ? LABELS[lang].left : LABELS[lang].right);
     await page.locator(`.seq-check[data-n="${n}"]`).waitFor({ state: "detached" });
   }
 }
 
-async function runUntilDebrief(page) {
-  await page.getByRole("button", { name: "I agree to participate" }).click();
+// opts.lang: "en" or "id"; opts.method: "key" (b / n), "click" or "tap" on the option boxes;
+// opts.questionnaires: "answer" or "skip" (ignored when the language has no questionnaires).
+async function runUntilDebrief(page, opts = {}) {
+  const { lang = "en", method = "key", questionnaires = "answer" } = opts;
+  const L = LABELS[lang];
+  await chooseLanguage(page, lang);
+  await page.getByRole("button", { name: L.agree }).click();
   await page.locator("#jspsych-instructions-next").click();              // welcome
   await page.locator('[data-play="cal"]').click();                       // volume calibration
-  await clickButton(page, "Continue");
+  await clickButton(page, L.cont);
   await headphoneCheck(page, 1);                                         // 5 of 6 right: passes
   for (const btn of await page.locator(".play-btn").all()) await btn.click(); // familiarization
-  await clickButton(page, "Continue");
+  await clickButton(page, L.cont);
   await page.locator("#jspsych-instructions-next").click();              // check intro
-  await sequenceChecks(page);                                            // pre, with feedback
+  await sequenceChecks(page, lang);                                      // pre, with feedback
   await page.locator("#jspsych-instructions-next").click();              // task instructions p1
   await page.locator("#jspsych-instructions-next").click();              // task instructions p2
 
@@ -73,34 +89,43 @@ async function runUntilDebrief(page) {
     const trial = Number(await screen.getAttribute("data-trial"));
     const riskySide = await screen.getAttribute("data-risky-side");
     const side = robotTakesGamble(trial) ? riskySide : (riskySide === "left" ? "right" : "left");
-    await page.keyboard.press(side === "left" ? "b" : "n");
+    const box = page.locator(`.choice-screen .slot.${side} .opt`);
+    if (method === "key") await page.keyboard.press(side === "left" ? "b" : "n");
+    else if (method === "tap") await box.tap();
+    else await box.click();
     await page.locator(`.choice-screen[data-trial="${trial}"]`).waitFor({ state: "detached" });
   }
 
   await page.locator("#jspsych-instructions-next").click();              // game complete
-  await sequenceChecks(page);                                            // post, no feedback
-  // PHQ-8: all "Not at all" (0); GAD-7: all "Several days" (1).
-  await page.locator('[data-name="phq8"]').waitFor({ state: "visible" });
-  for (const r of await page.locator('[data-name="phq8"] input[type="radio"][value="0"]').all()) await r.check({ force: true });
-  await page.locator('input[value="Next"]').click();
-  for (const r of await page.locator('[data-name="gad7"] input[type="radio"][value="1"]').all()) await r.check({ force: true });
-  await page.locator('input[value="Continue"]').click();
+  await sequenceChecks(page, lang);                                      // post, no feedback
+  if (lang === "en") {
+    await clickButton(page, questionnaires === "skip" ? L.skip : L.answer);
+    if (questionnaires !== "skip") {
+      // PHQ-8: all "Not at all" (0); GAD-7: all "Several days" (1).
+      await page.locator('[data-name="phq8"]').waitFor({ state: "visible" });
+      for (const r of await page.locator('[data-name="phq8"] input[type="radio"][value="0"]').all()) await r.check({ force: true });
+      await page.locator('input[value="Next"]').click();
+      for (const r of await page.locator('[data-name="gad7"] input[type="radio"][value="1"]').all()) await r.check({ force: true });
+      await page.locator('input[value="Continue"]').click();
+    }
+  }
   await page.locator('input[type="number"]').fill("34");                 // demographics
-  await page.getByText("Woman", { exact: true }).click();
-  await page.locator('input[value="Continue"]').click();
+  await page.locator('[data-name="gender"]').getByText(L.woman, { exact: true }).click();
+  await page.locator(`input[value="${L.cont}"]`).click();
   await page.locator("textarea").fill("Robot participant says hi.");     // comments
   await page.locator("#jspsych-survey-text-next").click();
 }
 
-async function runThroughExperiment(page) {
-  await runUntilDebrief(page);
-  await page.getByRole("button", { name: "Finish" }).click();
-  await expect(page.getByText("All done")).toBeVisible({ timeout: 30000 });
+async function runThroughExperiment(page, opts = {}) {
+  await runUntilDebrief(page, opts);
+  await page.getByRole("button", { name: LABELS[opts.lang || "en"].finish }).click();
+  await expect(page.locator("#all-done")).toBeVisible({ timeout: 30000 });
 }
 
 // Checks that every variable the analysis needs is logged, using the in-page data. Works in
 // both emulator and offline mode.
-async function checkTaskData(page) {
+async function checkTaskData(page, opts = {}) {
+  const { lang = "en", method = "key", questionnaires = "answer" } = opts;
   const rows = await page.evaluate(() => window.__jsPsych.data.get().values());
   const choices = rows.filter((r) => r.task === "choice");
   expect(choices.length).toBe(120);
@@ -137,9 +162,17 @@ async function checkTaskData(page) {
   const checks = rows.filter((r) => r.task === "sequence_check");
   expect(checks.map((r) => r.check_phase)).toEqual(["pre", "pre", "post", "post"]);
   expect(checks.every((r) => r.correct)).toBe(true);
+  expect(rows.every((r) => r.task === "language" || r.language === lang)).toBe(true);
+  expect(choices.every((r) => r.response_method === method)).toBe(true);
   const q = rows.find((r) => r.task === "questionnaires");
-  expect(q.phq8_total).toBe(0);
-  expect(q.gad7_total).toBe(7);
+  if (lang === "en" && questionnaires === "answer") {
+    expect(q.phq8_total).toBe(0);
+    expect(q.gad7_total).toBe(7);
+  } else {
+    expect(q).toBe(undefined);
+  }
+  const expectedChoice = lang === "id" ? "not_available" : questionnaires === "skip" ? "skipped" : "answered";
+  expect(rows.find((r) => r.task === "debrief").questionnaire_choice).toBe(expectedChoice);
   expect(rows.find((r) => r.task === "demographics").response.age).toBe(34);
 }
 
@@ -252,6 +285,7 @@ test.describe("experiment", () => {
   test("declining consent ends the study without a thank-you-for-your-data message", async ({ page }) => {
     await page.goto(EMULATOR ? "/?emulator=1" : "/");
     await page.waitForFunction(() => window.__saver && window.__saver.uid);
+    await chooseLanguage(page, "en");
     await page.getByRole("button", { name: "I do not agree" }).click();
     await expect(page.getByText("You chose not to participate")).toBeVisible({ timeout: 15000 });
     await expect(page.getByText("Your responses were saved")).toHaveCount(0);
@@ -260,6 +294,7 @@ test.describe("experiment", () => {
   test("failing the headphone check ends the study before the task", async ({ page }) => {
     await page.goto(START);
     await page.waitForFunction(() => window.__saver && window.__saver.uid);
+    await chooseLanguage(page, "en");
     await page.getByRole("button", { name: "I agree to participate" }).click();
     await page.locator("#jspsych-instructions-next").click();
     await page.locator('[data-play="cal"]').click();
@@ -336,28 +371,34 @@ test.describe("experiment", () => {
     if (EMULATOR) await expect(page.getByText("QA123CODE")).toBeVisible();
   });
 
-  test("phones and tablets are turned away before consent", async ({ browser }) => {
+  test("a phone can take the whole study by tapping the option boxes", async ({ browser }) => {
+    test.setTimeout(120000);
     const context = await browser.newContext({ ...devices["iPhone 13"] });
     const page = await context.newPage();
-    await page.goto("http://localhost:8017/?emulator=1");
-    await expect(page.locator("#device-unsupported")).toBeVisible({ timeout: 20000 });
-    await expect(page.getByRole("button", { name: "I agree to participate" })).toHaveCount(0);
-
-    if (EMULATOR) {
-      // The turned-away visit is still recorded, so phone traffic is visible in the data.
-      await page.waitForFunction(() => window.__saver && window.__saver.docId);
-      const docId = await page.evaluate(() => window.__saver.docId);
-      await page.evaluate(() => window.__saver._settle());
-      const p = await fsGet(`experiments/${EXPERIMENT_ID}/participants/${docId}`);
-      const pdoc = decodeFields(p.body.fields);
-      expect(pdoc.device_supported).toBe(false);
-      expect(pdoc.completed).toBe(false);
-    }
+    await page.goto(EMULATOR ? "http://localhost:8017/?emulator=1&fast=1" : "http://localhost:8017/?fast=1");
+    await page.waitForFunction(() => window.__saver && window.__saver.uid);
+    await expect(page.locator("#device-unsupported")).toHaveCount(0);
+    await runThroughExperiment(page, { method: "tap", questionnaires: "skip" });
+    await checkTaskData(page, { method: "tap", questionnaires: "skip" });
+    const rows = await page.evaluate(() => window.__jsPsych.data.get().values());
+    expect(rows[0].device_pointer).toBe("coarse");
+    expect(rows[0].touch_capable).toBe(true);
     await context.close();
+  });
+
+  test("the Indonesian version runs to the end, clicking the boxes, without questionnaires", async ({ page }) => {
+    test.setTimeout(120000);
+    await page.goto(START);
+    await page.waitForFunction(() => window.__saver && window.__saver.uid);
+    await runThroughExperiment(page, { lang: "id", method: "click" });
+    await checkTaskData(page, { lang: "id", method: "click" });
+    await expect(page.locator("#all-done")).toHaveText("Selesai");
+    await expect(page.locator("html")).toHaveAttribute("lang", "id");
   });
 
   test("a desktop browser is not turned away", async ({ page }) => {
     await page.goto(EMULATOR ? "/?emulator=1" : "/");
+    await chooseLanguage(page, "en");
     await expect(page.getByRole("button", { name: "I agree to participate" })).toBeVisible();
     await expect(page.locator("#device-unsupported")).toHaveCount(0);
   });
