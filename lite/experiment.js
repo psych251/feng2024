@@ -4,7 +4,9 @@
  * Folder lite/, live at https://psych251.github.io/feng2024/lite/.
  *
  * Differences from the main version (list them in the Differences table if this version is used):
- *   - Headphone screen shortened from 6 trials (pass = 5+) to 2 trials (pass = both correct).
+ *   - Headphone screen shortened from 6 trials (pass = 5+) to 2 trials (pass = both correct),
+ *     and each set of tones can be replayed (the original plays each set once). Replays are
+ *     counted in the field `replays`.
  *   - PHQ-8 and GAD-7 removed.
  *   Everything else (120 trials, tones, timings, keys, sequence checks) is identical.
  *
@@ -27,7 +29,8 @@
  *            Rare trials: exactly 3 in every block of 12, positions random; each rare sequence
  *            ends in B or C at random. Risky option side: random start, swaps every 10 trials.
  *   Checks   Headphone screen (Woods et al., 2017 stimuli, shortened to 2 trials, pass = both
- *            correct; failing ends the study; the original used the full 6-trial screen).
+ *            correct, replay allowed; failing ends the study; the original used the full
+ *            6-trial screen with each set played once).
  *            Common-sequence identification: 2 trials with feedback before the task, 2 without
  *            feedback after it. No other exclusions.
  *   After    Demographics, optional comments (pilot only). The original's PHQ-8 and GAD-7 are
@@ -421,7 +424,7 @@ function lockButtons(ready) {
       `<h2>Sound check</h2>
        <p>On each of the next 2 screens you will hear three tones, one after another. One of them is
        <strong>quieter</strong> than the other two. After the tones, click the number (1, 2 or 3) of the
-       quietest tone. Each set of tones plays only once, so listen carefully.</p>`,
+       quietest tone. Listen carefully. If you missed it, you can press Replay to hear the set again.</p>`,
     ],
     show_clickable_nav: true,
     data: { task: "instructions", page_set: "headphone" },
@@ -431,6 +434,7 @@ function lockButtons(ready) {
     return { quiet, anti };
   });
   let hpReady = false;
+  let hpReplays = 0;
   let screenCount = 0; // gives each check screen a unique data-n, so the test robot can tell them apart
   const hpTrial = {
     type: jsPsychHtmlButtonResponse,
@@ -438,6 +442,7 @@ function lockButtons(ready) {
       <div class="hp-trial" data-n="${++screenCount}" data-correct="${jsPsych.evaluateTimelineVariable("quiet") + 1}">
         <p>Which tone was the quietest?</p>
         <p class="hp-status">Listen…</p>
+        <p><button type="button" class="jspsych-btn hp-replay" disabled>&#8635; Replay</button></p>
       </div>`,
     choices: ["1", "2", "3"],
     data: {
@@ -447,18 +452,30 @@ function lockButtons(ready) {
     },
     on_load: () => {
       hpReady = false;
+      hpReplays = 0;
       const refresh = lockButtons(() => hpReady);
-      Sound.woods(jsPsych.evaluateTimelineVariable("quiet"), jsPsych.evaluateTimelineVariable("anti"));
-      setTimeout(() => {
-        hpReady = true;
-        refresh();
-        const s = document.querySelector(".hp-status");
-        if (s) s.textContent = "Click 1, 2 or 3.";
-      }, T(3 * 1000 + 2 * 500) + 150);
+      const replayBtn = document.querySelector(".hp-replay");
+      const status = document.querySelector(".hp-status");
+      const quiet = jsPsych.evaluateTimelineVariable("quiet"), anti = jsPsych.evaluateTimelineVariable("anti");
+      // Plays the set; the answer and Replay buttons stay disabled until it has finished.
+      const play = () => {
+        replayBtn.disabled = true;
+        if (status) status.textContent = "Listen…";
+        Sound.woods(quiet, anti);
+        setTimeout(() => {
+          hpReady = true;
+          refresh();
+          replayBtn.disabled = false;
+          if (status) status.textContent = "Click 1, 2 or 3, or press Replay to hear it again.";
+        }, T(3 * 1000 + 2 * 500) + 150);
+      };
+      replayBtn.addEventListener("click", () => { hpReplays++; play(); });
+      play();
     },
     on_finish: (data) => {
       data.answer = data.response + 1;
       data.correct = data.answer === data.quiet_position;
+      data.replays = hpReplays;
     },
   };
   const headphoneCheck = {

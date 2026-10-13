@@ -40,6 +40,12 @@ async function headphoneCheck(page, nWrong) {
     const n = await trial.getAttribute("data-n");
     const correct = Number(await trial.getAttribute("data-correct"));
     const answer = i < nWrong ? (correct % 3) + 1 : correct;
+    if (i === 0) {
+      // Replay once on the first screen: the button unlocks after the set has played.
+      const replay = page.locator(`.hp-trial[data-n="${n}"] .hp-replay`);
+      await expect(replay).toBeEnabled({ timeout: 10000 });
+      await replay.click();
+    }
     await clickButton(page, String(answer));
     await page.locator(`.hp-trial[data-n="${n}"]`).waitFor({ state: "detached" });
   }
@@ -130,6 +136,7 @@ async function checkTaskData(page) {
   const hp = rows.filter((r) => r.task === "headphone_check");
   expect(hp.length).toBe(2);
   expect(hp.filter((r) => r.correct).length).toBe(2);
+  expect(hp.map((r) => r.replays)).toEqual([1, 0]);
   expect(choices[0].headphone_passed).toBe(true);
   const checks = rows.filter((r) => r.task === "sequence_check");
   expect(checks.map((r) => r.check_phase)).toEqual(["pre", "pre", "post", "post"]);
