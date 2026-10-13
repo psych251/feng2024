@@ -11,9 +11,9 @@
  *   - Phones and tablets are allowed (requires_keyboard: false). Choices are made by tapping or
  *     clicking an option box; on a computer the b / n keys also work. Each choice records
  *     `response_method` (key, tap, click or pen); device facts are recorded per participant.
- *   - Before the PHQ-8 / GAD-7, participants choose to answer them or skip them
- *     (`questionnaire_choice`). Indonesian participants skip them automatically until the official
- *     Indonesian translations are pasted into ID_QUESTIONNAIRES below (status "not_available").
+ *   - Headphone screen shortened from 6 trials (pass = 5+) to 2 trials (pass = both correct),
+ *     and each set of tones can be replayed (field `replays`), as in the lite version.
+ *   - PHQ-8 and GAD-7 removed.
  *
  * Design summary
  *   IV       Tone sequence before each choice, within subjects: common AAAAAA (90 trials) vs
@@ -29,10 +29,10 @@
  *   Lists    As in the authors' Experiment 2 data: 40 Gain, 40 Mixed, 40 Loss; each multiplier 5
  *            times per type; sure loss always -25; exactly 3 rare in every 12; rare endings B or C
  *            at random; risky side random at the start, swapping every 10 trials.
- *   Checks   Headphone screen (Woods et al., 2017: 6 trials, pass = 5 or more correct; failing
- *            ends the study). Common-sequence identification: 2 trials with feedback before the
+ *   Checks   Headphone screen (Woods et al., 2017 stimuli, 2 trials, pass = both correct,
+ *            replay allowed; failing ends the study). Common-sequence identification: 2 trials with feedback before the
  *            task, 2 without feedback after it. No other exclusions.
- *   After    Optional PHQ-8 and GAD-7, demographics, optional comments (pilot only).
+ *   After    Demographics, optional comments (pilot only). No PHQ-8 / GAD-7.
  */
 
 // ---------------------------------------------------------------------------
@@ -59,6 +59,9 @@ const TIMING = {
   gamble_delay: 1300, outcome: 1000, safe: 2000, feedback: 1500,
 };
 const FREQ = { A: 1000, B: 1500, C: 500 };
+// Headphone screen length and pass rule (Woods et al. used 6 trials, pass = 5+ correct).
+const HP_TRIALS = 2;
+const HP_PASS = 2;
 const TONE_LEVEL = 0.25;
 
 function hasFinePointer() {
@@ -102,10 +105,11 @@ const TEXT = {
       <p>Press Continue when the volume is set.</p>`,
     play_calibration: "Play calibration sound",
     hp_intro: `<h2>Sound check</h2>
-      <p>On each of the next 6 screens you will hear three tones, one after another. One of them is
+      <p>On each of the next 2 screens you will hear three tones, one after another. One of them is
       <strong>quieter</strong> than the other two. After the tones, select the number (1, 2 or 3) of the
-      quietest tone. Each set of tones plays only once, so listen carefully.</p>`,
-    hp_question: "Which tone was the quietest?", hp_listen: "Listen…", hp_answer: "Select 1, 2 or 3.",
+      quietest tone. Listen carefully. If you missed it, you can press Replay to hear the set again.</p>`,
+    hp_question: "Which tone was the quietest?", hp_listen: "Listen…",
+    hp_answer: "Select 1, 2 or 3, or press Replay to hear it again.", replay: "Replay",
     fam: (common, rare) => `<h2>Tone sequences</h2>
       <p>During this experiment, you will hear different tone sequences. Listen carefully to each one.
       Pay attention to which sequences are common and which are rare.</p>
@@ -136,13 +140,6 @@ const TEXT = {
     points: "Points",
     done: (p) => `<h2>Game complete</h2><p>You finished the game with <strong>${p} points</strong>.
       Next come a few short questions.</p>`,
-    q_intro: `<h2>Two short questionnaires</h2>
-      <p>Next are two short questionnaires about your mood and anxiety over the last 2 weeks.
-      They are optional: you can answer them or skip them.</p>`,
-    q_answer: "Answer the questions", q_skip: "Skip these questions",
-    phq_title: "Over the last 2 weeks, how often have you been bothered by any of the following problems?",
-    gad_title: "Over the last 2 weeks, how often have you been bothered by the following problems?",
-    freq: ["Not at all", "Several days", "More than half the days", "Nearly every day"],
     age: "How old are you?", gender: "What is your gender?",
     genders: ["Woman", "Man", "Non-binary"], other: "Other", prefer_not: "Prefer not to say",
     comments: "Any comments about the study, for example sound problems or anything unclear? (optional)",
@@ -150,8 +147,7 @@ const TEXT = {
       <p>Thank you. This study tests whether hearing an unexpected sound changes the decisions people
       make. Most choices followed the common tone sequence, and some followed a rare one. The tones
       had no connection to the gambles: every gamble was a true 50/50 chance, whatever you heard.
-      The points did not affect your payment. The mood questions were included because the original
-      study asked them; they are not a diagnosis.</p>
+      The points did not affect your payment.</p>
       <p>If you have questions about this research, contact <a href="mailto:${email}">${email}</a>.
       Press the button to save your responses and finish.</p>`,
     saving: "Saving your responses…",
@@ -188,11 +184,12 @@ const TEXT = {
       <p>Tekan Lanjutkan setelah volume selesai diatur.</p>`,
     play_calibration: "Putar suara kalibrasi",
     hp_intro: `<h2>Pemeriksaan suara</h2>
-      <p>Pada masing-masing dari 6 layar berikutnya, Anda akan mendengar tiga nada secara berurutan.
+      <p>Pada masing-masing dari 2 layar berikutnya, Anda akan mendengar tiga nada secara berurutan.
       Salah satunya <strong>lebih pelan</strong> daripada dua nada lainnya. Setelah nada selesai, pilih
-      nomor (1, 2, atau 3) dari nada yang paling pelan. Setiap rangkaian nada hanya diputar satu kali,
-      jadi dengarkan baik-baik.</p>`,
-    hp_question: "Nada mana yang paling pelan?", hp_listen: "Dengarkan…", hp_answer: "Pilih 1, 2, atau 3.",
+      nomor (1, 2, atau 3) dari nada yang paling pelan. Dengarkan baik-baik. Jika Anda melewatkannya,
+      Anda dapat menekan Putar ulang untuk mendengarkan rangkaian nada tersebut lagi.</p>`,
+    hp_question: "Nada mana yang paling pelan?", hp_listen: "Dengarkan…",
+    hp_answer: "Pilih 1, 2, atau 3, atau tekan Putar ulang untuk mendengarkannya lagi.", replay: "Putar ulang",
     fam: (common, rare) => `<h2>Rangkaian nada</h2>
       <p>Selama penelitian ini, Anda akan mendengar beberapa rangkaian nada yang berbeda. Dengarkan setiap
       rangkaian dengan saksama. Perhatikan rangkaian mana yang sering muncul dan mana yang jarang muncul.</p>
@@ -223,10 +220,6 @@ const TEXT = {
     points: "Poin",
     done: (p) => `<h2>Permainan selesai</h2><p>Anda menyelesaikan permainan dengan <strong>${p} poin</strong>.
       Selanjutnya ada beberapa pertanyaan singkat.</p>`,
-    q_intro: `<h2>Dua kuesioner singkat</h2>
-      <p>Berikutnya ada dua kuesioner singkat tentang suasana hati dan kecemasan Anda selama 2 minggu
-      terakhir. Kuesioner ini bersifat opsional: Anda boleh mengisinya atau melewatinya.</p>`,
-    q_answer: "Isi pertanyaan", q_skip: "Lewati pertanyaan ini",
     age: "Berapa usia Anda?", gender: "Apa identitas gender Anda?",
     genders: ["Perempuan", "Laki-laki", "Non-biner"], other: "Lainnya", prefer_not: "Memilih untuk tidak menjawab",
     comments: "Ada komentar tentang penelitian ini, misalnya masalah suara atau hal yang kurang jelas? (opsional)",
@@ -235,8 +228,7 @@ const TEXT = {
       keputusan yang diambil seseorang. Sebagian besar pilihan didahului oleh rangkaian nada yang sering
       muncul, dan sebagian lagi oleh rangkaian yang jarang muncul. Nada-nada tersebut tidak berhubungan
       dengan taruhan: setiap taruhan benar-benar memiliki peluang 50/50, apa pun yang Anda dengar. Poin
-      tidak memengaruhi pembayaran Anda. Pertanyaan tentang suasana hati disertakan karena penelitian
-      aslinya juga menanyakannya; pertanyaan tersebut bukan diagnosis.</p>
+      tidak memengaruhi pembayaran Anda.</p>
       <p>Jika Anda memiliki pertanyaan tentang penelitian ini, hubungi <a href="mailto:${email}">${email}</a>.
       Tekan tombol untuk menyimpan jawaban Anda dan menyelesaikan penelitian.</p>`,
     saving: "Menyimpan jawaban Anda…",
@@ -250,34 +242,6 @@ const TEXT = {
   },
 };
 const t = (key) => TEXT[LANG][key] ?? TEXT.en[key];
-
-// PHQ-8 and GAD-7 items. English: the standard wording. Indonesian: paste the OFFICIAL validated
-// translations here (title, the four answer options, and the items, in order). While these are
-// null, Indonesian participants skip the questionnaires automatically.
-const EN_QUESTIONNAIRES = {
-  phq8: [
-    "Little interest or pleasure in doing things",
-    "Feeling down, depressed, or hopeless",
-    "Trouble falling or staying asleep, or sleeping too much",
-    "Feeling tired or having little energy",
-    "Poor appetite or overeating",
-    "Feeling bad about yourself, or that you are a failure or have let yourself or your family down",
-    "Trouble concentrating on things, such as reading the newspaper or watching television",
-    "Moving or speaking so slowly that other people could have noticed, or the opposite: being so fidgety or restless that you have been moving around a lot more than usual",
-  ],
-  gad7: [
-    "Feeling nervous, anxious, or on edge",
-    "Not being able to stop or control worrying",
-    "Worrying too much about different things",
-    "Trouble relaxing",
-    "Being so restless that it is hard to sit still",
-    "Becoming easily annoyed or irritable",
-    "Feeling afraid, as if something awful might happen",
-  ],
-  phq_title: TEXT.en.phq_title, gad_title: TEXT.en.gad_title, freq: TEXT.en.freq,
-};
-const ID_QUESTIONNAIRES = null; // e.g. { phq8: [...8 items], gad7: [...7 items], phq_title, gad_title, freq: [...4] }
-const questionnairesFor = () => (LANG === "id" ? ID_QUESTIONNAIRES : EN_QUESTIONNAIRES);
 
 // ---------------------------------------------------------------------------
 // Sound: pure tones synthesized with the Web Audio API (no audio files).
@@ -578,11 +542,12 @@ function lockButtons(ready) {
   // 3. Headphone screen (Woods et al., 2017)
   // -------------------------------------------------------------------------
   const hpIntro = { type: jsPsychInstructions, pages: () => [t("hp_intro")], ...nav, data: { task: "instructions", page_set: "headphone" } };
-  const hpOrders = [...Array(6)].map(() => {
+  const hpOrders = [...Array(HP_TRIALS)].map(() => {
     const [quiet, anti] = jsPsych.randomization.sampleWithoutReplacement([0, 1, 2], 2);
     return { quiet, anti };
   });
   let hpReady = false;
+  let hpReplays = 0;
   let screenCount = 0; // unique data-n per check screen, for the test robot
   const hpTrial = {
     type: jsPsychHtmlButtonResponse,
@@ -590,6 +555,7 @@ function lockButtons(ready) {
       <div class="hp-trial" data-n="${++screenCount}" data-correct="${jsPsych.evaluateTimelineVariable("quiet") + 1}">
         <p>${t("hp_question")}</p>
         <p class="hp-status">${t("hp_listen")}</p>
+        <p><button type="button" class="jspsych-btn hp-replay" disabled>&#8635; ${t("replay")}</button></p>
       </div>`,
     choices: ["1", "2", "3"],
     data: {
@@ -599,18 +565,30 @@ function lockButtons(ready) {
     },
     on_load: () => {
       hpReady = false;
+      hpReplays = 0;
       const refresh = lockButtons(() => hpReady);
-      Sound.woods(jsPsych.evaluateTimelineVariable("quiet"), jsPsych.evaluateTimelineVariable("anti"));
-      setTimeout(() => {
-        hpReady = true;
-        refresh();
-        const s = document.querySelector(".hp-status");
-        if (s) s.textContent = t("hp_answer");
-      }, T(3 * 1000 + 2 * 500) + 150);
+      const replayBtn = document.querySelector(".hp-replay");
+      const status = document.querySelector(".hp-status");
+      const quiet = jsPsych.evaluateTimelineVariable("quiet"), anti = jsPsych.evaluateTimelineVariable("anti");
+      // Plays the set; the answer and Replay buttons stay disabled until it has finished.
+      const play = () => {
+        replayBtn.disabled = true;
+        if (status) status.textContent = t("hp_listen");
+        Sound.woods(quiet, anti);
+        setTimeout(() => {
+          hpReady = true;
+          refresh();
+          replayBtn.disabled = false;
+          if (status) status.textContent = t("hp_answer");
+        }, T(3 * 1000 + 2 * 500) + 150);
+      };
+      replayBtn.addEventListener("click", () => { hpReplays++; play(); });
+      play();
     },
     on_finish: (data) => {
       data.answer = data.response + 1;
       data.correct = data.answer === data.quiet_position;
+      data.replays = hpReplays;
     },
   };
   const headphoneCheck = {
@@ -618,7 +596,7 @@ function lockButtons(ready) {
     timeline_variables: hpOrders,
     on_timeline_finish: () => {
       const nCorrect = jsPsych.data.get().filter({ task: "headphone_check" }).filter({ correct: true }).count();
-      const passed = nCorrect >= 5;
+      const passed = nCorrect >= HP_PASS;
       jsPsych.data.addProperties({ headphone_passed: passed, headphone_correct: nCorrect });
       saver.updateParticipant({ headphone_passed: passed, headphone_correct: nCorrect });
       if (!passed) {
@@ -829,64 +807,8 @@ function lockButtons(ready) {
   const taskDone = { type: jsPsychInstructions, pages: () => [t("done")(points)], ...nav, data: { task: "instructions", page_set: "task_done" } };
 
   // -------------------------------------------------------------------------
-  // 7. Optional PHQ-8 and GAD-7, demographics, comments
+  // 7. Demographics and comments (no PHQ-8 / GAD-7 in this version)
   // -------------------------------------------------------------------------
-  const matrix = (name, items, title, freq) => ({
-    type: "matrix", name, title,
-    columns: freq.map((text, value) => ({ value, text })),
-    rows: items.map((text, i) => ({ value: `${name}_${i + 1}`, text })),
-  });
-  const totals = (resp, name, n) => {
-    const vals = [...Array(n).keys()].map((i) => resp?.[name]?.[`${name}_${i + 1}`]).filter((v) => v !== undefined && v !== null);
-    return { total: vals.length === n ? vals.reduce((a, b) => a + Number(b), 0) : null, answered: vals.length };
-  };
-  let questionnaireChoice = null;
-  const questionnaireIntro = {
-    timeline: [{
-      type: jsPsychHtmlButtonResponse,
-      stimulus: () => t("q_intro"),
-      choices: () => [t("q_answer"), t("q_skip")],
-      data: { task: "questionnaire_choice" },
-      on_finish: (data) => {
-        questionnaireChoice = data.response === 0 ? "answered" : "skipped";
-        data.questionnaire_choice = questionnaireChoice;
-        saver.updateParticipant({ questionnaire_choice: questionnaireChoice });
-      },
-    }],
-    conditional_function: () => {
-      if (questionnairesFor()) return true;
-      questionnaireChoice = "not_available"; // no official translation for this language yet
-      saver.updateParticipant({ questionnaire_choice: questionnaireChoice });
-      return false;
-    },
-  };
-  const questionnaires = {
-    timeline: [{
-      type: jsPsychSurvey,
-      survey_json: () => {
-        const q = questionnairesFor();
-        return {
-          showQuestionNumbers: "off",
-          completeText: t("continue"),
-          pageNextText: t("next"),
-          pagePrevText: t("previous"),
-          pages: [
-            { elements: [matrix("phq8", q.phq8, q.phq_title, q.freq)] },
-            { elements: [matrix("gad7", q.gad7, q.gad_title, q.freq)] },
-          ],
-        };
-      },
-      data: { task: "questionnaires" },
-      on_finish: (data) => {
-        const phq = totals(data.response, "phq8", 8), gad = totals(data.response, "gad7", 7);
-        data.phq8_total = phq.total; data.phq8_answered = phq.answered;
-        data.gad7_total = gad.total; data.gad7_answered = gad.answered;
-        data.questionnaire_language = LANG;
-      },
-    }],
-    conditional_function: () => questionnaireChoice === "answered",
-  };
-
   const demographics = {
     type: jsPsychSurvey,
     survey_json: () => ({
@@ -921,7 +843,6 @@ function lockButtons(ready) {
     stimulus: () => t("debrief")(EXPERIMENT.contact_email),
     choices: () => [t("finish")],
     data: { task: "debrief" },
-    on_finish: (data) => { data.questionnaire_choice = questionnaireChoice; },
   };
 
   await jsPsych.run([
@@ -938,8 +859,6 @@ function lockButtons(ready) {
     ...taskTrials,
     taskDone,
     sequenceCheck("post", false),
-    questionnaireIntro,
-    questionnaires,
     demographics,
     comments,
     debrief,
