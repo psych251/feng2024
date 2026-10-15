@@ -48,35 +48,40 @@ library(tidyverse)
 library(jsonlite)
 
 # Must match EXPERIMENT.id in experiment.js, and the --experiment you passed to the export.
+# Phase 1 moves feng2024-pilot-a -> feng2024-pilot-b -> feng2024-final; change it here each time.
 # Phase 2 runs under its own id, so its data never mix with Phase 1's.
-experiment_id        <- "framing-demo"
-experiment_id_phase2 <- "framing-demo-phase2"
+experiment_id        <- "feng2024-lite-pilot-a"
+experiment_id_phase2 <- "feng2024-phase2"
 ```
 
 ```{r}
 #| label: original-study
 #| include: false
 # The original study's numbers, entered once and used by the power analysis, the Key
-# statistics table, and the side-by-side figures. Replace these with your original study's
-# values, and say in a comment exactly where in the paper each one comes from.
+# statistics table, and the side-by-side figures.
 #
-# Feng & Rutledge (2024), Experiment 2 (Results, p. 3; Fig. 2A):
-# rare minus common risk taking = 4.03 +/- 1.06 % (mean +/- SEM), n = 200.
+# Feng & Rutledge (2024), Experiment 2, n = 200 (Results, p. 3; Fig. 2A):
+# rare minus common risk taking = 4.03 +/- 1.06 % (mean +/- SEM), p < .001 (Wilcoxon).
 original_n    <- 200
 original_mean <- 4.03
 original_sem  <- 1.06
 original_sd   <- original_sem * sqrt(original_n)   # about 15.0 percentage points
 original_dz   <- original_mean / original_sd       # about 0.27
+# The paper reports no CI; this one is computed from the mean and SEM.
+orig_ci       <- original_mean + c(-1, 1) * qt(0.975, original_n - 1) * original_sem
 
-# TEMPORARY: the template demo's numbers, still used by the Key statistics table,
-# the figures and the Phase 2 power section. Remove once those are adapted to this study.
-original <- tibble(
-  condition = c("gain", "loss"),
-  n         = c(152, 155),
-  risky     = round(c(0.28 * 152, 0.78 * 155))
+# Risk-taking rates by sequence type, for the side-by-side figure. Not printed in the paper;
+# computed from the authors' Experiment 2 data (OSF, data_csv/Exp2_data_taskdata.csv), which
+# reproduce the paper's 4.03 +/- 1.06 exactly.
+original_rates <- tibble(
+  sequence = c("Common", "Rare"),
+  mean     = c(46.53, 50.57),   # % risky choices, mean across participants
+  sem      = c(1.05, 1.17),
+  n        = original_n
 )
-original_p_gain <- original$risky[original$condition == "gain"] / original$n[original$condition == "gain"]
-original_p_loss <- original$risky[original$condition == "loss"] / original$n[original$condition == "loss"]
+# Secondary effect (perseveration): stay rate, rare minus common = -3.62 +/- 0.89 % (p. 4).
+original_stay_mean <- -3.62
+original_stay_sem  <- 0.89
 ```
 ::: {.callout-note appearance="simple" icon=false}
 ## Project links
@@ -84,7 +89,7 @@ original_p_loss <- original$risky[original$condition == "loss"] / original$n[ori
 - **Original paper:** Feng, G.W., Rutledge, R.B. Surprising sounds influence risky decision making. Nat Commun 15, 8027 (2024). <https://doi.org/10.1038/s41467-024-51729-4>
 
 - **Preregistration:** [OSF registration](https://osf.io/XXXXX) *(registered YYYY-MM-DD, before final data collection)*
-- **Live experiment:** <https://psych251.github.io/feng2024/> 
+- **Live experiment:** <https://psych251.github.io/feng2024/lite/> 
 - **Repository:** <https://github.com/psych251/feng2024> (experiment code, data, and this report)
 :::
 
@@ -109,7 +114,7 @@ tools, replace the table with a sentence saying so.
 
 | Tool and model | What it was used for | How you checked the output |
 |---|---|---|
-| *Claude (Claude Opus 5.5)* | *Explain some of the terminology in the paper, debugging when getting error in pushing report, debugging R code for power analysis and key stats table of original studies* | *read the original paper carefully, manually check the output and code, and check if I can open the link* |
+| *Claude (Claude Opus 5.5)* | *Explain some of the terminology in the paper, debugging when getting error in pushing report, debugging R code for power analysis and key stats table of original studies, building experiment in javascript* | *read the original paper carefully, manually check the output and code, and check if I can open the link, check the live studies and the exported data* |
 
 I wrote all of the text in this report myself. AI tools were not used to write, rewrite or
 paraphrase it, and were not used to generate, alter, or impute any participant data. I take full
@@ -131,82 +136,98 @@ adapt its code and say so in the caption.
 ```{r}
 #| label: analysis-functions
 #| code-summary: "Show the analysis code (shared by Phase 1 and Phase 2)"
-
 # Load one phase's exported data and apply the exclusion rule. Returns NULL if that phase
 # has not been exported yet, which is how every section below knows to skip itself.
 read_phase <- function(id) {
   dir <- file.path("..", "data", "raw", id)
   if (!all(file.exists(file.path(dir, c("participants.csv", "trials.csv"))))) return(NULL)
   participants <- read_csv(file.path(dir, "participants.csv"), show_col_types = FALSE)
-  trials       <- read_csv(file.path(dir, "trials.csv"), show_col_types = FALSE)
+  trials       <- read_csv(file.path(dir, "trials.csv"), show_col_types = FALSE, guess_max = 1e5)
   errors_path  <- file.path(dir, "errors.csv")
   errors <- if (file.exists(errors_path)) read_csv(errors_path, show_col_types = FALSE) else tibble()
 
-  complete <- participants |> filter(completed)
+  # Sessions run by the automated test robot (?fast=1, only possible on localhost) are not data.
+  if ("fast_mode" %in% names(participants)) participants <- participants |> filter(!(fast_mode %in% TRUE))
+  if (!"headphone_passed" %in% names(participants)) participants$headphone_passed <- NA
 
-  # Exclusion rule: replace with the rule you preregistered. Here: at least 6 of 8
-  # lexical-decision trials correct, and at least one speeded response at all (a session in
-  # which every speeded trial timed out is what a device without a keyboard produces).
-  ld <- trials |>
-    filter(task == "lexical_decision") |>
-    group_by(participant_id) |>
-    summarise(ld_acc           = mean(as.logical(correct), na.rm = TRUE),
-              ld_all_timed_out = all(as.logical(timed_out)),
-              .groups = "drop")
-  checked <- complete |> left_join(ld, by = "participant_id")
-  keep <- checked |> filter(!is.na(ld_acc), !ld_all_timed_out, ld_acc >= 0.75)
+  complete <- participants |> filter(completed %in% TRUE)
+
+  # Exclusion rule: replace with the rule you preregister. Here: passed the headphone check
+  # (5 or more of 6 correct; failing ends the study) and has all 120 choice trials.
+  n_choice <- trials |> filter(task == "choice") |> count(participant_id, name = "n_choice")
+  checked <- complete |>
+    left_join(n_choice, by = "participant_id") |>
+    mutate(n_choice = coalesce(n_choice, 0L))
+  keep <- checked |> filter(headphone_passed %in% TRUE, n_choice == 120)
 
   list(participants = participants, trials = trials, errors = errors,
        complete = complete, keep = keep,
-       n_no_response = sum(checked$ld_all_timed_out %in% TRUE))
+       n_headphone_fail = sum(participants$headphone_passed %in% FALSE),
+       n_missing_trials = sum(checked$headphone_passed %in% TRUE & checked$n_choice < 120))
 }
 
-# The key comparison's raw counts: how many analysed participants chose the risky program
-# in each frame.
-risky_counts <- function(d) {
+# Per-participant percentages of risky choices (and of staying with the previous choice)
+# after common and rare sequences, and the rare-minus-common differences.
+person_effects <- function(d) {
   d$trials |>
-    filter(task == "framing", participant_id %in% d$keep$participant_id) |>
-    group_by(condition) |>
-    summarise(risky = sum(choice == "risky"), n = n(), .groups = "drop")
+    filter(task == "choice", participant_id %in% d$keep$participant_id) |>
+    mutate(rare = as.logical(rare), chose_risky = as.numeric(chose_risky), stay = as.numeric(stay)) |>
+    group_by(participant_id) |>
+    summarise(risky_rare   = 100 * mean(chose_risky[rare]),
+              risky_common = 100 * mean(chose_risky[!rare]),
+              stay_rare    = 100 * mean(stay[rare], na.rm = TRUE),
+              stay_common  = 100 * mean(stay[!rare], na.rm = TRUE),
+              .groups = "drop") |>
+    mutate(risk_diff = risky_rare - risky_common, stay_diff = stay_rare - stay_common)
 }
 
-# The key statistic: difference in the proportion choosing the risky program (loss minus
-# gain) with a 95% CI, and the uncorrected chi-square, which is the same test. NULL until
-# both frames have at least one analysed participant.
-diff_ci <- function(counts) {
-  loss <- counts[counts$condition == "loss", ]
-  gain <- counts[counts$condition == "gain", ]
-  if (nrow(loss) == 0 || nrow(gain) == 0) return(NULL)
-  pt <- prop.test(c(loss$risky, gain$risky), c(loss$n, gain$n), correct = FALSE)
-  tibble(N = loss$n + gain$n,
-         estimate = unname(pt$estimate[1] - pt$estimate[2]),
-         ci_low = pt$conf.int[1], ci_high = pt$conf.int[2],
-         statistic = unname(pt$statistic), p = pt$p.value)
+# The key statistic: mean rare-minus-common difference with SEM and 95% CI, d_z, and the
+# two-sided Wilcoxon signed-rank test against zero (the original's test). NULL with < 2 people.
+effect_summary <- function(x) {
+  x <- x[!is.na(x)]
+  n <- length(x)
+  if (n < 2) return(NULL)
+  m <- mean(x); s <- sd(x); sem <- s / sqrt(n)
+  w <- tryCatch(suppressWarnings(wilcox.test(x, mu = 0, alternative = "two.sided", exact = FALSE)),
+                error = function(e) list(statistic = NA_real_, p.value = NA_real_))
+  tibble(N = n, estimate = m, sem = sem,
+         ci_low = m - qt(0.975, n - 1) * sem, ci_high = m + qt(0.975, n - 1) * sem,
+         dz = if (s > 0) m / s else NA_real_,
+         V = unname(w$statistic), p = w$p.value)
 }
 
-# Side-by-side figure: any number of studies on the same axes, in the order given.
-prop_ci <- function(x, n) {
-  ci <- prop.test(x, n, correct = FALSE)$conf.int
-  tibble(p = x / n, low = ci[1], high = ci[2])
+# Mean % risky after common and rare sequences, for the side-by-side figure.
+sequence_rates <- function(pe) {
+  pe |>
+    pivot_longer(c(risky_common, risky_rare), names_to = "sequence", values_to = "pct") |>
+    mutate(sequence = if_else(sequence == "risky_rare", "Rare", "Common")) |>
+    group_by(sequence) |>
+    summarise(mean = mean(pct), sem = sd(pct) / sqrt(n()), n = n(), .groups = "drop")
 }
+
+# Side-by-side figure: any number of studies on the same axes, in the order given. Points are
+# means, error bars 95% CIs, and a line joins each study's common and rare rates.
 comparison_plot <- function(...) {
   studies <- list(...)
   studies <- studies[!map_lgl(studies, ~ is.null(.x) || nrow(.x) == 0)]
   df <- imap_dfr(studies, ~ mutate(.x, Study = .y)) |>
-    rowwise() |> mutate(prop_ci(risky, n)) |> ungroup() |>
-    mutate(Study = factor(Study, levels = names(studies)), label = sprintf("n = %d", n))
-  fills <- setNames(c("grey55", "#1E6E76", "#B8792A")[seq_along(studies)], names(studies))
-  dodge <- position_dodge(width = 0.8)
-  ggplot(df, aes(x = condition, y = p, fill = Study)) +
-    geom_col(position = dodge, width = 0.75) +
-    geom_errorbar(aes(ymin = low, ymax = high), position = dodge, width = 0.2) +
-    geom_text(aes(y = 0.02, label = label), position = dodge, vjust = 0, size = 3, colour = "white") +
-    scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
-    scale_fill_manual(values = fills) +
-    labs(x = "Frame", y = "Chose the risky program", fill = NULL) +
+    mutate(Study = factor(Study, levels = names(studies)),
+           half = qt(0.975, pmax(n - 1, 1)) * sem,
+           label = sprintf("n = %d", n))
+  cols <- setNames(c("grey45", "#1E6E76", "#B8792A")[seq_along(studies)], names(studies))
+  dodge <- position_dodge(width = 0.35)
+  ggplot(df, aes(x = sequence, y = mean, colour = Study, group = Study)) +
+    geom_line(position = dodge, linewidth = 0.6) +
+    geom_errorbar(aes(ymin = mean - half, ymax = mean + half), position = dodge, width = 0.12) +
+    geom_point(position = dodge, size = 3) +
+    scale_colour_manual(values = cols) +
+    labs(x = "Tone sequence before the choice", y = "Chose the risky option (%)", colour = NULL) +
     theme_minimal(base_size = 12) +
     theme(legend.position = "top")
 }
+
+# Formatting helpers shared by the tables.
+fmt_p <- function(p) if (is.na(p)) "" else format.pval(p, digits = 2, eps = 0.001)
 
 phase1 <- read_phase(experiment_id)
 phase2 <- read_phase(experiment_id_phase2)
@@ -217,25 +238,29 @@ have_phase2 <- !is.null(phase2)
 ```{r}
 #| label: key-stats
 #| echo: false
-# Feng & Rutledge (2024), Experiment 2 reports mean +/- SEM (p. 3, Fig. 2A);
-# the 95% CI is computed from those two numbers, since the paper does not report one.
-orig_ci <- original_mean + c(-1, 1) * qt(0.975, original_n - 1) * original_sem
-
-key_row <- function(study, n = "", effect = "not yet collected", ci = "", dz = "", p = "") {
-  tibble(Study = study, N = n, `Effect (rare − common)` = effect,
-         `95% CI` = ci, `d_z` = dz, p = p)
+key_row <- function(study, r = NULL, p_text = NULL) {
+  if (is.null(r)) {
+    return(tibble(Study = study, N = "", `Effect (rare − common)` = "not yet collected",
+                  `95% CI` = "", d_z = "", `Wilcoxon p` = ""))
+  }
+  tibble(Study = study, N = as.character(r$N),
+         `Effect (rare − common)` = sprintf("%.2f points", r$estimate),
+         `95% CI` = sprintf("[%.2f, %.2f]", r$ci_low, r$ci_high),
+         d_z = sprintf("%.2f", r$dz),
+         `Wilcoxon p` = p_text %||% fmt_p(r$p))
 }
+original_effect <- tibble(N = original_n, estimate = original_mean, ci_low = orig_ci[1],
+                          ci_high = orig_ci[2], dz = original_dz, p = NA_real_)
+p1_effect <- if (have_data) effect_summary(person_effects(phase1)$risk_diff)
+p2_effect <- if (have_phase2) effect_summary(person_effects(phase2)$risk_diff)
 
 bind_rows(
-  key_row("Original (Experiment 2)", n = as.character(original_n),
-          effect = sprintf("%.2f points", original_mean),
-          ci = sprintf("[%.2f, %.2f]", orig_ci[1], orig_ci[2]),
-          dz = sprintf("%.2f", original_dz), p = "< .001 (Wilcoxon)"),
-  key_row("Phase 1: replication"),
-  key_row("Phase 2: extension")
+  key_row("Original (Experiment 2)", original_effect, p_text = "< .001"),
+  key_row("Phase 1: replication", p1_effect),
+  key_row("Phase 2: extension", p2_effect)
 ) |>
   knitr::kable(align = "lrlllr",
-    caption = "Key comparison: percentage of risky choices on rare minus common trials.")
+    caption = "Key comparison: percentage of risky choices after rare minus common tone sequences, per participant (original CI computed from its mean and SEM).")
 ```
 
 # Phase 1: Replication
@@ -392,29 +417,25 @@ if (!have_data) {
 #| eval: !expr have_data
 # Loaded and excluded by read_phase(), under Key statistics, so Phase 1 and Phase 2 share one
 # exclusion rule.
-participants  <- phase1$participants
-trials        <- phase1$trials
-errors        <- phase1$errors
-complete      <- phase1$complete
-keep          <- phase1$keep
-n_no_response <- phase1$n_no_response
+participants     <- phase1$participants
+trials           <- phase1$trials
+errors           <- phase1$errors
+complete         <- phase1$complete
+keep             <- phase1$keep
+n_headphone_fail <- phase1$n_headphone_fail
+n_missing_trials <- phase1$n_missing_trials
+pe               <- person_effects(phase1)
 ```
 
 ```{r}
 #| label: funnel
 #| eval: !expr have_data
-funnel_levels <- c("Started", "Completed", "Passed exclusion criteria")
-bind_rows(
-  participants |> mutate(step = "Started"),
-  complete     |> mutate(step = "Completed"),
-  keep         |> mutate(step = "Passed exclusion criteria")
+tibble(
+  Step = c("Started", "Completed", "Passed the headphone check", "Analysed (all 120 choice trials)"),
+  N    = c(nrow(participants), nrow(complete),
+           sum(complete$headphone_passed %in% TRUE), nrow(keep))
 ) |>
-  mutate(step = factor(step, levels = funnel_levels)) |>
-  count(step, condition, .drop = FALSE) |>
-  pivot_wider(names_from = condition, values_from = n, values_fill = 0) |>
-  mutate(Total = rowSums(across(-step))) |>
-  rename(Step = step) |>
-  knitr::kable(caption = "Participants at each step, by frame. Differences between frames in attrition or exclusion are a threat to validity and should be discussed.")
+  knitr::kable(caption = "Participants at each step.")
 ```
 
 ```{r}
@@ -424,9 +445,11 @@ bind_rows(
 #| results: asis
 cat(sprintf("Of %d participants who started, %d completed the study and %d met the exclusion criteria.",
             nrow(participants), nrow(complete), nrow(keep)))
-if (n_no_response > 0) {
-  cat(sprintf(" %d completed session(s) contained no response to any speeded trial and were excluded on that basis.",
-              n_no_response))
+if (n_headphone_fail > 0) {
+  cat(sprintf(" %d did not pass the headphone check, which ends the study.", n_headphone_fail))
+}
+if (n_missing_trials > 0) {
+  cat(sprintf(" %d passed it but have fewer than 120 saved choice trials.", n_missing_trials))
 }
 if (nrow(keep) == 0) cat(" No participants remain for analysis yet, so the results below are empty.")
 cat("\n")
@@ -450,6 +473,9 @@ if (nrow(demo) > 0) {
               `SD age` = round(sd(age, na.rm = TRUE), 1),
               `Age not given` = sum(is.na(age))) |>
     knitr::kable(caption = "Age of the analysed sample.")
+  demo |>
+    count(Gender = replace_na(gender, "Not given")) |>
+    knitr::kable(caption = "Gender of the analysed sample.")
 }
 ```
 
@@ -479,21 +505,17 @@ the data beyond that.
 ```{r}
 #| label: confirmatory
 #| eval: !expr have_data
-framing <- trials |>
-  filter(task == "framing", participant_id %in% keep$participant_id) |>
-  select(participant_id, condition, choice)
-risky <- risky_counts(phase1)
-tab <- table(Frame = framing$condition, Choice = framing$choice)
-
-if (all(dim(tab) == c(2, 2))) {
-  # No continuity correction, so this test and the effect-size interval below agree: the
-  # uncorrected 2 x 2 chi-square is the same test as the two-proportion comparison.
-  print(tab)
-  print(chisq.test(tab, correct = FALSE))
+# Key test: per participant, % risky choices after rare minus after common sequences;
+# two-sided Wilcoxon signed-rank test against zero, as in the original.
+if (nrow(pe) >= 2) {
+  print(suppressWarnings(wilcox.test(pe$risk_diff, mu = 0, alternative = "two.sided", exact = FALSE)))
+  effect_summary(pe$risk_diff) |>
+    transmute(N, `Mean (points)` = round(estimate, 2), SEM = round(sem, 2),
+              `95% CI` = sprintf("[%.2f, %.2f]", ci_low, ci_high), d_z = round(dz, 2),
+              V, p = fmt_p(p)) |>
+    knitr::kable(caption = "Key test: rare minus common risky choices, per participant.")
 } else {
-  message("Chi-square not run: the frame-by-choice table is ", paste(dim(tab), collapse = " x "),
-          ". It needs both frames and both choices; with ", nrow(framing),
-          " participant(s) in the analysis set this is expected.")
+  message("Key test not run: it needs at least 2 analysed participants; there are ", nrow(pe), ".")
 }
 ```
 
@@ -512,18 +534,21 @@ informative and should be reported as such (Experimentology §3.2).
 ```{r}
 #| label: comparison
 #| eval: !expr have_data
-orig <- diff_ci(original)
-rep  <- diff_ci(risky)
+rep <- effect_summary(pe$risk_diff)
 
 if (!is.null(rep)) {
-  bind_rows(orig |> mutate(Study = "Original"), rep |> mutate(Study = "Phase 1: replication")) |>
+  bind_rows(
+    tibble(Study = "Original (Experiment 2)", N = original_n, estimate = original_mean,
+           ci_low = orig_ci[1], ci_high = orig_ci[2], p_text = "< .001"),
+    rep |> transmute(Study = "Phase 1: replication", N, estimate, ci_low, ci_high, p_text = fmt_p(p))
+  ) |>
     transmute(Study, N,
-              `Difference (loss − gain)` = sprintf("%.0f points", 100 * estimate),
-              `95% CI` = sprintf("[%.0f, %.0f]", 100 * ci_low, 100 * ci_high),
-              p = format.pval(p, digits = 2, eps = 0.001)) |>
-    knitr::kable(caption = "Effect size: difference in the percentage choosing the risky program.")
+              `Difference (rare − common)` = sprintf("%.2f points", estimate),
+              `95% CI` = sprintf("[%.2f, %.2f]", ci_low, ci_high),
+              `Wilcoxon p` = p_text) |>
+    knitr::kable(caption = "Effect size: rare minus common percentage of risky choices.")
 } else {
-  message("Replication effect size not computed yet: need at least one analysed participant in each frame.")
+  message("Replication effect size not computed yet: need at least 2 analysed participants.")
 }
 ```
 
@@ -534,12 +559,12 @@ if (!is.null(rep)) {
 #| results: asis
 if (!is.null(rep)) {
   excludes_zero <- rep$ci_low > 0 | rep$ci_high < 0
-  includes_orig <- orig$estimate >= rep$ci_low & orig$estimate <= rep$ci_high
+  includes_orig <- original_mean >= rep$ci_low & original_mean <= rep$ci_high
   cat(sprintf(
-    "The replication's 95%% interval %s zero and %s the original estimate of %.0f points. ",
+    "The replication's 95%% interval %s zero and %s the original estimate of %.2f points. ",
     if (excludes_zero) "excludes" else "includes",
     if (includes_orig) "includes" else "does not include",
-    100 * orig$estimate))
+    original_mean))
   cat("These two facts are the starting point for the summary in the Discussion, not the conclusion.\n")
 }
 ```
@@ -579,10 +604,10 @@ caption. If the original reported no variability, say so rather than leaving it 
 ```{r}
 #| label: fig-comparison
 #| eval: !expr have_data
-#| fig-cap: "Percentage choosing the risky program in each frame, original study and Phase 1 replication. Error bars are 95% confidence intervals."
+#| fig-cap: "Percentage of risky choices after common and rare tone sequences: original Experiment 2 (rates computed from the authors' data) and Phase 1 replication. Error bars are 95% confidence intervals."
 #| fig-width: 7
 #| fig-height: 4
-comparison_plot(Original = original, `Phase 1: replication` = risky)
+comparison_plot(Original = original_rates, `Phase 1: replication` = sequence_rates(pe))
 ```
 
 ### Exploratory analyses
@@ -597,18 +622,28 @@ they generate hypotheses rather than test them.
 ```{r}
 #| label: exploratory-rt
 #| eval: !expr have_data
-ld <- trials |>
-  filter(task == "lexical_decision", participant_id %in% keep$participant_id) |>
-  mutate(correct = as.logical(correct), is_word = as.logical(is_word), rt = as.numeric(rt)) |>
-  filter(correct, !is.na(rt))
+# Secondary effect reported in the original: staying with the previous choice, rare minus
+# common (original Experiment 2: -3.62 +/- 0.89 %). Then the key difference by option type.
+stay <- effect_summary(pe$stay_diff)
+if (!is.null(stay)) {
+  stay |>
+    transmute(N, `Mean (points)` = round(estimate, 2), SEM = round(sem, 2),
+              `95% CI` = sprintf("[%.2f, %.2f]", ci_low, ci_high), p = fmt_p(p)) |>
+    knitr::kable(caption = sprintf(
+      "Stay rate, rare minus common (original: %.2f +/- %.2f).", original_stay_mean, original_stay_sem))
+}
 
-if (nrow(ld) > 0) {
-  ld |>
-    group_by(`Real word` = is_word) |>
-    summarise(`Mean RT (ms)` = round(mean(rt)), `SD (ms)` = round(sd(rt)), Trials = n(), .groups = "drop") |>
-    knitr::kable(caption = "Exploratory: lexical-decision response times, correct trials only.")
-} else {
-  message("No correct lexical-decision trials with a response time yet.")
+by_type <- trials |>
+  filter(task == "choice", participant_id %in% keep$participant_id) |>
+  mutate(rare = as.logical(rare), chose_risky = as.numeric(chose_risky)) |>
+  group_by(participant_id, option_type) |>
+  summarise(diff = 100 * (mean(chose_risky[rare]) - mean(chose_risky[!rare])), .groups = "drop")
+if (nrow(by_type) > 0) {
+  by_type |>
+    group_by(`Option type` = option_type) |>
+    summarise(N = sum(!is.na(diff)), `Mean (points)` = round(mean(diff, na.rm = TRUE), 2),
+              SEM = round(sd(diff, na.rm = TRUE) / sqrt(sum(!is.na(diff))), 2), .groups = "drop") |>
+    knitr::kable(caption = "Risky choices, rare minus common, by option type.")
 }
 ```
 
@@ -718,43 +753,37 @@ have it and the original's otherwise.
 
 ```{r}
 #| label: phase2-power
-phase2_n_per_group <- 150   # planned analysed participants per condition in Phase 2
+phase2_n <- 200   # planned analysed participants in Phase 2
 
-p1_counts <- if (have_data) risky_counts(phase1)
-p1_stats  <- if (have_data) diff_ci(p1_counts)
-basis <- if (!is.null(p1_stats)) {
-  list(gain = p1_counts$risky[p1_counts$condition == "gain"] / p1_counts$n[p1_counts$condition == "gain"],
-       loss = p1_counts$risky[p1_counts$condition == "loss"] / p1_counts$n[p1_counts$condition == "loss"],
-       source = "Phase 1")
-} else {
-  list(gain = original_p_gain, loss = original_p_loss, source = "the original study")
-}
+p1_effect <- if (have_data) effect_summary(person_effects(phase1)$risk_diff)
+basis_sd  <- if (!is.null(p1_effect)) p1_effect$estimate / p1_effect$dz else original_sd
+basis_src <- if (!is.null(p1_effect)) "Phase 1" else "the original study"
 
-# Expected 95% CI half-width on the difference at n per condition.
-half_width <- function(n) 1.96 * sqrt(basis$gain * (1 - basis$gain) / n + basis$loss * (1 - basis$loss) / n)
-power_at <- function(n, p1, p2) {
-  tryCatch(power.prop.test(n = n, p1 = p1, p2 = p2, sig.level = 0.05)$power, error = function(e) NA)
+half_width <- function(n) qt(0.975, n - 1) * basis_sd / sqrt(n)
+power_at <- function(n, delta) {
+  tryCatch(power.t.test(n = n, delta = delta, sd = basis_sd, sig.level = 0.05, type = "one.sample")$power,
+           error = function(e) NA)
 }
 
 rows <- tibble(
-  Study = c(if (!is.null(p1_stats)) "Phase 1 (actual)", "Phase 2 (planned)"),
-  `N analysed` = c(if (!is.null(p1_stats)) p1_stats$N, 2 * phase2_n_per_group),
-  `95% CI half-width` = c(if (!is.null(p1_stats)) sprintf("±%.0f points", 100 * (p1_stats$ci_high - p1_stats$ci_low) / 2),
-                          sprintf("±%.0f points (expected)", 100 * half_width(phase2_n_per_group)))
+  Study = c(if (!is.null(p1_effect)) "Phase 1 (actual)", "Phase 2 (planned)"),
+  `N analysed` = c(if (!is.null(p1_effect)) p1_effect$N, phase2_n),
+  `95% CI half-width` = c(if (!is.null(p1_effect)) sprintf("±%.2f points", (p1_effect$ci_high - p1_effect$ci_low) / 2),
+                          sprintf("±%.2f points (expected)", half_width(phase2_n)))
 )
-knitr::kable(rows, caption = sprintf("Precision of the key estimate, Phase 2 expected values based on %s.", basis$source))
+knitr::kable(rows, caption = sprintf("Precision of the key estimate; Phase 2 expected values use the SD from %s.", basis_src))
 
 tibble(
-  `Effect to detect` = c(sprintf("Original: %.0f points", 100 * (original_p_loss - original_p_gain)),
-                         if (!is.null(p1_stats)) sprintf("Phase 1: %.0f points", 100 * p1_stats$estimate),
-                         sprintf("Half the original: %.0f points", 50 * (original_p_loss - original_p_gain))),
+  `Effect to detect` = c(sprintf("Original: %.2f points", original_mean),
+                         if (!is.null(p1_effect)) sprintf("Phase 1: %.2f points", p1_effect$estimate),
+                         sprintf("Half the original: %.2f points", original_mean / 2)),
   `Power at planned N` = scales::percent(c(
-    power_at(phase2_n_per_group, original_p_gain, original_p_loss),
-    if (!is.null(p1_stats)) power_at(phase2_n_per_group, basis$gain, basis$loss),
-    power_at(phase2_n_per_group, original_p_gain, original_p_gain + (original_p_loss - original_p_gain) / 2)
+    power_at(phase2_n, original_mean),
+    if (!is.null(p1_effect)) power_at(phase2_n, p1_effect$estimate),
+    power_at(phase2_n, original_mean / 2)
   ), accuracy = 1)
 ) |>
-  knitr::kable(caption = sprintf("Power of the Phase 2 key test at %d per condition, two-sided alpha = .05.", phase2_n_per_group))
+  knitr::kable(caption = sprintf("Power of the Phase 2 key test (one-sample t approximation) at N = %d, two-sided alpha = .05.", phase2_n))
 ```
 
 ## Analysis plan
@@ -792,27 +821,26 @@ if (!have_phase2) {
 ```{r}
 #| label: phase2-results
 #| eval: !expr have_phase2
-p2_counts <- risky_counts(phase2)
-p2_stats  <- diff_ci(p2_counts)
+pe2 <- person_effects(phase2)
+p2_stats <- effect_summary(pe2$risk_diff)
 cat(sprintf("Phase 2: %d started, %d completed, %d analysed.\n",
             nrow(phase2$participants), nrow(phase2$complete), nrow(phase2$keep)))
 if (!is.null(p2_stats)) {
-  p_text <- if (p2_stats$p < 0.001) "p < .001" else sprintf("p = %.3f", p2_stats$p)
-  cat(sprintf("Key comparison: %.0f points [%.0f, %.0f], chi-square(1) = %.2f, %s.\n",
-              100 * p2_stats$estimate, 100 * p2_stats$ci_low, 100 * p2_stats$ci_high,
-              p2_stats$statistic, p_text))
+  p_text <- if (is.na(p2_stats$p)) "p not available" else if (p2_stats$p < 0.001) "p < .001" else sprintf("p = %.3f", p2_stats$p)
+  cat(sprintf("Key comparison: %.2f points [%.2f, %.2f], Wilcoxon V = %s, %s.\n",
+              p2_stats$estimate, p2_stats$ci_low, p2_stats$ci_high, format(p2_stats$V), p_text))
 }
 ```
 
 ```{r}
 #| label: fig-phase2
 #| eval: !expr have_phase2
-#| fig-cap: "Percentage choosing the risky program in each frame: original study, Phase 1 replication, and Phase 2 extension. Error bars are 95% confidence intervals."
+#| fig-cap: "Percentage of risky choices after common and rare tone sequences: original Experiment 2, Phase 1 replication, and Phase 2 extension. Error bars are 95% confidence intervals."
 #| fig-width: 8
 #| fig-height: 4
-comparison_plot(Original = original,
-                `Phase 1: replication` = if (have_data) risky_counts(phase1),
-                `Phase 2: extension` = risky_counts(phase2))
+comparison_plot(Original = original_rates,
+                `Phase 1: replication` = if (have_data) sequence_rates(person_effects(phase1)),
+                `Phase 2: extension` = sequence_rates(person_effects(phase2)))
 ```
 
 ## Discussion
