@@ -61,3 +61,4 @@ identifiers.csv
 # agent worktrees
 .claude/worktrees/
 .RData
+data/raw/*-bots/

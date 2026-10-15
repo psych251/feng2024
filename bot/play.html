@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bot player (lite)</title>
+  <link rel="icon" href="data:,">
+  <!-- One simulated player on the lite experiment. Usually opened by bot/index.html.
+       Same libraries as lite/index.html, minus Firebase. Without &save=1 the saver runs
+       offline and nothing is written anywhere. With &save=1, bot/player.js loads Firebase and
+       saves to experiments/feng2024-lite-bots only (never a pilot collection).
+       bot/player.js loads ../lite/experiment.js itself. -->
+  <script src="../lib/jspsych.js"></script>
+  <script src="../lib/plugin-html-keyboard-response.js"></script>
+  <script src="../lib/plugin-html-button-response.js"></script>
+  <script src="../lib/plugin-instructions.js"></script>
+  <script src="../lib/plugin-survey.js"></script>
+  <script src="../lib/plugin-survey-likert.js"></script>
+  <script src="../lib/plugin-survey-text.js"></script>
+  <link rel="stylesheet" href="../lib/jspsych.css">
+  <link rel="stylesheet" href="../lib/plugin-survey.css">
+  <script src="../src/save.js"></script>
+  <link rel="stylesheet" href="../src/experiment.css">
+  <script src="bots.js"></script>
+  <script src="player.js"></script>
+</head>
+<body></body>
+</html>
