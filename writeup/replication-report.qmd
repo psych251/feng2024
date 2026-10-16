@@ -264,7 +264,7 @@ Two possible extensions to this experiment are modifying stimuli by incorporatin
 ### Power analysis
 
 
-The original effect size is +4.03 (% points of risky choice for rare minus common tone sequence), d_z = 0.27 with N = 200 participants. As we can see from the power table below, we need 116 participants (Wilcoxon) for 80 % power, 155 for 90%, and 191 for 95%. The other alternative that one could use is 2.5 times the original sample size (500 participants), as published effect tend to be inflated. We choose to power the study to the original effect and aim for the minimum sample size of interest to achieve at least 80 \% power, which led us to choose N=120 participants. Budget constraint was also part of our consideration, which limit the number of participants we could recruit. 
+The original effect size is 4.03 ± 1.6% (i.e. % points of risky choice for rare minus common tone sequence), d_z = 0.27 with N = 200 participants. As we can see from the power table below, we need 116 participants (Wilcoxon) for 80 % power, 155 for 90%, and 191 for 95%. The other alternative that one could use is 2.5 times the original sample size (500 participants), as published effect tend to be inflated. We choose to power the study to the original effect and aim for the minimum sample size of interest to achieve at least 80 \% power, which led us to choose N=120 participants. Budget constraint was also part of our consideration, which limit the number of participants we could recruit. 
 
 ```{r}
 #| label: power
