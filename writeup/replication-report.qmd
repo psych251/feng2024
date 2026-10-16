@@ -1,5 +1,5 @@
 ---
-title: "Replication of Experiment 2 of Feng & Rutledge (2024, Nature Communication)"
+title: "Replication of Experiment 2 of Feng & Rutledge (2024, Nature Communications)"
 author: "Olivia Pricilia (pricilia@stanford.edu)"
 date: today
 date-format: long
@@ -95,22 +95,6 @@ original_stay_sem  <- 0.89
 
 # AI use statement
 
-::: {.callout-tip icon=false}
-## Guidance
-
-This statement comes first so a reader knows how the work was produced before reading it. Keep
-it current from the start of the project rather than reconstructing it at the end.
-
-**Course policy: you write all of the text in this report yourself.** AI tools may help with
-code, and may comment on drafts you have written, but they may not write, rewrite or paraphrase
-any of the report's text. That includes "polishing" a paragraph.
-
-List every AI tool you used on this project, what you used it for, and how you checked what it
-produced. Include coding assistants (for example Claude Code, Codex, Copilot) and chat
-assistants. Name the model and version where you know it. "How you checked" is the important
-column: say what you verified yourself, not that the output "looked right". If you used no AI
-tools, replace the table with a sentence saying so.
-:::
 
 | Tool and model | What it was used for | How you checked the output |
 |---|---|---|
@@ -268,30 +252,19 @@ bind_rows(
 ## Introduction
 I’m interested in applying mathematical modelling technique to model psychological process. Coming from mathematical finance background, the Feng & Rutledge (2024)’s research on surprising sounds influence risky decision making fit my interest and bridge the gap between psychology, behavioural finance, and mathematical modelling. This paper also highlighted how external stimuli like surprising sounds can influence one’s attitude towards risk taking, which also has been studied in professional traders (e.g. trading floor buzzer or surprising news announcement in trading floor) and casino floor.
 
-For the specific experiment that I replicated, experiment 2, each participant can decide whether they want to choose a ‘safe’ or ‘risky’ option in every trial, with the aim of maximising their cumulative wealth. Each participant start with 500 points and the outcome of risky option is revealed after 1.3 seconds delay if chosen. In total, there were 120 trials and the participants received fixed monetary reward irrespective of their final outcome. For the stimulus, each participant is presented with 6-tone auditory sequence, with 3 different frequencies, i.e. A=1000 Hz, B=1500 Hz, and C=500 Hz. In 75% of the trials participants hear ‘common sequence’ : AAAAAA, and for the remaining 25% of the trials participants hear ‘rare sequence’: AAAAAB or AAAAAC. Experimenter alternate the location of risky choice from left to right (or right to left) of the screen for every 10 trials. To run this experiment, we will recruit participants in Prolific with the following criteria: age 18+ and fluent in English, no hearing difficulty, have access to laptop or tablet, and earphone or device audio. We aim to recruit 200 participants in total and we will build the experiment in jspsych. 
+For the specific experiment that I replicated, experiment 2, each participant can decide whether they want to choose a ‘safe’ or ‘risky’ option in every trial, with the aim of maximising their cumulative wealth. Each participant start with 500 points and the outcome of risky option is revealed after 1.3 seconds delay if chosen. In total, there were 120 trials and the participants received fixed monetary reward irrespective of their final outcome. For the stimulus, each participant is presented with 6-tone auditory sequence, with 3 different frequencies, i.e. A=1000 Hz, B=1500 Hz, and C=500 Hz. In 75% of the trials participants hear ‘common sequence’ : AAAAAA, and for the remaining 25% of the trials participants hear ‘rare sequence’: AAAAAB or AAAAAC. Experimenter alternate the location of risky choice from left to right (or right to left) of the screen for every 10 trials. To run this experiment, we recruited participants in Prolific with the following criteria: age 18+ and fluent in English, no hearing difficulty, have access to laptop, and earphone. We aim to recruit 120 participants in total and we built the experiment in jspsych. 
 
 There were several challenges that we anticipated in running this experiment, including limited budget to recruit participants in-time, participants attention and audio quality are hard to control, moving from Gorilla (original experiment platform) to jsPsych with firebase. 
-For the **key statistical test**, we will calculate the percentage difference of each participant’s risky choices in rare trial and in common trial and perform the 2-sided Wilcoxon signed-rank test (against 0), to be consistent with the authors.
+For the **key statistical test**, we calculated the percentage difference of each participant’s risky choices in rare trial and in common trial and perform the 2-sided Wilcoxon signed-rank test (against 0), to be consistent with the authors.
 
-Two possible extensions to this experiment are modifying stimuli by incorporating visual surprise instead of sounds and incorporating ‘think like a trader’ reframing (Sokol-Hessner et al. 2009) to half of the participants (randomly, N=100) to test if it reduces risk aversion and effect of surprising sounds.
+Two possible extensions to this experiment are modifying stimuli by incorporating visual surprise instead of sounds and incorporating ‘think like a trader’ reframing (Sokol-Hessner et al. 2009) to half of the participants (randomly, N=100) to test if it reduces loss aversion and effect of surprising sounds.
 
 ## Methods
 
 ### Power analysis
 
-::: {.callout-tip icon=false}
-## Guidance
 
-Report the original effect size, the sample needed for 80%, 90% and 95% power to detect it,
-and the sample you chose and why. The table below is computed from the original study's
-numbers entered at the top of this file.
-
-Original effects are usually overestimates, so powering to the original effect tends to
-produce an underpowered replication. One widely used alternative is to collect 2.5 times the
-original sample, which gives 80% power to detect an effect the original study had only 33%
-power to detect (Simonsohn, 2015; Experimentology §10.4). Say which approach you used, and
-what the course's participant budget allowed.
-:::
+The original effect size is +4.03 (% points of risky choice for rare minus common tone sequence), d_z = 0.27 with N = 200 participants. As we can see from the power table below, we need 116 participants (Wilcoxon) for 80 % power, 155 for 90%, and 191 for 95%. The other alternative that one could use is 2.5 times the original sample size (500 participants), as published effect tend to be inflated. We choose to power the study to the original effect and aim for the minimum sample size of interest to achieve at least 80 \% power, which led us to choose N=120 participants. Budget constraint was also part of our consideration, which limit the number of participants we could recruit. 
 
 ```{r}
 #| label: power
@@ -311,33 +284,30 @@ For comparison, 2.5 times the original sample would be `r two_and_half`.
 
 ### Planned sample
 
-::: {.callout-tip icon=false}
-## Guidance
 
-Planned sample size and stopping rule, sampling frame (for example, "US residents on Prolific,
-fluent in English, 18 or older"), known demographics, and any preselection or screening. The
-stopping rule should be data-independent: "collect until N participants pass the exclusion
-criteria below" rather than "until the result is clear".
-:::
+We recruited from Prolific, with the following criterias: Age 18+, fluent in English, reside in the US, have access to desktop or laptop with keyboard and headphone or earphone. We collected the data until N=120 participants meet the exclusion criteria. 
+Based on Pilot A, participants spent 15 to 20 minutes to complete the task, so we compensated participants for 17.5 minutes of their time. 
+
 
 ### Materials
 
-::: {.callout-tip icon=false}
-## Guidance
-
-All materials. You can quote the original article directly: put the text in quotation marks
-and note that it was followed precisely, or quote it and point out the exceptions. Link to the
-live experiment above rather than pasting screenshots of every screen.
-:::
+We followed the set-up of Experiment 2 in the original paper:
+For the tones sequence, we used 6 of 100 ms pure tones in each sequence, each 400 ms apart. Each tone has frequencies of A/B/C = 1000/1500/500 Hz, with the split of 75% common and 25% rare sequence of tones. 
+For the gamble amounts, based on authors' Experiment 2 data, we incorporated 40 trials per type with sure loss of −25.
+For the soundcheck, we modified this slightly to 2 screens headphone check with replay (instead of 6) and we required participants to get both check right before proceeding with the experiment. This was done for the interest of time and to enhance participants experience.
+The live experiment is available at the link above for reference. <https://psych251.github.io/feng2024/lite/> 
 
 ### Procedure
 
-::: {.callout-tip icon=false}
-## Guidance
+For the experiment sequence and trials design, we followed closely the original Experiment 2 set-up, but for interest of time and to enhance participants experience we dropped the PHQ-8 questionnaires at the end of the experiment. Upon opening the experiment page, each participant started with consent form (agree / disagree to participate), followed by welcome page, volume calibration, and sound check. After passing the sound check, participants were directed to the practice round for familiarization and sequence checks, followed by instructions for the main task and the main task of 120 trials. After finishing the main task, participants were directed to another tone sequence checks, followed by demographics page with optional comments, and debrief.
 
-As for Materials: quote the original where you can and point out the exceptions. Describe the
-sequence a participant experiences, from consent to debrief, and how long it takes.
-:::
+Each trial has the following timing: 3s fixation, 1.3s gamble delay, 1s outcome, and 2s safe outcome. Just as in the original experiment, we swapped the risky option’s side from left to right (or right to left) every 10 trials.
+
+Based on Pilot A data, each participant took around 15 to 20 minutes to finish the whole experiment (from loading the page to debrief).
+We refer interested reader to our live experiment page above for reference.
+
+
+
 
 ### Analysis plan
 
@@ -353,36 +323,28 @@ stands or falls on, and it must match your preregistration. You can pre-specify 
 analyses here too.
 :::
 
-**Key analysis of interest.** The proportion of participants choosing the risky program is
-higher in the loss frame than in the gain frame, tested with a chi-square test of independence
-on the 2 × 2 table of frame by choice. The effect size is the difference in the proportion
-choosing the risky program (loss minus gain), with a 95% confidence interval.
+**Key analysis of interest.** 
 
-**Exclusions.** Participants are excluded if they did not complete the study, if they answered
-no speeded trial at all (every lexical-decision trial timed out, the signature of a device
-without a keyboard), or if they answered fewer than 6 of the 8 lexical-decision trials
-correctly.
+We are interested in the difference between the percentage of risky choices chosen by each participant following rare and common tone sequence (% risky choice with rare - % risky choice with common ), we tested this using 2-sided Wilcoxon rank test against 0.
+
+
+
+
+**Exclusions.** 
+We excluded participants who failed the headphone (sound) check or didn't complete the study.
+
+
 
 ### Differences from the original study
 
-::: {.callout-tip icon=false}
-## Guidance
-
-Every known difference in sample, setting, procedure, materials, and analysis, one per row.
-Minimizing differences is the goal, but some always remain. For each one, say whether it is
-expected to matter, based on claims in the original article or later research on when the
-effect does and does not appear. The rows below are the demo's real differences and show the
-level of detail expected; replace them with yours.
-:::
 
 | Aspect | Original study | This replication | Expected to matter? |
 |---|---|---|---|
-| Sample | University students in Stanford and British Columbia classrooms | Adults recruited on Prolific | Possibly. Framing effects have been found in both student and general samples, but their size varies across populations. |
-| Setting | Paper questionnaire in class | Online, unsupervised, on the participant's own computer | Unlikely for a single vignette, though attention may be lower online. |
-| Wording | "an unusual Asian disease" | "an unusual disease" | Unlikely. The ethnonym is incidental to the manipulation and dated. |
-| Design | Between subjects: each participant saw one frame | Between subjects, randomly assigned | No. |
-| Response | Circle a program on paper | Click a button | Unlikely. |
-| Other tasks | Problems presented alongside other questionnaire items | Followed by a short lexical-decision task used as an attention check | Unlikely: the check comes after the choice. |
+| Sample | Adults recruited on Prolific (18+, fluent in English)| Adults recruited on Prolific  (18+, fluent in English, based in US ) | No. |
+| Platform | Gorilla | JsPsych | No. |
+| Headphone Check |6 trials played once  (min. 5 correct to pass), | 2 trials with replay allowed (2/2 correct to pass) | Unlikely, participants who didn't use headphone failed the headphone-check despite allowing replay |
+|Sample size | 200  | 120 | Unlikely, with N=120 the power is 80% at the original effect (acceptable level)|
+| Other tasks | PHQ-8 / GAD Questionnaires Included  | PHQ-8 / GAD Questionnaires Removed | No. |
 
 ### Methods addendum (post data collection)
 
