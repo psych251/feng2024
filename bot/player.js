@@ -24,7 +24,10 @@
 (function () {
   "use strict";
   const P = new URLSearchParams(location.search);
-  const BOT = (window.FENG_BOTS || []).find((b) => b.key === (P.get("bot") || "b01"));
+  const KEY = P.get("bot") || "b01";
+  // Simple strategy bots come from bots.js; model bots ("m:<name>") are loaded from model_bots.json.
+  let BOT = (window.FENG_BOTS || []).find((b) => b.key === KEY) || null;
+  const PERSONA = Math.max(0, Number(P.get("persona")) || 0);
   const SEED = Math.max(1, Number(P.get("seed")) || 1);
   const RUN = P.get("run") || "solo";
   const SAVE = P.get("save") === "1";
@@ -34,9 +37,9 @@
   // One write for all trials (lite reads chunk_size from the address).
   if (!P.has("chunk_size")) { P.set("chunk_size", String(BOT_CHUNK)); history.replaceState(null, "", "?" + P.toString()); }
   const parentWin = window.parent !== window ? window.parent : null;
-  const SLOT = P.get("slot") || (BOT && BOT.key);   // which lane on the page (two players can share a strategy)
+  const SLOT = P.get("slot") || KEY;   // which lane on the page (two players can share a strategy)
   const MODE = P.get("mode") || "solo";              // participants | tournament | solo
-  const send = (msg) => { if (parentWin) parentWin.postMessage(Object.assign({ source: "feng-bot", run: RUN, bot: BOT && BOT.key, slot: SLOT }, msg), location.origin); };
+  const send = (msg) => { if (parentWin) parentWin.postMessage(Object.assign({ source: "feng-bot", run: RUN, bot: KEY, slot: SLOT }, msg), location.origin); };
 
   // ---------------------------------------------------------------------------
   // 1. Hooks
@@ -210,8 +213,8 @@
   }
 
   // Strategy state
-  const st = { tested: 0, edge: 0, verdict: null, endMove: null, atCheck: null, median: null, pending: null };
-  const rng = mk(h(SEED, 77, Number(BOT.key.slice(1))));
+  const st = { tested: 0, edge: 0, verdict: null, endMove: null, atCheck: null, median: null, pending: null, prevS: 0 };
+  const rng = mk(h(SEED, 77, [...KEY].reduce((a, c) => (Math.imul(a, 31) + c.charCodeAt(0)) >>> 0, 7)));
   const decisions = [];
   let medianWaiter = null;
   window.addEventListener("message", (e) => {
@@ -219,7 +222,39 @@
     if (e.data.type === "median" && medianWaiter) { medianWaiter(e.data.value); medianWaiter = null; }
   });
 
+  // A fitted model as a bot: the model's own P(gamble), sampled with this bot's random stream.
+  const sigm = (x) => 1 / (1 + Math.exp(-x));
+  function modelP(o) {
+    const M = BOT.model, q = BOT.persona, r = o.heardRare ? 1 : 0, s = o.prevS, C = o.certain, G = o.win, L = o.loss;
+    let eta;
+    if (M.kind === "mle") {                      // Feng & Rutledge's per-person model
+      const U = (x) => (x > 0 ? Math.pow(x, q["a+"]) : x < 0 ? -q.lambda * Math.pow(-x, q["a-"]) : 0);
+      eta = q.mu * (0.5 * U(G) + 0.5 * U(L) - U(C)) + (q.persev + q.d_persev * r) * s + q.bias + q.d_bias * r;
+    } else if (M.kind === "c") {                 // Peterson transfer model: network value of this problem + person terms
+      const v = M.values[`${C}|${G}|${L}`];
+      if (v === undefined) throw new Error("problem " + `${C}|${G}|${L}` + " is not in " + M.name + "'s table");
+      eta = v + q.bias + q.d_bias * r + (q.persev + q.d_persev * r) * s;
+    } else {                                     // hierarchical models (B-Hier, A, A2, A-lin)
+      if (M.spec === "A-lin") {
+        const g = (0.5 * G - Math.max(C, 0)) / 50, l = (0.5 * L - Math.min(C, 0)) / 50;
+        eta = q.bias + q.aG * g + q.aL * l + (q.persev + q.d_persev * r) * s + q.d_bias * r;
+      } else {
+        const U = (x) => (x > 0 ? 50 * Math.pow(x / 50, q.a_p) : x < 0 ? -q.lam * 50 * Math.pow(-x / 50, q.a_m) : 0);
+        const mu = q.mu_slope !== undefined ? q.mu * Math.exp(q.mu_slope * (o.trial - 60.5) / 120) : q.mu;
+        eta = mu * (0.5 * U(G) + 0.5 * U(L) - U(C)) + (q.persev + q.d_persev * r) * s + q.bias + q.d_bias * r;
+      }
+      if (q.ahead !== undefined) {
+        const ah = Math.max(0, o.points - 500) / 100, be = Math.max(0, 500 - o.points) / 100;
+        eta += q.ahead * (ah - M.centring[0]) + q.behind * (be - M.centring[1]) + q.side * o.side;
+      }
+    }
+    let p = sigm(eta);
+    if (q.lapse !== undefined) p = q.lapse / 2 + (1 - q.lapse) * p;
+    return Math.min(1 - 1e-6, Math.max(1e-6, p));
+  }
+
   function decide(k, o) {
+    if (BOT.kind === "model") { const p = modelP({ ...o, trial: k }); return { risky: rng() < p, why: "model", p }; }
     const ev = 0.5 * o.win + 0.5 * o.loss;
     if (k > CHECK_AT && st.endMove) return { risky: st.endMove === "chase", why: st.endMove };
     if (BOT.base === "aggressive") return { risky: true, why: "aggressive" };
@@ -254,11 +289,14 @@
         if ((BOT.end === "chase" || BOT.end === "both") && o.points < st.median) st.endMove = "chase";
       }
     }
+    o.side = scr.dataset.riskySide === "left" ? 1 : -1;   // gamble on the left key = Feng's key "1"
+    o.prevS = st.prevS;
     const d = decide(k, o);
+    st.prevS = d.risky ? 1 : -1;
     if (d.why === "sound-test") { st.tested++; st.pending = { pointsBefore: o.points, certain: o.certain }; }
     const riskySide = scr.dataset.riskySide;
     const side = d.risky ? riskySide : (riskySide === "left" ? "right" : "left");
-    lastDecision = { trial_number: k, heard_tones: six.length, heard_rare: o.heardRare, heard_deviant: o.heardDeviant, why: d.why };
+    lastDecision = { trial_number: k, heard_tones: six.length, heard_rare: o.heardRare, heard_deviant: o.heardDeviant, why: d.why, p_model: d.p === undefined ? null : d.p };
     decisions.push(lastDecision);
     send({ type: "trial", trial: k, points: o.points, heard: o.heardRare ? o.heardDeviant : "A", risky: d.risky, why: d.why, end_move: st.endMove, median: st.median });
     const before = where();
@@ -310,10 +348,21 @@
     send({ type: "done", saved, rows, decisions, coins, checks, state: { at_check: st.atCheck, median: st.median, end_move: st.endMove, sound_edge: BOT.sound ? st.edge : null, sound_verdict: BOT.sound ? st.verdict : null } });
   }
 
-  if (!BOT) { document.addEventListener("DOMContentLoaded", () => fail('unknown bot "' + P.get("bot") + '"')); return; }
-  document.title = BOT.name + " (seed " + SEED + ")";
+  async function resolveBot() {
+    if (BOT) return;
+    if (!KEY.startsWith("m:")) throw new Error('unknown bot "' + KEY + '"');
+    const res = await fetch("model_bots.json", { cache: "no-cache" });
+    if (!res.ok) throw new Error("model_bots.json not found next to play.html (run export_bots.py and copy it into bot/)");
+    const lib = await res.json();
+    const model = lib.models.find((m) => m.key === KEY);
+    if (!model) throw new Error('no model "' + KEY + '" in model_bots.json');
+    BOT = { key: KEY, name: model.name, kind: "model", base: "model", sound: false, end: "none", model,
+            persona: model.personas[PERSONA % model.personas.length] };
+  }
   document.addEventListener("DOMContentLoaded", async () => {
     try {
+      await resolveBot();
+      document.title = BOT.name + " (seed " + SEED + ")";
       await loadLite();
       await drive();
     } catch (e) {

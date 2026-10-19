@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Battle of the bots on the lite experiment</title>
+  <link rel="icon" href="data:,">
+  <!-- Battle of the bots: any mix of model bots (model_bots.json, from export_bots.py) and the simple strategy
+       bots play the real lite experiment side by side (bot/play.html). No Firebase: nothing is saved. -->
+  <script src="bots.js"></script>
+  <style>
+    :root {
+      --paper: #f6f8fb; --panel: #ffffff; --ink: #1a2433; --muted: #5b687a; --rule: #d6dce4;
+      --tone-a: #93a1b3; --tone-b: #6a47d1; --tone-c: #0d7a83;
+      --gain: #2c7a4b; --loss: #b3261e; --track: #e7ebf0; --fill: #3d5a80; --mark: #1a2433;
+      --focus: #6a47d1;
+      color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #141a23; --panel: #1b2330; --ink: #e6ebf2; --muted: #9aa7b8; --rule: #2d3848;
+        --tone-a: #6f7d90; --tone-b: #a48cf0; --tone-c: #3fb8c2;
+        --gain: #6cc28e; --loss: #f08a80; --track: #263042; --fill: #7f9cc4; --mark: #e6ebf2;
+        --focus: #a48cf0;
+        color-scheme: dark;
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink);
+      font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    main { max-width: 1040px; margin: 0 auto; padding: 32px 20px 64px; }
+    h1 { font-size: 30px; line-height: 1.15; margin: 0 0 10px; letter-spacing: -0.01em; font-weight: 700; }
+    h2 { font-size: 19px; margin: 36px 0 10px; font-weight: 650; }
+    p { margin: 0 0 10px; max-width: 70ch; }
+    .lede { color: var(--muted); font-size: 17px; }
+    .safe { border-left: 4px solid var(--tone-c); padding: 6px 12px; background: var(--panel); }
+    .controls { display: flex; flex-wrap: wrap; gap: 14px 18px; align-items: end; margin-top: 24px;
+      padding: 16px; background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; }
+    label { display: grid; gap: 4px; font-size: 14px; color: var(--muted); }
+    input, select { font: inherit; color: var(--ink); background: var(--paper); border: 1px solid var(--rule);
+      border-radius: 6px; padding: 6px 8px; min-width: 0; }
+    input[type=number] { width: 7em; }
+    button { font: inherit; font-weight: 600; border-radius: 6px; padding: 7px 16px; cursor: pointer;
+      border: 1px solid var(--ink); background: var(--ink); color: var(--paper); }
+    button.quiet { background: transparent; color: var(--ink); }
+    button:disabled { opacity: 0.45; cursor: default; }
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+    #status, #estimate { flex-basis: 100%; margin: 4px 0 0; font-variant-numeric: tabular-nums; }
+    #estimate { margin: 0; }
+    #estimate.warn { color: var(--loss); }
+    label.check { align-self: center; color: var(--ink); font-size: 15px; }
+    label.check input { width: 18px; height: 18px; vertical-align: -3px; margin: 0 6px 0 0; accent-color: var(--tone-c); }
+    code { font: 0.92em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    #status.warn { color: var(--loss); font-weight: 600; }
+
+    /* The race: one lane per bot */
+    .lanes { display: grid; gap: 2px; margin-top: 6px; }
+    .lane { display: grid; grid-template-columns: minmax(150px, 15rem) 58px 1fr 4.2rem minmax(120px, 11rem);
+      align-items: center; gap: 12px; padding: 5px 0; border-bottom: 1px solid var(--rule); font-size: 14px; }
+    .lane .name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tones { display: flex; align-items: flex-end; gap: 3px; height: 22px; }
+    .tones i { display: block; width: 6px; height: 11px; border-radius: 2px; background: var(--tone-a); }
+    .tones i.B { height: 22px; background: var(--tone-b); }
+    .tones i.C { height: 4px; background: var(--tone-c); }
+    .track { position: relative; height: 12px; background: var(--track); border-radius: 6px; overflow: hidden; }
+    .track .fill { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--fill); border-radius: 6px; transition: width 120ms linear; }
+    .track .start, .track .median { position: absolute; top: -2px; bottom: -2px; width: 2px; }
+    .track .start { background: var(--muted); opacity: 0.5; }
+    .track .median { background: var(--mark); display: none; }
+    .lane .pts { text-align: right; font-variant-numeric: tabular-nums; font-weight: 650; }
+    .lane .last { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lane.failed .name, .lane.failed .last { color: var(--loss); }
+    .lane .pnum { color: var(--muted); font-weight: 500; font-variant-numeric: tabular-nums; margin-right: 6px; }
+    .lane .last b { color: var(--ink); font-weight: 600; }
+    .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--muted); font-size: 13px; margin-top: 10px; }
+    .legend .tones { height: 16px; }
+    .legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+    .table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 10px; background: var(--panel); }
+    table { border-collapse: collapse; width: 100%; font-size: 14px; font-variant-numeric: tabular-nums; }
+    th, td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+    th:first-child, td:first-child { text-align: left; }
+    th { font-weight: 600; color: var(--muted); vertical-align: bottom; white-space: normal; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .note { color: var(--muted); font-size: 14px; }
+    .checks p { margin: 0 0 4px; font-size: 14px; }
+    .ok { color: var(--gain); font-weight: 600; }
+    .bad { color: var(--loss); font-weight: 600; }
+    .downloads { display: flex; flex-wrap: wrap; gap: 10px; }
+
+    details { margin-top: 36px; }
+    summary { cursor: pointer; font-weight: 650; font-size: 19px; }
+    #screens { display: grid; grid-template-columns: repeat(auto-fill, 200px); gap: 14px; margin-top: 14px; }
+    .screen { margin: 0; }
+    .screen .frame { width: 200px; height: 140px; overflow: hidden; border: 1px solid var(--rule); border-radius: 6px; background: #fff; }
+    .screen iframe { width: 1000px; height: 700px; border: 0; transform: scale(0.2); transform-origin: 0 0; pointer-events: none; }
+    .screen figcaption { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    @media (max-width: 720px) {
+      .lane { grid-template-columns: 1fr 58px 3.6rem; grid-template-areas: "name tones pts" "track track track" "last last last"; row-gap: 4px; }
+      .lane .name { grid-area: name; } .lane .tones { grid-area: tones; } .lane .pts { grid-area: pts; }
+      .lane .track { grid-area: track; } .lane .last { grid-area: last; }
+      h1 { font-size: 25px; }
+    }
+    .picker { margin-top: 18px; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .group { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 12px 14px; }
+    .group h3 { margin: 0 0 6px; font-size: 15px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+    .group h3 span { font-weight: 400; font-size: 13px; color: var(--muted); }
+    .group .links button { padding: 2px 8px; font-size: 13px; font-weight: 500; margin-left: 4px; }
+    .group label.pick { display: flex; flex-direction: row; align-items: center; gap: 8px; color: var(--ink); font-size: 14px; padding: 2px 0; }
+    .group label.pick input { width: 16px; height: 16px; accent-color: var(--tone-c); }
+    .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+    tr.human td { font-style: italic; background: var(--paper); }
+    @media (prefers-reduced-motion: reduce) { .track .fill { transition: none; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Battle of the bots on the lite experiment</h1>
+  <p class="lede">Pick any mix of model bots (each fitted to Feng &amp; Rutledge’s participants) and simple strategy bots. In every game all of them play the real lite task side by side, with the same trials and the same coin flips. Bots hear the tones; they never read which trials are rare.</p>
+  <p class="safe">Nothing on this page is saved anywhere: it never loads Firebase. Results stay in this tab until you download them.</p>
+
+  <div id="pick-msg" class="note"></div>
+  <div class="picker" id="picker"></div>
+
+  <div class="controls">
+    <label>Games <input id="games" type="number" min="1" max="500" value="20"></label>
+    <label>First game <input id="first" type="number" min="1" value="1"></label>
+    <p class="note" style="align-self:center;margin:0" id="picked-count"></p>
+    <button id="all" type="button" class="quiet">Select all</button>
+    <button id="none" type="button" class="quiet">Select none</button>
+    <button id="start" type="button">Start</button>
+    <button id="stop" type="button" class="quiet" disabled>Stop after this game</button>
+    <p id="status" aria-live="polite">Pick at least two contestants. Keep this tab visible while it runs; browsers slow down background tabs.</p>
+  </div>
+
+  <h2 id="race-title">Playing now</h2>
+  <div class="lanes" id="lanes"></div>
+  <div class="legend">
+    <span><span class="tones" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>common sequence</span>
+    <span><span class="tones" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i class="B"></i></span>rare, high last tone</span>
+    <span><span class="tones" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i class="C"></i></span>rare, low last tone</span>
+    <span>Dark line on a track: the trial-90 target (median of everyone playing)</span>
+  </div>
+
+  <h2>Scoreboard 1: points</h2>
+  <p class="note" id="points-note">Appears after the first game.</p>
+  <div class="table-wrap"><table id="points"></table></div>
+
+  <h2>Scoreboard 2: how human is each bot?</h2>
+  <p class="note" id="human-note">Each bot’s behaviour over all its games, against Feng &amp; Rutledge’s 200 participants. Distance = the average gap on 12 behavioural features (gambling by trial type and tone, rare effect, stay rates, choices after a win, loss or safe choice), in units of the humans’ spread; lower is more human. The classifier Turing test is in the notebook (section 11c).</p>
+  <div class="table-wrap"><table id="human"></table></div>
+
+  <h2>Checks</h2>
+  <div class="checks" id="checks"><p class="note">Every game is checked: the same trials and coin flips for every bot, correct hearing and correct points.</p></div>
+
+  <h2>Download</h2>
+  <div class="downloads">
+    <button type="button" class="quiet" data-dl="scoreboard" disabled>Both scoreboards (CSV)</button>
+    <button type="button" class="quiet" data-dl="games" disabled>One row per bot per game (CSV)</button>
+    <button type="button" class="quiet" data-dl="trials" disabled>Every choice (CSV)</button>
+  </div>
+
+  <details id="screens-box">
+    <summary>Watch the bots’ screens</summary>
+    <div id="screens"></div>
+  </details>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  const SIMPLE = window.FENG_BOTS;
+  const RUN_TIMEOUT_MS = 6 * 60 * 1000;
+  const $ = (s) => document.querySelector(s);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };
+  const COLORS = { B: "#3d5a80", A: "#0d7a83", C: "#7a5bd6", S: "#9aa6b4" };
+  const GROUPS = [["B", "Feng & Rutledge’s model"], ["A", "Strategy models (A)"], ["C", "Peterson models (C)"], ["S", "Simple strategy bots"]];
+  let LIB = null, ALL = [];                // every contestant: {key, name, family, personas}
+  const results = [];                      // one entry per bot per game
+  const freshChecks = () => ({ games: 0, sessions: 0, okSessions: 0, sameGame: 0, sharedCoins: 0, coinSessions: 0, hearing: [0, 0], pointsOk: 0, pageErrors: 0 });
+  let checks = freshChecks(), running = false, stopAsked = false, unsaved = false;
+  const durations = [];
+  const hash = (...xs) => xs.reduce((a, x) => Math.imul(a ^ (x >>> 0), 2654435761) >>> 0, 2166136261);
+  const strHash = (s) => [...s].reduce((a, c) => (Math.imul(a, 31) + c.charCodeAt(0)) >>> 0, 7);
+
+  // ---------------------------------------------------------------------------
+  // Contestant picker
+  // ---------------------------------------------------------------------------
+  function buildPicker() {
+    const box = $("#picker"); box.innerHTML = "";
+    for (const [fam, title] of GROUPS) {
+      const items = ALL.filter((c) => c.family === fam);
+      if (!items.length) continue;
+      const g = el("div", "group");
+      const h = el("h3"); h.append(el("span", "", "")); h.firstChild.remove();
+      const t = el("strong"); const dot = el("span", "dot"); dot.style.background = COLORS[fam]; t.append(dot, title);
+      const links = el("span", "links"); const a = el("button", "quiet", "all"), n = el("button", "quiet", "none");
+      a.type = n.type = "button"; links.append(a, n);
+      h.append(t, links); g.appendChild(h);
+      for (const c of items) {
+        const lab = el("label", "pick"); const cb = document.createElement("input");
+        cb.type = "checkbox"; cb.value = c.key; cb.checked = fam !== "C" || c.name.includes("fine-tune") || c.name === "C1 EV";
+        cb.addEventListener("change", countPicked);
+        lab.append(cb, c.name); g.appendChild(lab);
+      }
+      a.addEventListener("click", () => { g.querySelectorAll("input").forEach((x) => (x.checked = true)); countPicked(); });
+      n.addEventListener("click", () => { g.querySelectorAll("input").forEach((x) => (x.checked = false)); countPicked(); });
+      box.appendChild(g);
+    }
+    countPicked();
+  }
+  const picked = () => [...document.querySelectorAll("#picker input:checked")].map((x) => ALL.find((c) => c.key === x.value));
+  function countPicked() {
+    const n = picked().length;
+    $("#picked-count").textContent = `${n} of ${ALL.length} bots picked` + (n > 16 ? " (many bots at once can be slow on some laptops)" : "");
+  }
+  $("#all").addEventListener("click", () => { document.querySelectorAll("#picker input").forEach((x) => (x.checked = true)); countPicked(); });
+  $("#none").addEventListener("click", () => { document.querySelectorAll("#picker input").forEach((x) => (x.checked = false)); countPicked(); });
+
+  // ---------------------------------------------------------------------------
+  // Lanes
+  // ---------------------------------------------------------------------------
+  const lanes = {}; let scale = 2400;
+  function buildLanes(players) {
+    const box = $("#lanes"); box.innerHTML = ""; for (const k in lanes) delete lanes[k];
+    for (const p of players) {
+      const lane = el("div", "lane"); const name = el("span", "name");
+      const dot = el("span", "dot"); dot.style.background = COLORS[p.bot.family]; name.append(dot, p.bot.name); name.title = p.bot.name;
+      const tones = el("span", "tones"); tones.setAttribute("aria-hidden", "true"); for (let i = 0; i < 6; i++) tones.appendChild(el("i"));
+      const track = el("span", "track"); const fill = el("span", "fill"), start = el("span", "start"), median = el("span", "median");
+      track.append(fill, start, median);
+      const pts = el("span", "pts", "500"), last = el("span", "last", "waiting");
+      lane.append(name, tones, track, pts, last); box.appendChild(lane);
+      lanes[p.slot] = { lane, tones, fill, start, median, pts, last, points: 500 };
+    }
+    redrawScale();
+  }
+  function redrawScale() { for (const k in lanes) { const L = lanes[k]; L.fill.style.width = Math.max(0, Math.min(100, (100 * L.points) / scale)) + "%"; L.start.style.left = (100 * 500) / scale + "%"; } }
+  function laneUpdate(slot, d) {
+    const L = lanes[slot]; if (!L) return;
+    L.points = d.points;
+    if (d.points * 1.08 > scale) { scale = Math.ceil((d.points * 1.25) / 100) * 100; redrawScale(); } else L.fill.style.width = Math.max(0, (100 * d.points) / scale) + "%";
+    L.pts.textContent = d.points;
+    L.tones.children[5].className = d.heard === "B" ? "B" : d.heard === "C" ? "C" : "";
+    const move = d.end_move === "lock" ? " (locked in)" : d.end_move === "chase" ? " (chasing)" : d.why === "sound-test" ? " (testing the sound)" : d.why === "sound-keep" ? " (sound rule)" : "";
+    L.last.innerHTML = ""; L.last.append("Trial " + d.trial + ": ", el("b", "", d.risky ? "gamble" : "safe"), move);
+  }
+  function showMedian(m) { for (const k in lanes) { const L = lanes[k]; if (m === null || m === undefined) { L.median.style.display = "none"; continue; } L.median.style.display = "block"; L.median.style.left = Math.max(0, Math.min(100, (100 * m) / scale)) + "%"; } }
+
+  // ---------------------------------------------------------------------------
+  // One game: every picked bot, the same seed
+  // ---------------------------------------------------------------------------
+  function runGame(seed, bots) {
+    const run = seed + "-" + Date.now().toString(36);
+    const players = bots.map((b) => ({ slot: b.key, bot: b, persona: b.personas ? hash(seed, strHash(b.key)) % b.personas : null }));
+    buildLanes(players); showMedian(null);
+    const screens = $("#screens"); screens.innerHTML = ""; const frames = {};
+    for (const p of players) {
+      const fig = el("figure", "screen"), frame = el("div", "frame"), f = document.createElement("iframe");
+      f.title = p.bot.name;
+      const params = { bot: p.bot.key, seed, run, target: "all", slot: p.slot, mode: "battle" };
+      if (p.persona !== null) params.persona = p.persona;
+      f.src = "play.html?" + new URLSearchParams(params);
+      frame.appendChild(f); fig.append(frame, el("figcaption", "", p.bot.name)); screens.appendChild(fig); frames[p.slot] = f;
+    }
+    return new Promise((resolve) => {
+      const out = {}, arrived = new Map(), dropped = new Set(); let median = null, released = false;
+      const counted = players.map((p) => p.slot);
+      const tell = (slot) => { const w = frames[slot].contentWindow; if (w) w.postMessage({ source: "feng-tournament", run, type: "median", value: median }, location.origin); };
+      const release = () => {
+        if (released) return;
+        const need = counted.filter((k) => !dropped.has(k)); if (!need.every((k) => arrived.has(k))) return;
+        const v = need.map((k) => arrived.get(k)).sort((a, b) => a - b);
+        median = v.length ? (v.length % 2 ? v[(v.length - 1) / 2] : (v[v.length / 2 - 1] + v[v.length / 2]) / 2) : null;
+        released = true; showMedian(median); for (const slot of arrived.keys()) tell(slot);
+      };
+      const finish = () => { if (Object.keys(out).length < players.length) return; window.removeEventListener("message", onMsg); clearTimeout(timer); resolve({ players, out, median }); };
+      const failSlot = (slot, error) => {
+        if (out[slot]) return; out[slot] = { ok: false, error };
+        if (lanes[slot]) { lanes[slot].lane.classList.add("failed"); lanes[slot].last.textContent = "Stopped: " + error; }
+        if (!arrived.has(slot)) { dropped.add(slot); release(); }
+      };
+      const onMsg = (e) => {
+        const d = e.data;
+        if (e.origin !== location.origin || !d || d.source !== "feng-bot" || d.run !== run || !frames[d.slot]) return;
+        if (d.type === "trial") laneUpdate(d.slot, d);
+        else if (d.type === "checkpoint") { arrived.set(d.slot, d.points); if (released) tell(d.slot); else release(); }
+        else if (d.type === "page_error") checks.pageErrors++;
+        else if (d.type === "failed") { failSlot(d.slot, d.error); finish(); }
+        else if (d.type === "done") { out[d.slot] = Object.assign({ ok: true }, d); if (lanes[d.slot]) lanes[d.slot].last.textContent = "Finished"; finish(); }
+      };
+      window.addEventListener("message", onMsg);
+      const timer = setTimeout(() => { for (const p of players) failSlot(p.slot, "took longer than 6 minutes"); finish(); }, RUN_TIMEOUT_MS);
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Features (must match export_bots.py human_features)
+  // ---------------------------------------------------------------------------
+  const FEATS = ["gain_common", "gain_rare", "mixed_common", "mixed_rare", "loss_common", "loss_rare", "rare_effect", "stay_common", "stay_rare", "after_win", "after_loss", "after_safe"];
+  const FEAT_LABEL = { gain_common: "gain, common", gain_rare: "gain, rare", mixed_common: "mixed, common", mixed_rare: "mixed, rare", loss_common: "loss, common", loss_rare: "loss, rare",
+    rare_effect: "rare effect", stay_common: "stay, common", stay_rare: "stay, rare", after_win: "after a win", after_loss: "after a loss", after_safe: "after a safe choice" };
+  const mean = (a) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : NaN);
+  function featuresOf(rows) {
+    const y = rows.map((r) => (r.chose_risky ? 1 : 0)), rare = rows.map((r) => !!r.rare), typ = rows.map((r) => r.option_type);
+    const f = {};
+    for (const t of ["gain", "mixed", "loss"]) for (const [rr, lab] of [[false, "common"], [true, "rare"]]) f[`${t}_${lab}`] = mean(y.filter((_, i) => typ[i] === t && rare[i] === rr));
+    f.rare_effect = mean(y.filter((_, i) => rare[i])) - mean(y.filter((_, i) => !rare[i]));
+    const stayC = [], stayR = [], win = [], loss = [], safe = [];
+    for (let i = 1; i < y.length; i++) {
+      (rare[i] ? stayR : stayC).push(y[i] === y[i - 1] ? 1 : 0);
+      if (y[i - 1] === 1) (rows[i - 1].outcome === rows[i - 1].gamble_win ? win : loss).push(y[i]); else safe.push(y[i]);
+    }
+    f.stay_common = mean(stayC); f.stay_rare = mean(stayR); f.after_win = mean(win); f.after_loss = mean(loss); f.after_safe = mean(safe);
+    return f;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Bookkeeping after each game
+  // ---------------------------------------------------------------------------
+  const GAME_COLS = ["option_type", "certain", "gamble_win", "gamble_loss", "sequence", "risky_side"];
+  function recordGame(seed, { players, out, median }) {
+    const ok = players.filter((p) => out[p.slot].ok && out[p.slot].rows.length === 120);
+    checks.games++; checks.sessions += players.length; checks.okSessions += ok.length;
+    for (const p of ok) {
+      const o = out[p.slot]; let pts = 500, coinsOk = true, pointsOk = true;
+      o.rows.forEach((r, i) => {
+        if (r.points_before !== pts || r.points_after !== pts + r.outcome) pointsOk = false;
+        pts = r.points_after;
+        if (r.chose_risky && r.gamble_won !== (o.coins[r.trial_number] < 0.5 ? 1 : 0)) coinsOk = false;
+        checks.hearing[1]++; const d = o.decisions[i];
+        if (d && d.heard_rare === r.rare && (!r.rare || d.heard_deviant === r.deviant)) checks.hearing[0]++;
+      });
+      if (coinsOk) checks.coinSessions++; if (pointsOk) checks.pointsOk++;
+    }
+    if (ok.length) {
+      const ref = out[ok[0].slot].rows; let same = true, shared = true;
+      for (let i = 0; i < ref.length; i++) {
+        const won = new Set();
+        for (const p of ok) { const r = out[p.slot].rows[i]; if (GAME_COLS.some((c) => r[c] !== ref[i][c])) same = false; if (r.chose_risky) won.add(r.gamble_won); }
+        if (won.size > 1) shared = false;
+      }
+      if (same) checks.sameGame++; if (shared) checks.sharedCoins++;
+    }
+    const finals = ok.map((p) => out[p.slot].rows.at(-1).points_after);
+    const best = finals.length ? Math.max(...finals) : null, nBest = finals.filter((f) => f === best).length;
+    for (const p of players) {
+      const o = out[p.slot];
+      const base = { seed, key: p.bot.key, name: p.bot.name, family: p.bot.family, persona: p.persona };
+      if (!o.ok || o.rows.length !== 120) { results.push(Object.assign(base, { ok: false, error: o.error || "incomplete" })); continue; }
+      const fin = o.rows.at(-1).points_after;
+      results.push(Object.assign(base, { ok: true, final: fin, rank: 1 + finals.filter((f) => f > fin).length, win: fin === best ? 1 / nBest : 0,
+        median, gamble: mean(o.rows.map((r) => r.chose_risky)), feats: featuresOf(o.rows), rows: o.rows, decisions: o.decisions }));
+    }
+    unsaved = true; document.querySelectorAll("[data-dl]").forEach((b) => (b.disabled = false));
+    renderBoards(); renderChecks();
+  }
+
+  const sd = (a) => { if (a.length < 2) return 0; const m = mean(a); return Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / (a.length - 1)); };
+  const r1 = (x) => Math.round(x * 10) / 10;
+  const pp = (x) => (Number.isFinite(x) ? (x >= 0 ? "+" : "\u2212") + Math.abs(x * 100).toFixed(1) : "");
+  function boards() {
+    const H = LIB.humans.features;
+    return ALL.map((b) => {
+      const rs = results.filter((r) => r.key === b.key && r.ok); if (!rs.length) return null;
+      const f = rs.map((r) => r.final);
+      const fm = {}; for (const k of FEATS) fm[k] = mean(rs.map((r) => r.feats[k]).filter(Number.isFinite));
+      const gaps = FEATS.map((k) => [k, Math.abs(fm[k] - H[k].mean) / H[k].sd]).filter((x) => Number.isFinite(x[1]));
+      const worst = gaps.reduce((a, x) => (x[1] > a[1] ? x : a), ["", -1]);
+      return { bot: b.name, family: b.family, games: rs.length, mean_points: mean(f), sem_points: sd(f) / Math.sqrt(f.length),
+        mean_rank: mean(rs.map((r) => r.rank)), wins: rs.reduce((s, r) => s + r.win, 0), gamble_pct: mean(rs.map((r) => r.gamble)) * 100,
+        rare_effect_pp: fm.rare_effect * 100, stay_rare_minus_common_pp: (fm.stay_rare - fm.stay_common) * 100,
+        distance_from_humans: mean(gaps.map((x) => x[1])), worst_feature: FEAT_LABEL[worst[0]] || "" , feats: fm };
+    }).filter(Boolean);
+  }
+  function renderBoards() {
+    const B = boards(), n = new Set(results.filter((r) => r.ok).map((r) => r.seed)).size;
+    $("#points-note").textContent = `${n} game${n === 1 ? "" : "s"} so far. Ties for first share the win.`;
+    const t = $("#points");
+    t.innerHTML = "<thead><tr><th>Bot</th><th>Games</th><th>Mean points</th><th>&plusmn; SEM</th><th>Mean rank</th><th>Wins</th><th>Gambles</th></tr></thead>";
+    const tb = el("tbody");
+    for (const r of [...B].sort((a, b) => b.mean_points - a.mean_points)) {
+      const tr = el("tr"); const td0 = el("td"); const dot = el("span", "dot"); dot.style.background = COLORS[r.family]; td0.append(dot, r.bot); tr.appendChild(td0);
+      [r.games, r.mean_points.toFixed(1), r.sem_points.toFixed(1), r.mean_rank.toFixed(2), r1(r.wins), r.gamble_pct.toFixed(1) + "%"].forEach((v) => tr.appendChild(el("td", "", String(v))));
+      tb.appendChild(tr);
+    }
+    t.appendChild(tb);
+    const h = $("#human"), H = LIB.humans.features;
+    h.innerHTML = "<thead><tr><th>Bot</th><th>Distance from humans</th><th>Least human feature</th><th>Rare effect</th><th>Stay, rare minus common</th><th>Gain trials</th><th>Loss trials</th></tr></thead>";
+    const hb = el("tbody");
+    const hr = el("tr", "human");
+    [`Humans (Feng & Rutledge, n = ${LIB.humans.n})`, "0", "", pp(H.rare_effect.mean) + " pp", pp(H.stay_rare.mean - H.stay_common.mean) + " pp",
+      (((H.gain_common.mean + H.gain_rare.mean) / 2) * 100).toFixed(1) + "%", (((H.loss_common.mean + H.loss_rare.mean) / 2) * 100).toFixed(1) + "%"].forEach((v) => hr.appendChild(el("td", "", v)));
+    hb.appendChild(hr);
+    for (const r of [...B].sort((a, b) => a.distance_from_humans - b.distance_from_humans)) {
+      const tr = el("tr"); const td0 = el("td"); const dot = el("span", "dot"); dot.style.background = COLORS[r.family]; td0.append(dot, r.bot); tr.appendChild(td0);
+      [r.distance_from_humans.toFixed(2), r.worst_feature, pp(r.feats.rare_effect) + " pp", pp(r.feats.stay_rare - r.feats.stay_common) + " pp",
+        (((r.feats.gain_common + r.feats.gain_rare) / 2) * 100).toFixed(1) + "%", (((r.feats.loss_common + r.feats.loss_rare) / 2) * 100).toFixed(1) + "%"].forEach((v) => tr.appendChild(el("td", "", String(v))));
+      hb.appendChild(tr);
+    }
+    h.appendChild(hb);
+  }
+  function renderChecks() {
+    const box = $("#checks"); box.innerHTML = "";
+    const line = (good, text) => { const p = el("p"); p.append(el("span", good ? "ok" : "bad", good ? "Pass" : "Problem"), " " + text); box.appendChild(p); };
+    const c = checks, n = c.okSessions;
+    line(c.okSessions === c.sessions, `${c.okSessions} of ${c.sessions} bot games finished all 120 choices`);
+    line(c.sameGame === c.games, `${c.sameGame} of ${c.games} games gave every bot the same trials, amounts and rare positions`);
+    line(c.sharedCoins === c.games, `${c.sharedCoins} of ${c.games} games gave bots the same coin flip whenever they gambled on the same trial`);
+    line(c.coinSessions === n, `${c.coinSessions} of ${n} bot games had every gamble settled by its seeded coin flip`);
+    line(c.hearing[0] === c.hearing[1], `Bots heard common, high-rare and low-rare correctly on ${c.hearing[0]} of ${c.hearing[1]} trials`);
+    line(c.pointsOk === n, `${c.pointsOk} of ${n} bot games have correct points arithmetic`);
+    line(c.pageErrors === 0, `${c.pageErrors} errors on the experiment pages`);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Downloads
+  // ---------------------------------------------------------------------------
+  function csv(rows) {
+    const cols = []; for (const r of rows) for (const k of Object.keys(r)) if (!cols.includes(k)) cols.push(k);
+    const cell = (v) => { if (v === null || v === undefined) return ""; const s = String(v); return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+    return [cols.join(","), ...rows.map((r) => cols.map((c) => cell(r[c])).join(","))].join("\n") + "\n";
+  }
+  function download(kind) {
+    const seeds = results.map((r) => r.seed), base = `feng2024-bot-battle-games${Math.min(...seeds)}-${Math.max(...seeds)}`;
+    let rows;
+    if (kind === "scoreboard") rows = boards().map(({ feats, ...r }) => Object.assign(r, Object.fromEntries(FEATS.map((k) => ["feat_" + k, feats[k]]))));
+    else if (kind === "games") rows = results.map((r) => ({ game: r.seed, bot: r.name, bot_key: r.key, family: r.family, persona: r.persona, ok: r.ok, error: r.error || null,
+      final_points: r.final ?? null, rank: r.rank ?? null, win_share: r.win ?? null, target_at_90: r.median ?? null, gamble_pct: r.ok ? r1(r.gamble * 100) : null }));
+    else rows = results.filter((r) => r.ok).flatMap((r) => r.rows.map((t, i) => Object.assign({ game: r.seed, bot: r.name, family: r.family, persona: r.persona }, t,
+      { heard_rare: r.decisions[i] && r.decisions[i].heard_rare, decision_rule: r.decisions[i] && r.decisions[i].why, p_model: r.decisions[i] && r.decisions[i].p_model })));
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv(rows)], { type: "text/csv" })); a.download = `${base}-${kind}.csv`;
+    document.body.appendChild(a); a.click(); a.remove(); if (kind !== "scoreboard") unsaved = false;
+  }
+  document.querySelectorAll("[data-dl]").forEach((b) => b.addEventListener("click", () => download(b.dataset.dl)));
+
+  // ---------------------------------------------------------------------------
+  // Start / stop
+  // ---------------------------------------------------------------------------
+  const status = (text, warn) => { const s = $("#status"); s.textContent = text; s.classList.toggle("warn", !!warn); };
+  const fmtTime = (s) => (s >= 3600 ? Math.floor(s / 3600) + " h " + Math.round((s % 3600) / 60) + " min" : s >= 60 ? Math.round(s / 60) + " min" : Math.round(s) + " s");
+  $("#start").addEventListener("click", async () => {
+    if (running) return;
+    const bots = picked();
+    if (bots.length < 2) { status("Pick at least two contestants.", true); return; }
+    const n = Math.max(1, Math.min(500, Number($("#games").value) || 1)), first = Math.max(1, Number($("#first").value) || 1);
+    running = true; stopAsked = false;
+    $("#start").disabled = true; $("#stop").disabled = false;
+    ["#games", "#first", "#all", "#none"].forEach((s) => ($(s).disabled = true)); document.querySelectorAll("#picker input, #picker button").forEach((x) => (x.disabled = true));
+    for (let i = 0; i < n && !stopAsked; i++) {
+      const seed = first + i;
+      $("#race-title").textContent = `Game ${i + 1} of ${n} (seed ${seed}): ${bots.length} bots`;
+      const avg = durations.length ? mean(durations.slice(-5)) : null;
+      status(`Playing game ${i + 1} of ${n}.` + (avg ? ` About ${Math.round(avg)} s per game, roughly ${fmtTime(avg * (n - i))} left.` : ""));
+      const t0 = performance.now();
+      recordGame(seed, await runGame(seed, bots));
+      durations.push((performance.now() - t0) / 1000);
+      $("#first").value = seed + 1;
+    }
+    running = false; $("#start").disabled = false; $("#stop").disabled = true;
+    ["#games", "#first", "#all", "#none"].forEach((s) => ($(s).disabled = false)); document.querySelectorAll("#picker input, #picker button").forEach((x) => (x.disabled = false));
+    status(stopAsked ? "Stopped. Press Start to continue from the next game, or download the results." : "Finished. Download the results below; this page does not keep them after you close it.");
+  });
+  $("#stop").addEventListener("click", () => { stopAsked = true; $("#stop").disabled = true; status("Stopping after this game."); });
+  document.addEventListener("visibilitychange", () => { if (running && document.hidden) status("This tab is in the background, so the browser is slowing the bots down. Bring it back to the front.", true); });
+  window.addEventListener("beforeunload", (e) => { if (unsaved || running) { e.preventDefault(); e.returnValue = ""; } });
+
+  // ---------------------------------------------------------------------------
+  // Load the model bots
+  // ---------------------------------------------------------------------------
+  const simple = SIMPLE.map((b) => ({ key: b.key, name: b.name, family: "S", personas: null }));
+  fetch("model_bots.json", { cache: "no-cache" }).then((r) => (r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status)))).then((lib) => {
+    LIB = lib;
+    ALL = lib.models.map((m) => ({ key: m.key, name: m.name, family: m.family, personas: m.personas.length })).concat(simple);
+    $("#pick-msg").textContent = `${lib.models.length} model bots loaded from model_bots.json, plus ${simple.length} simple bots.`;
+    buildPicker();
+  }).catch((e) => {
+    LIB = { humans: { n: 0, features: {} } }; ALL = simple;
+    $("#pick-msg").textContent = "model_bots.json was not found next to this page, so only the simple bots are available. Run export_bots.py in the notebook and copy model_bots.json into the bot/ folder.";
+    buildPicker();
+  });
+})();
+</script>
+</body>
+</html>
