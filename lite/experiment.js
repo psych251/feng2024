@@ -46,7 +46,7 @@ const EXPERIMENT = {
   // Firestore path: experiments/<id>/participants/... New id for every phase so data never mix.
   // "lite" keeps this version's data apart from the main version's:
   // feng2024-lite-pilot-a -> feng2024-lite-pilot-b -> feng2024-lite-final.
-  id: "feng2024-lite-pilot-a",
+  id: "feng2024-lite-pilot-b",
 
   // Trials per Firestore write. About 135 rows per participant, so 10 gives ~17 writes each,
   // well inside the free tier's 20,000 writes/day.
@@ -58,7 +58,7 @@ const EXPERIMENT = {
   prolific_completion_code: "",
   // Prolific: code for people who fail the headphone screen (screen-outs). Check the Class
   // Prolific Guidelines for how screen-outs should be handled before filling this in.
-  prolific_screenout_code: "",
+  prolific_screenout_code: "C1OMEMUH",
 
   contact_email: "stanfordpsych251@gmail.com",
 
