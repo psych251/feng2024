@@ -50,7 +50,7 @@ library(jsonlite)
 # Must match EXPERIMENT.id in experiment.js, and the --experiment you passed to the export.
 # Phase 1 moves feng2024-pilot-a -> feng2024-pilot-b -> feng2024-final; change it here each time.
 # Phase 2 runs under its own id, so its data never mix with Phase 1's.
-experiment_id        <- "feng2024-lite-pilot-a"
+experiment_id        <- "feng2024-lite-pilot-b"
 experiment_id_phase2 <- "feng2024-phase2"
 ```
 
