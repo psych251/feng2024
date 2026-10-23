@@ -286,7 +286,7 @@ For comparison, 2.5 times the original sample would be `r two_and_half`.
 
 
 We recruited from Prolific, with the following criterias: Age 18+, fluent in English, reside in the US, have access to desktop or laptop with keyboard and headphone or earphone. We collected the data until N=120 participants meet the exclusion criteria. 
-Based on Pilot A, participants spent 15 to 20 minutes to complete the task, so we compensated participants for 17.5 minutes of their time. 
+Based on Pilot A (N=3), participants spent 15 to 20 minutes to complete the task, so we compensated participants for 17 minutes of their time. Based on Pilot B data (N=6), participants also took 15 to 20 minutes, with most finishing closer to 15 minutes.
 
 
 ### Materials
@@ -303,7 +303,7 @@ For the experiment sequence and trials design, we followed closely the original 
 
 Each trial has the following timing: 3s fixation, 1.3s gamble delay, 1s outcome, and 2s safe outcome. Just as in the original experiment, we swapped the risky option’s side from left to right (or right to left) every 10 trials.
 
-Based on Pilot A data, each participant took around 15 to 20 minutes to finish the whole experiment (from loading the page to debrief).
+Based on Pilot A data, each participant took around 15 to 20 minutes to finish the whole experiment (from loading the page to debrief). This is further confirmed by Pilot B data.
 We refer interested reader to our live experiment page above for reference.
 
 
