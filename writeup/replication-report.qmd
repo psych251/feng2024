@@ -252,12 +252,12 @@ bind_rows(
 ## Introduction
 I’m interested in applying mathematical modelling technique to model psychological process. Coming from mathematical finance background, the Feng & Rutledge (2024)’s research on surprising sounds influence risky decision making fit my interest and bridge the gap between psychology, behavioural finance, and mathematical modelling. This paper also highlighted how external stimuli like surprising sounds can influence one’s attitude towards risk taking, which also has been studied in professional traders (e.g. trading floor buzzer or surprising news announcement in trading floor) and casino floor.
 
-For the specific experiment that I replicated, experiment 2, each participant can decide whether they want to choose a ‘safe’ or ‘risky’ option in every trial, with the aim of maximising their cumulative wealth. Each participant start with 500 points and the outcome of risky option is revealed after 1.3 seconds delay if chosen. In total, there were 120 trials and the participants received fixed monetary reward irrespective of their final outcome. For the stimulus, each participant is presented with 6-tone auditory sequence, with 3 different frequencies, i.e. A=1000 Hz, B=1500 Hz, and C=500 Hz. In 75% of the trials participants hear ‘common sequence’ : AAAAAA, and for the remaining 25% of the trials participants hear ‘rare sequence’: AAAAAB or AAAAAC. Experimenter alternate the location of risky choice from left to right (or right to left) of the screen for every 10 trials. To run this experiment, we recruited participants in Prolific with the following criteria: age 18+ and fluent in English, no hearing difficulty, have access to laptop, and earphone. We aim to recruit 120 participants in total and we built the experiment in jspsych. 
+For the specific experiment that I replicated, experiment 2, each participant can decide whether they want to choose a ‘safe’ or ‘risky’ option in every trial, with the aim of maximising their cumulative wealth. Each participant start with 500 points and the outcome of risky option is revealed after 1.3 seconds delay if chosen. In total, there were 120 trials and the participants received fixed monetary reward irrespective of their final outcome. For the stimulus, each participant is presented with 6-tone auditory sequence, with 3 different frequencies, i.e. A=1000 Hz, B=1500 Hz, and C=500 Hz. In 75% of the trials participants hear ‘common sequence’ : AAAAAA, and for the remaining 25% of the trials participants hear ‘rare sequence’: AAAAAB or AAAAAC. Experimenter alternate the location of risky choice from left to right (or right to left) of the screen for every 10 trials. To run this experiment, we recruited participants in Prolific with the following criteria: age 18+ and fluent in English, no hearing difficulty, have access to laptop, and earphone. We aimed to recruit 120 participants in total and we built the experiment in jspsych. 
 
 There were several challenges that we anticipated in running this experiment, including limited budget to recruit participants in-time, participants attention and audio quality are hard to control, moving from Gorilla (original experiment platform) to jsPsych with firebase. 
 For the **key statistical test**, we calculated the percentage difference of each participant’s risky choices in rare trial and in common trial and perform the 2-sided Wilcoxon signed-rank test (against 0), to be consistent with the authors.
 
-Two possible extensions to this experiment are modifying stimuli by incorporating visual surprise instead of sounds and incorporating ‘think like a trader’ reframing (Sokol-Hessner et al. 2009) to half of the participants (randomly, N=100) to test if it reduces loss aversion and effect of surprising sounds.
+One possible extension to this experiment is incorporating ‘think like a trader’ reframing (Sokol-Hessner et al. 2009) to half of the participants (randomly, N=100) to test if it reduces loss aversion and effect of surprising sounds.
 
 ## Methods
 
@@ -285,8 +285,8 @@ For comparison, 2.5 times the original sample would be `r two_and_half`.
 ### Planned sample
 
 
-We recruited from Prolific, with the following criterias: Age 18+, fluent in English, reside in the US, have access to desktop or laptop with keyboard and headphone or earphone. We collected the data until N=120 participants meet the exclusion criteria. 
-Based on Pilot A (N=3), participants spent 15 to 20 minutes to complete the task, so we compensated participants for 17 minutes of their time. Based on Pilot B data (N=6), participants also took 15 to 20 minutes, with most finishing closer to 15 minutes.
+We recruited from Prolific, with the following criterias: Age 18+, fluent in English, reside in the US, have access to desktop or laptop with keyboard and headphone or earphone. We collected the data until N=120 participants passed the exclusion criteria. 
+Based on Pilot A (N=3), participants spent 15 to 20 minutes to complete the task, so we compensated participants for 17 minutes of their time. This is further confirmed by Pilot B data (N=6), with participants median time of 17 minutes.
 
 
 ### Materials
@@ -305,6 +305,19 @@ Each trial has the following timing: 3s fixation, 1.3s gamble delay, 1s outcome,
 
 Based on Pilot A data, each participant took around 15 to 20 minutes to finish the whole experiment (from loading the page to debrief). This is further confirmed by Pilot B data.
 We refer interested reader to our live experiment page above for reference.
+
+
+### Pilot Testing: 
+
+#### Pilot A: 
+In Pilot A, we ran the experiment with N=3 participants to check every variables are logged correctly. The completion time for each participant was between 15 to 20 minutes.
+
+#### Pilot B: 
+In Pilot B, we ran the experiment in Prolific with N=6 participants (who completed the task). 
+In terms of dropout, 13 participants started the experiment: 2 turned down by device check, 3 failed sound check, 1 stopped before starting the task, and 6 successfully completed the task.
+In terms of comprehension, all 6 participants who successfully completed the experiment passed sound check and sequence check before and after the task.
+The median time taken to complete the task was 17 minutes.
+No changes were made after Pilot A and B.
 
 
 
@@ -388,33 +401,34 @@ n_headphone_fail <- phase1$n_headphone_fail
 n_missing_trials <- phase1$n_missing_trials
 pe               <- person_effects(phase1)
 ```
-
 ```{r}
 #| label: funnel
 #| eval: !expr have_data
-tibble(
-  Step = c("Started", "Completed", "Passed the headphone check", "Analysed (all 120 choice trials)"),
-  N    = c(nrow(participants), nrow(complete),
-           sum(complete$headphone_passed %in% TRUE), nrow(keep))
-) |>
-  knitr::kable(caption = "Participants at each step.")
-```
+passed_device <- participants |> filter(device_supported %in% TRUE)
+passed_hp     <- passed_device |> filter(headphone_passed %in% TRUE)
+finished      <- passed_hp |> filter(completed %in% TRUE)
 
+tibble(
+  Step = c("Started",
+           "Passed the device check (computer with keyboard)",
+           "Passed the headphone check",
+           "Completed the task",
+           "Analysed (all 120 choice trials)"),
+  N = c(nrow(participants), nrow(passed_device), nrow(passed_hp),
+        nrow(finished), nrow(keep))
+) |>
+  knitr::kable(caption = "Participants at each step, in the order they occur.")
+```
 ```{r}
 #| label: sample-text
 #| eval: !expr have_data
 #| echo: false
 #| results: asis
-cat(sprintf("Of %d participants who started, %d completed the study and %d met the exclusion criteria.",
-            nrow(participants), nrow(complete), nrow(keep)))
-if (n_headphone_fail > 0) {
-  cat(sprintf(" %d did not pass the headphone check, which ends the study.", n_headphone_fail))
-}
-if (n_missing_trials > 0) {
-  cat(sprintf(" %d passed it but have fewer than 120 saved choice trials.", n_missing_trials))
-}
-if (nrow(keep) == 0) cat(" No participants remain for analysis yet, so the results below are empty.")
-cat("\n")
+n_device_fail <- sum(participants$device_supported %in% FALSE)
+n_hp_fail     <- sum(participants$headphone_passed %in% FALSE)
+n_dropout     <- sum(participants$headphone_passed %in% TRUE & !(participants$completed %in% TRUE))
+cat(sprintf("Of %d participants who started, %d were turned away by the device check, %d did not pass the headphone check, %d stopped before finishing the task, and %d passed the exclusion criteria.\n",
+            nrow(participants), n_device_fail, n_hp_fail, n_dropout, nrow(keep)))
 ```
 
 ```{r}
@@ -692,6 +706,7 @@ materials, wording, procedure, exclusion rule and analysis. The rows below are e
 demo; replace them with yours.
 :::
 
+<!--
 | # | Category | Phase 1 | Phase 2 | Why |
 |---|---|---|---|---|
 | 1 | Sample | 27 analysed participants | 300 analysed participants (150 per frame) | Phase 1's interval was too wide to distinguish the original effect from a much smaller one. |
@@ -699,6 +714,9 @@ demo; replace them with yours.
 | 3 | Exploratory measure | None | At the end: "How confident are you in your choice?" (1–7) | Exploratory only; collected after every confirmatory measure. |
 
 Everything not listed above is identical to Phase 1.
+-->
+
+
 
 ## Power and sample
 
