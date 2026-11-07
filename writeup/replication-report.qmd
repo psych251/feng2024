@@ -88,7 +88,7 @@ original_stay_sem  <- 0.89
 
 - **Original paper:** Feng, G.W., Rutledge, R.B. Surprising sounds influence risky decision making. Nat Commun 15, 8027 (2024). <https://doi.org/10.1038/s41467-024-51729-4>
 
-- **Preregistration:** [OSF registration](https://osf.io/XXXXX) *(registered YYYY-MM-DD, before final data collection)*
+- **Preregistration:** [OSF registration](https://osf.io/zrn39/) *(registered 2026-10-30, before final data collection)*
 - **Live experiment:** <https://psych251.github.io/feng2024/lite/> 
 - **Repository:** <https://github.com/psych251/feng2024> (experiment code, data, and this report)
 :::
@@ -324,17 +324,7 @@ No changes were made after Pilot A and B.
 
 ### Analysis plan
 
-::: {.callout-tip icon=false}
-## Guidance
 
-The analysis strategy, as close to the original as possible: data cleaning rules, exclusion
-rules, covariates, and the model or test. Original papers often do not spell this out; say
-where you had to make a choice and what you chose.
-
-**State the key analysis of interest explicitly.** That is the single test your replication
-stands or falls on, and it must match your preregistration. You can pre-specify additional
-analyses here too.
-:::
 
 **Key analysis of interest.** 
 
@@ -361,14 +351,10 @@ We excluded participants who failed the headphone (sound) check or didn't comple
 
 ### Methods addendum (post data collection)
 
-::: {.callout-tip icon=false}
-## Guidance
-
-Leave this section out of the version you preregister. After data collection, report the
-actual sample and any deviation from the plan above.
-:::
 
 #### Actual sample
+
+From 297 participants who started the experiment, 277 passed the device check, and 142 passed the sound check. 122 of those finished the experiments, but 2 timed-out and excluded. We analysed results from 120 participants who passed the device check, sound check, and finished the experiments (without timed-out). The average participants age is 40.3 years, with 62 men and 58 women. The median time to complete the experiment is 18.7 minutes (against 17 mins that we compensated based on the pilot result).
 
 ```{r}
 #| label: no-data-notice
@@ -434,6 +420,7 @@ cat(sprintf("Of %d participants who started, %d were turned away by the device c
 ```{r}
 #| label: demographics
 #| eval: !expr have_data
+#| results: asis
 demo <- trials |>
   filter(task == "demographics", participant_id %in% keep$participant_id) |>
   mutate(resp = map(response, ~ fromJSON(.x))) |>
@@ -448,33 +435,26 @@ if (nrow(demo) > 0) {
     summarise(N = n(), `Mean age` = round(mean(age, na.rm = TRUE), 1),
               `SD age` = round(sd(age, na.rm = TRUE), 1),
               `Age not given` = sum(is.na(age))) |>
-    knitr::kable(caption = "Age of the analysed sample.")
+    knitr::kable(caption = "Age of the analysed sample.") |> cat(sep = "\n")
+  cat("\n\n")
   demo |>
     count(Gender = replace_na(gender, "Not given")) |>
-    knitr::kable(caption = "Gender of the analysed sample.")
+    knitr::kable(caption = "Gender of the analysed sample.") |> cat(sep = "\n")
 }
 ```
 
+
+
 #### Deviations from the preregistered plan
 
-::: {.callout-tip icon=false}
-## Guidance
-
-Any deviation from the preregistered plan above, or "None". Changes made after seeing data
-belong here even if they seem minor, together with the reason.
-:::
+None
 
 ## Results
 
 ### Data preparation
 
-::: {.callout-tip icon=false}
-## Guidance
-
-Data preparation follows the analysis plan. Loading and exclusions are done by the shared
-analysis code under Key statistics (open "Show the analysis code"). Describe anything you did to
-the data beyond that.
-:::
+No data processing beyond applying the pre-registered exclusion rule (sound check and completing 120 trials).
+We reported the key-statistics and report and how they were calculated in the confirmatory analysis section.
 
 ### Confirmatory analysis
 
@@ -495,17 +475,18 @@ if (nrow(pe) >= 2) {
 }
 ```
 
+We did two-sided Wilcoxon signed-rank test against 0, for the percentage difference of risky choices after rare and common tone. As shown in the table, with N=120, we get +2.14 mean difference (estimate), 1.35 SEM,  95% confidence interval of [−0.53, 4.81], effect size d_z = mean difference / std. dev of difference =  0.14, and p-value = 0.36. 
+Compare to the original studies of mean difference +4.03, 95% CI of [1.94, 6.12], p < .001, and d_z = 0.27.
+
+
+
 ### Replication assessment
 
-::: {.callout-tip icon=false}
-## Guidance
 
-Judge the replication on effect sizes, not only on whether the key test is significant. Compare
-the replication estimate and its interval with the original: does the interval exclude zero, and
-does it include the original estimate? A significant result much smaller than the original, or
-a non-significant result whose interval still includes the original effect, are both
-informative and should be reported as such (Experimentology §3.2).
-:::
+The confidence interval of our replication result includes both 0 and also the original estimate of +4.03, hence we can say our result is inconclusive. 
+The calculated effect size d_z = 0.14 is only half of the original effect size d_z = 0.27. 
+
+
 
 ```{r}
 #| label: comparison
@@ -545,37 +526,6 @@ if (!is.null(rep)) {
 }
 ```
 
-::: {.callout-tip icon=false}
-## Guidance: show the original next to your replication
-
-**Every report should have a figure that puts the original finding and your replication side by
-side.** It is the single most informative thing in a replication report: a reader can see at a
-glance whether the effect came back, and how its size compares. Make it however you can, in
-roughly this order of preference:
-
-1. **Replot both from numbers.** Enter the original's summary statistics (means or proportions,
-   with SDs, SEs or CIs, and Ns) in the original-study chunk at the top of this file, and plot
-   them on the same axes as yours. That is what the demo figure below does.
-2. **Replot the original from its data**, if the authors shared it or it is in an open
-   repository, using exactly the same plotting code as for your own data.
-3. **Show the original figure as an image** next to yours if neither is possible. Save a
-   screenshot of it, for example as `writeup/images/original-figure.png`, and lay the two out
-   in columns:
-
-   ````markdown
-   ::: {layout-ncol=2}
-   ![Original: Tversky & Kahneman (1981), Figure 1](images/original-figure.png)
-
-   ```{{r}}
-   # your replication plot here
-   ```
-   :::
-   ````
-
-Whichever you choose, use the same measure, scale, condition order and error-bar meaning for
-both panels, label which is which, and cite the source of the original values or figure in the
-caption. If the original reported no variability, say so rather than leaving it out silently.
-:::
 
 ```{r}
 #| label: fig-comparison
@@ -588,12 +538,31 @@ comparison_plot(Original = original_rates, `Phase 1: replication` = sequence_rat
 
 ### Exploratory analyses
 
-::: {.callout-tip icon=false}
-## Guidance
+We analysed replay users vs non-replay users after collecting our data and stay rate: rate of people making the same choice as on the previous trial. The results are reported in the table below. 
+B
+```{r}
+#| label: exploratory-replay
+#| eval: !expr have_data
+# Exploratory (not preregistered): the rare-tone effect for participants who did and did not use
+# Replay in the 2-screen headphone check. Within each group: two-sided Wilcoxon signed-rank test
+# against zero; between groups: two-sided Wilcoxon rank-sum (Mann-Whitney) test.
+replay_use <- trials |>
+  filter(task == "headphone_check", participant_id %in% keep$participant_id) |>
+  group_by(participant_id) |>
+  summarise(used_replay = sum(as.numeric(replays), na.rm = TRUE) > 0, .groups = "drop")
+pe_replay <- pe |> left_join(replay_use, by = "participant_id")
+by_replay <- pe_replay |>
+  group_by(Group = if_else(used_replay %in% TRUE, "Used Replay", "No Replay")) |>
+  group_modify(~ effect_summary(.x$risk_diff)) |>
+  ungroup()
+by_replay |>
+  transmute(Group, N, `Mean (points)` = round(estimate, 2), SEM = round(sem, 2),
+            `95% CI` = sprintf("[%.2f, %.2f]", ci_low, ci_high), p = map_chr(p, fmt_p)) |>
+  knitr::kable(caption = "Exploratory: rare minus common risky choices by Replay use in the headphone check (Wilcoxon signed-rank test against zero within each group).")
+rs <- suppressWarnings(wilcox.test(risk_diff ~ used_replay, data = pe_replay, exact = FALSE))
+message(sprintf("Between groups (Wilcoxon rank-sum): W = %.1f, p = %s", rs$statistic, fmt_p(rs$p.value)))
+```
 
-Any follow-up analyses (optional). Label them clearly as exploratory: they were not planned, so
-they generate hypotheses rather than test them.
-:::
 
 ```{r}
 #| label: exploratory-rt
@@ -638,98 +607,46 @@ if (nrow(errors) > 0) {
 
 ### Summary of replication attempt
 
-::: {.callout-tip icon=false}
-## Guidance
-
-Open with one paragraph summarizing the result of the key analysis and your assessment of
-whether the original finding replicated, partially replicated, or failed to replicate. Base
-that judgment on the replication assessment above: the size of the effect relative to the
-original, not just the p value.
-:::
-
 ### Commentary
 
-::: {.callout-tip icon=false}
-## Guidance
 
-Open-ended commentary, none of it long: (a) what the exploratory analyses suggest; (b) what the
-replication means, for example whether the differences between your study and the original are
-definitely, plausibly, or unlikely to be moderators of the result; and (c) any objections or
-challenges raised by you or the original authors.
-:::
+The exploratory analysis suggest that the participants who use replay (41 participants) have mean of +0.03 with SEM 1.81, while participants who don't use replay (79 participants) have mean of +3.23 with SEM 1.82. This may suggest that participants who need to use replay button show no effect to risky decision making after rare tone. This exploratory analysis result may have suggested the need for stricter sound check, i.e. dropping replay and restoring the 6 sequences sound checks. 
+
 
 # Phase 2: Extension
 
-::: {.callout-tip icon=false}
-## Guidance: choosing your extension
-
-Follow the Extension guidelines page on Canvas. In brief:
-
-- **By default the extension is a best-practices modification of your Phase 1 experiment.** If
-  your replication did not succeed, it is a **rescue**: address the plausible reasons for the
-  failure. If it did succeed, it is an **upgrade**: make the estimate more precise. Typical
-  changes are better or more reliable measurement, more trials, a within-participant design
-  where that is legitimate, comprehension and manipulation checks, clearer instructions, or a
-  larger or better-targeted sample.
-- **If your scientific extension pitch was approved at Milestone 3 and your replication
-  succeeded, propose that instead:** the original conditions rerun unchanged, plus the one
-  added condition or manipulation, with a power analysis for the new comparison.
-- On either track you may add exploratory measures **at the end** of the study.
-- Every change is listed and tagged by category below; everything else stays identical.
-
-State your track on the line below, and delete the others.
-:::
-
-**Track:** Best-practices upgrade / Best-practices rescue / Scientific extension (approved at Milestone 3)
+**Track:**  Best-practices rescue
 
 ## Rationale
 
-::: {.callout-tip icon=false}
-## Guidance
 
-One or two paragraphs. For a rescue: what are the plausible reasons Phase 1 did not reproduce the
-original result, and how does each change address one of them? For an upgrade: where is the
-Phase 1 estimate least precise or least trustworthy, and how will the changes improve it? For a
-scientific extension: what question does the added condition answer, and why does it follow from
-the original finding?
-:::
+There are 3 possible reasons for Phase 1 did not reproduce the original result. First, we had too few sample for a smaller true effect. The effect estimated by our replication is +2.14 and this gives much lower than 80 % power with N=120. We can potentially address this issue by increasing sample size to N=200. 
+Second, we had weaker sound check compare to the original paper. With 2 screens sound-check and replay option, guessers pass our 2-screen check around 11% of the time (compare to around 2% in the original paper). Another interesting observation from exploratory analysis suggest that participants who need to use replay button show no effect to risky decision making after rare tone (no replay users   +3.23 ± 1.82 and replay users: −0.03 ± 1.72 (n = 79 vs 43)). We can potentially address this issue by restoring the original 6 screens sound check (pass with 5 out of 6 correct) and removing the replay option.
+The third reason is experiment fatigue, based on few participants feedback in the pilot and main study, the 17 minutes duration of the experiment might be too long. One of the possible changes to make is to cut the experiment duration to 10 minutes (i.e. with 60 trials instead of 120 trials per participant). However, the drawback is we would get less chance to observe the risky sound effect for each participants (15 trials instead of 30 trials), and we may need to double the sample size.
+
+
 
 ## Changes from Phase 1
 
-::: {.callout-tip icon=false}
-## Guidance
 
-Every change from the Phase 1 experiment, one per row, each tagged with a category: Measurement,
-Trials, Design, Checks, Instructions, Sample, Added condition (scientific track only), or
-Exploratory measure (end of study only). If it is not in this table, it does not change: same
-materials, wording, procedure, exclusion rule and analysis. The rows below are examples for the
-demo; replace them with yours.
-:::
 
-<!--
 | # | Category | Phase 1 | Phase 2 | Why |
 |---|---|---|---|---|
-| 1 | Sample | 27 analysed participants | 300 analysed participants (150 per frame) | Phase 1's interval was too wide to distinguish the original effect from a much smaller one. |
-| 2 | Checks | No comprehension check | After the choice, participants say how many people are at risk (600) | Confirms participants read the scenario; failures are reported, and excluded only if preregistered. |
-| 3 | Exploratory measure | None | At the end: "How confident are you in your choice?" (1–7) | Exploratory only; collected after every confirmatory measure. |
+| 1 | Checks | 2-screen sound check with Replay, 2/2 to pass |  6-screen sound check, played once, 5/6 to pass | Participants from phase 1 who used replay show no effect, stricter sound check to screened out 'guesser' |
+| 2 | Sample | N=120 | N=200 | The effect estimated by our replication is +2.14 and this gives much lower than 80 % power with N=120 |
+
 
 Everything not listed above is identical to Phase 1.
--->
 
 
 
 ## Power and sample
 
-::: {.callout-tip icon=false}
-## Guidance
 
-Justify the Phase 2 sample, and **state how you expect the estimate and its precision to compare
-with Phase 1**. For an upgrade, plan the sample around the confidence interval you want; for a
-rescue, around the power to detect the original effect, or the smallest effect you would still
-consider a successful replication; for a scientific extension, around the power to detect the new
-comparison. Set `phase2_n_per_group` in the code below; the table uses Phase 1's estimate if you
-have it and the original's otherwise.
-:::
+
+Considering the possible improvement through stricter sound check and no replay and based on the exploratory analysis of replay vs no-replay participants, we would expect the effect to move closer to original 4.03. Balancing the trade-off between effect size and budget constraints, we would power to 3 points instead of the phase 1 result of 2.14 or the original result of 4.03. To achieve at least 80% power at this effect size, we would require N=200 sample. Full analysis is presented in the table below.
+
+
 
 ```{r}
 #| label: phase2-power
@@ -744,42 +661,28 @@ power_at <- function(n, delta) {
   tryCatch(power.t.test(n = n, delta = delta, sd = basis_sd, sig.level = 0.05, type = "one.sample")$power,
            error = function(e) NA)
 }
-
-rows <- tibble(
-  Study = c(if (!is.null(p1_effect)) "Phase 1 (actual)", "Phase 2 (planned)"),
-  `N analysed` = c(if (!is.null(p1_effect)) p1_effect$N, phase2_n),
-  `95% CI half-width` = c(if (!is.null(p1_effect)) sprintf("±%.2f points", (p1_effect$ci_high - p1_effect$ci_low) / 2),
-                          sprintf("±%.2f points (expected)", half_width(phase2_n)))
-)
-knitr::kable(rows, caption = sprintf("Precision of the key estimate; Phase 2 expected values use the SD from %s.", basis_src))
+p1_est <- if (!is.null(p1_effect)) p1_effect$estimate else NA_real_
+pct <- function(x) scales::percent(x, accuracy = 1)
 
 tibble(
-  `Effect to detect` = c(sprintf("Original: %.2f points", original_mean),
-                         if (!is.null(p1_effect)) sprintf("Phase 1: %.2f points", p1_effect$estimate),
-                         sprintf("Half the original: %.2f points", original_mean / 2)),
-  `Power at planned N` = scales::percent(c(
-    power_at(phase2_n, original_mean),
-    if (!is.null(p1_effect)) power_at(phase2_n, p1_effect$estimate),
-    power_at(phase2_n, original_mean / 2)
-  ), accuracy = 1)
+  Study        = c(if (!is.null(p1_effect)) "Phase 1 (actual)", "Phase 2 (planned)"),
+  `N analysed` = c(if (!is.null(p1_effect)) p1_effect$N, phase2_n)
 ) |>
-  knitr::kable(caption = sprintf("Power of the Phase 2 key test (one-sample t approximation) at N = %d, two-sided alpha = .05.", phase2_n))
+  mutate(`Power at 4.03 (original)`  = pct(map_dbl(`N analysed`, power_at, delta = original_mean)),
+         `Power at 3`                = pct(map_dbl(`N analysed`, power_at, delta = 3)),
+         `Power at Phase 1 estimate` = if (is.na(p1_est)) "" else pct(map_dbl(`N analysed`, power_at, delta = p1_est)),
+         `95% CI half-width`         = sprintf("±%.2f points", map_dbl(`N analysed`, half_width))) |>
+  knitr::kable(caption = sprintf(
+    "Power of the key test (one-sample t approximation, two-sided alpha = .05) and expected precision, using the SD of individual effects from %s (%.1f points)%s.",
+    basis_src, basis_sd, if (is.na(p1_est)) "" else sprintf("; Phase 1 estimate = %.2f points", p1_est)))
 ```
 
 ## Analysis plan
 
-::: {.callout-tip icon=false}
-## Guidance
 
-The confirmatory analysis for Phase 2, written before Phase 2 data collection. On the
-best-practices tracks this is normally the same key test as Phase 1, run on the Phase 2 data
-alone; say whether you will also report a pooled estimate across phases, and label it
-exploratory if so. On the scientific track, specify the test for the new comparison. Name the
-exclusion rule (unchanged unless it is in the Changes table) and list any exploratory measures.
+For Phase 2 analysis, we will perform the same test as in Phase 1: Wilcoxon two-sided signed rank test on percentage difference of risky choice after rare and common tone for each participant. For exploratory analysis, we will report the pooled estimates across Phase 1 and Phase 2. We will also report the pooled estimate of participants in Phase 1 who did not use replay and Phase 2 participants, as this is a closer comparison to Phase 2 compare to considering every Phase 1 participants.
 
-Run Phase 2 under a new `EXPERIMENT.id` in `experiment.js` (for example `smith2016-phase2`) and
-set `experiment_id_phase2` at the top of this file to match, so the two phases' data never mix.
-:::
+We will run Phase 2 under a new experiment id to avoid mixing the result with Phase 1.
 
 ## Results
 
