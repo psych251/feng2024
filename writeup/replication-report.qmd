@@ -538,8 +538,9 @@ comparison_plot(Original = original_rates, `Phase 1: replication` = sequence_rat
 
 ### Exploratory analyses
 
-We analysed replay users vs non-replay users after collecting our data and stay rate: rate of people making the same choice as on the previous trial. The results are reported in the table below. 
-B
+We analysed replay users vs non-replay users after collecting our data and stay rate: rate of people making the same choice as on the previous trial. We also analysed the first half and second half of the trials separately (each with 60 tones: 15 rare tones and 45 common tones).
+The results are reported in the table below. 
+
 ```{r}
 #| label: exploratory-replay
 #| eval: !expr have_data
@@ -592,6 +593,42 @@ if (nrow(by_type) > 0) {
 }
 ```
 
+
+```{r}
+#| label: exploratory-halves
+#| eval: !expr have_data
+# Exploratory (not preregistered): the rare-tone effect in the first and second half of the
+# session (trials 1-60 and 61-120). The 3-rare-in-every-12 rule gives each person exactly
+# 15 rare and 45 common trials in each half; the check below stops the render if not.
+halves <- trials |>
+  filter(task == "choice", participant_id %in% keep$participant_id) |>
+  mutate(rare = as.logical(rare), chose_risky = as.numeric(chose_risky),
+         half = if_else(as.numeric(trial_number) <= 60, "Trials 1-60", "Trials 61-120"))
+
+half_counts <- halves |> count(participant_id, half, rare)
+stopifnot(all(half_counts$n[half_counts$rare] == 15), all(half_counts$n[!half_counts$rare] == 45))
+
+half_effects <- halves |>
+  group_by(participant_id, half) |>
+  summarise(risk_diff = 100 * (mean(chose_risky[rare]) - mean(chose_risky[!rare])), .groups = "drop")
+
+# Original Experiment 2, same split, computed from the authors' data (OSF, Exp2_data):
+original_halves <- tibble(half = c("Trials 1-60", "Trials 61-120"),
+                          Original = c("2.79 [0.19, 5.39], p = .13", "5.28 [2.60, 7.96], p < .001"))
+
+half_effects |>
+  group_by(half) |>
+  group_modify(~ effect_summary(.x$risk_diff)) |>
+  ungroup() |>
+  transmute(half, N, `Mean (points)` = round(estimate, 2), SD = round(sem * sqrt(N), 2),
+            `95% CI` = sprintf("[%.2f, %.2f]", ci_low, ci_high), d_z = round(dz, 2),
+            p = map_chr(p, fmt_p)) |>
+  left_join(original_halves, by = "half") |>
+  rename(Half = half) |>
+  knitr::kable(caption = "Exploratory: rare minus common risky choices in each half of the session (15 rare and 45 common trials per person in each half; Wilcoxon signed-rank test against zero). Original: Feng & Rutledge Experiment 2, same split, from the authors' data.")
+```
+
+
 ```{r}
 #| label: data-quality
 #| eval: !expr have_data
@@ -611,7 +648,7 @@ if (nrow(errors) > 0) {
 
 
 The exploratory analysis suggest that the participants who use replay (41 participants) have mean of +0.03 with SEM 1.81, while participants who don't use replay (79 participants) have mean of +3.23 with SEM 1.82. This may suggest that participants who need to use replay button show no effect to risky decision making after rare tone. This exploratory analysis result may have suggested the need for stricter sound check, i.e. dropping replay and restoring the 6 sequences sound checks. 
-
+Furthermore, halving the experiment length (i.e. with 60 trials instead of 120 trials per participant) is unlikely to improve the results, as exploratory analysis suggested that the effect built up over the session (original experiment : +2.8 in trials 1–60 vs +5.3 in trials 61–120 and replication +1.8 in trials 1–60 vs +2.5 in trials 61–120).
 
 # Phase 2: Extension
 
@@ -622,8 +659,7 @@ The exploratory analysis suggest that the participants who use replay (41 partic
 
 There are 3 possible reasons for Phase 1 did not reproduce the original result. First, we had too few sample for a smaller true effect. The effect estimated by our replication is +2.14 and this gives much lower than 80 % power with N=120. We can potentially address this issue by increasing sample size to N=200. 
 Second, we had weaker sound check compare to the original paper. With 2 screens sound-check and replay option, guessers pass our 2-screen check around 11% of the time (compare to around 2% in the original paper). Another interesting observation from exploratory analysis suggest that participants who need to use replay button show no effect to risky decision making after rare tone (no replay users   +3.23 ± 1.82 and replay users: −0.03 ± 1.72 (n = 79 vs 43)). We can potentially address this issue by restoring the original 6 screens sound check (pass with 5 out of 6 correct) and removing the replay option.
-The third reason is experiment fatigue, based on few participants feedback in the pilot and main study, the 17 minutes duration of the experiment might be too long. One of the possible changes to make is to cut the experiment duration to 10 minutes (i.e. with 60 trials instead of 120 trials per participant). However, the drawback is we would get less chance to observe the risky sound effect for each participants (15 trials instead of 30 trials), and we may need to double the sample size.
-
+The third reason is experiment fatigue, based on few participants feedback in the pilot and main study, the 17 minutes duration of the experiment might be too long. One of the possible changes to make is to cut the experiment duration to 10 minutes (i.e. with 60 trials instead of 120 trials per participant). However, the drawback is we would get less chance to observe the risky sound effect for each participants (15 trials instead of 30 trials), and it is more costly as we need to increase the sample size to N=350 or more for 80% power. Also, the result from exploratory analysis showed that the effect built up over the session (original experiment : +2.8 in trials 1–60 vs +5.3 in trials 61–120 and replication +1.8 in trials 1–60 vs +2.5 in trials 61–120).
 
 
 ## Changes from Phase 1
@@ -683,6 +719,11 @@ tibble(
 For Phase 2 analysis, we will perform the same test as in Phase 1: Wilcoxon two-sided signed rank test on percentage difference of risky choice after rare and common tone for each participant. For exploratory analysis, we will report the pooled estimates across Phase 1 and Phase 2. We will also report the pooled estimate of participants in Phase 1 who did not use replay and Phase 2 participants, as this is a closer comparison to Phase 2 compare to considering every Phase 1 participants.
 
 We will run Phase 2 under a new experiment id to avoid mixing the result with Phase 1.
+
+**Bot Extension**
+
+As a side extension to this project, we would like to train cognitive science based models to closely match human performance and choices in the risky sound and decision making task; we aim to learn which model can closely replicate human performance. 
+
 
 ## Results
 
