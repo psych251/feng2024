@@ -1,0 +1,164 @@
+participant_id,trial_index,task,condition,trial_type,rt,response,time_elapsed,stimulus,plugin_version,experiment_id,design,risky_start_side,consented,page_set,view_history,plays,quiet_position,antiphase_position,answer,correct,headphone_passed,headphone_correct,check_phase,common_side,rare_sequence,trial_number,block12,side_block,option_type,certain,gamble_win,gamble_loss,multiplier,sequence,rare,deviant,risky_side,rt_key_duration,audio_ok,audio_state,audio_base_latency,audio_output_latency,chosen_side,chose_risky,stay,points_before,gamble_won,outcome,points_after
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,0,consent,,html-button-response,2121,0,2122,"
+      <div class=""consent"">
+        <h2>Consent</h2>
+        <p>By answering the following questions, you are participating in a study being performed by
+        cognitive scientists in the Stanford Department of Psychology. If you have questions about
+        this research, please contact us at <a href=""mailto:stanfordpsych251@gmail.com"">stanfordpsych251@gmail.com</a>.
+        You must be at least 18 years old to participate. Your participation in this research is
+        voluntary. You may decline to answer any or all of the following questions. You may decline
+        further participation, at any time, without adverse consequences. Your anonymity is assured;
+        the researchers who have requested your participation will not receive any personal
+        information about you.</p>
+      </div>",2.1.0,feng2024-phase2-pilot,within-subjects,right,true,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,1,instructions,,instructions,1716,,3840,,2.1.0,feng2024-phase2-pilot,within-subjects,right,,welcome,"[{""page_index"":0,""viewing_time"":1716}]",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,2,calibration,,html-button-response,4748,0,8589,"
+      <h2>Volume calibration</h2>
+      <p>Put on your headphones. Press the button, then turn up the volume on your computer until
+      the sound is at a loud but comfortable level. Play it as many times as you like.</p>
+      <p style=""text-align:center""><button type=""button"" class=""jspsych-btn play-btn"" data-play=""cal"">&#9654; Play calibration sound</button></p>
+      <p>Press Continue when the volume is set.</p>",2.1.0,feng2024-phase2-pilot,within-subjects,right,,,,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,3,instructions,,instructions,952,,9542,,2.1.0,feng2024-phase2-pilot,within-subjects,right,,headphone,"[{""page_index"":0,""viewing_time"":952}]",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,4,headphone_check,,html-button-response,5762,1,15307,"
+      <div class=""hp-trial"" data-n=""1"" data-correct=""2"">
+        <p>Which tone was the quietest?</p>
+        <p class=""hp-status"">Listen…</p>
+      </div>",2.1.0,feng2024-phase2-pilot,within-subjects,right,,,,,2,1,2,true,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,5,headphone_check,,html-button-response,4563,0,19873,"
+      <div class=""hp-trial"" data-n=""2"" data-correct=""1"">
+        <p>Which tone was the quietest?</p>
+        <p class=""hp-status"">Listen…</p>
+      </div>",2.1.0,feng2024-phase2-pilot,within-subjects,right,,,,,1,3,1,true,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,6,headphone_check,,html-button-response,4581,0,24456,"
+      <div class=""hp-trial"" data-n=""3"" data-correct=""1"">
+        <p>Which tone was the quietest?</p>
+        <p class=""hp-status"">Listen…</p>
+      </div>",2.1.0,feng2024-phase2-pilot,within-subjects,right,,,,,1,3,1,true,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,7,headphone_check,,html-button-response,4547,1,29006,"
+      <div class=""hp-trial"" data-n=""4"" data-correct=""2"">
+        <p>Which tone was the quietest?</p>
+        <p class=""hp-status"">Listen…</p>
+      </div>",2.1.0,feng2024-phase2-pilot,within-subjects,right,,,,,2,1,2,true,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,8,headphone_check,,html-button-response,4565,0,33573,"
+      <div class=""hp-trial"" data-n=""5"" data-correct=""1"">
+        <p>Which tone was the quietest?</p>
+        <p class=""hp-status"">Listen…</p>
+      </div>",2.1.0,feng2024-phase2-pilot,within-subjects,right,,,,,1,3,1,true,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,9,headphone_check,,html-button-response,4548,0,38122,"
+      <div class=""hp-trial"" data-n=""6"" data-correct=""1"">
+        <p>Which tone was the quietest?</p>
+        <p class=""hp-status"">Listen…</p>
+      </div>",2.1.0,feng2024-phase2-pilot,within-subjects,right,,,,,1,3,1,true,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,10,familiarization,,html-button-response,11464,0,49590,"
+      <h2>Tone sequences</h2>
+      <p>During this experiment, you will hear different tone sequences. Listen carefully to each one.
+      Pay attention to which sequences are common and which are rare.</p>
+      <div class=""fam-row""><strong>COMMON</strong><br><button type=""button"" class=""jspsych-btn play-btn"" data-play=""AAAAAA"">&#9654; Play</button></div>
+      <div class=""fam-row""><strong>RARE</strong><br><button type=""button"" class=""jspsych-btn play-btn"" data-play=""AAAAAB"">&#9654; Play</button> <button type=""button"" class=""jspsych-btn play-btn"" data-play=""AAAAAC"">&#9654; Play</button></div>
+      <p>Play each sequence at least once, then press Continue.</p>",2.1.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,,,,,,,,,,,,,,,,,,,,,,,,
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,11,instructions,,instructions,1031,,50622,,2.1.0,feng2024-phase2-pilot,within-subjects,right,,sequence_check,"[{""page_index"":0,""viewing_time"":1031}]",,,,,,true,6,,,,,,,,,,,,,,,,,,,,,,,,,,,
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,12,sequence_check,,html-button-response,6166,1,56790,"
+        <div class=""seq-check"" data-n=""7"" data-correct=""right"">
+          <p>Listen to both sequences. Which is the more common sequence?</p>
+          <div class=""seq-pair"">
+            <div><strong>LEFT</strong><br><button type=""button"" class=""jspsych-btn play-btn"" data-play=""left"">&#9654; Play</button></div>
+            <div><strong>RIGHT</strong><br><button type=""button"" class=""jspsych-btn play-btn"" data-play=""right"">&#9654; Play</button></div>
+          </div>
+        </div>",2.1.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,right,true,true,6,pre,right,AAAAAB,,,,,,,,,,,,,,,,,,,,,,,,
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,14,sequence_check,,html-button-response,8078,1,66373,"
+        <div class=""seq-check"" data-n=""8"" data-correct=""right"">
+          <p>Listen to both sequences. Which is the more common sequence?</p>
+          <div class=""seq-pair"">
+            <div><strong>LEFT</strong><br><button type=""button"" class=""jspsych-btn play-btn"" data-play=""left"">&#9654; Play</button></div>
+            <div><strong>RIGHT</strong><br><button type=""button"" class=""jspsych-btn play-btn"" data-play=""right"">&#9654; Play</button></div>
+          </div>
+        </div>",2.1.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,right,true,true,6,pre,right,AAAAAC,,,,,,,,,,,,,,,,,,,,,,,,
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,16,instructions,,instructions,9279,,77156,,2.1.0,feng2024-phase2-pilot,within-subjects,right,,task,"[{""page_index"":0,""viewing_time"":4562},{""page_index"":1,""viewing_time"":4717}]",,,,,,true,6,,,,,,,,,,,,,,,,,,,,,,,,,,,
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,18,choice,,html-keyboard-response,1397,b,81559,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,1,1,1,loss,-25,0,-100,4,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,,500,,-25,475
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,22,choice,,html-keyboard-response,234,n,86799,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,2,1,1,gain,25,55,0,2.2,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012833333333333334,right,1,0,475,1,55,530
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,26,choice,,html-keyboard-response,257,b,92367,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,3,1,1,loss,-25,0,-47,1.88,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,0,530,,-25,505
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,30,choice,,html-keyboard-response,821,b,98194,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,4,1,1,loss,-25,0,-75,3,AAAAAB,true,B,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,1,505,,-25,480
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,34,choice,,html-keyboard-response,694,n,103896,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,5,1,1,mixed,0,80,-16,0.2,AAAAAB,true,B,right,,true,running,0.0026666666666666666,0.012833333333333334,right,1,0,480,0,-16,464
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,38,choice,,html-keyboard-response,538,b,109746,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,6,1,1,loss,-25,0,-47,1.88,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,0,464,,-25,439
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,42,choice,,html-keyboard-response,396,b,115149,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,7,1,1,gain,25,41,0,1.64,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,1,439,,25,464
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,46,choice,,html-keyboard-response,618,b,120774,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,8,1,1,loss,-25,0,-44,1.76,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,1,464,,-25,439
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,50,choice,,html-keyboard-response,503,b,126284,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,9,1,1,loss,-25,0,-75,3,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,1,439,,-25,414
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,54,choice,,html-keyboard-response,574,b,131865,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,10,1,1,loss,-25,0,-63,2.5,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,1,414,,-25,389
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,58,choice,,html-keyboard-response,625,b,137497,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,11,1,2,gain,25,44,0,1.76,AAAAAB,true,B,left,,true,running,0.0026666666666666666,0.012833333333333334,left,1,0,389,0,0,389
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,62,choice,,html-keyboard-response,653,n,143459,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,12,1,2,gain,25,55,0,2.2,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,right,0,0,389,,25,414
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,66,choice,,html-keyboard-response,514,b,148979,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,13,2,2,mixed,0,40,-53,1.33,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,left,1,0,414,0,-53,361
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,70,choice,,html-keyboard-response,684,b,154973,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,14,2,2,mixed,0,80,-64,0.8,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,left,1,1,361,1,80,441
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,74,choice,,html-keyboard-response,633,b,160915,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,15,2,2,mixed,0,40,-80,2,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,left,1,1,441,0,-80,361
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,78,choice,,html-keyboard-response,417,n,166646,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,16,2,2,loss,-25,0,-50,2,AAAAAB,true,B,left,,true,running,0.0026666666666666666,0.012833333333333334,right,0,0,361,,-25,336
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,82,choice,,html-keyboard-response,671,n,172324,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,17,2,2,mixed,0,80,-64,0.8,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,right,0,1,336,,0,336
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,86,choice,,html-keyboard-response,756,n,178087,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,18,2,2,mixed,0,80,-32,0.4,AAAAAC,true,C,left,,true,running,0.0026666666666666666,0.012833333333333334,right,0,1,336,,0,336
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,90,choice,,html-keyboard-response,458,b,183552,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,19,2,2,gain,25,63,0,2.5,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,left,1,0,336,0,0,336
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,94,choice,,html-keyboard-response,345,n,189205,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,20,2,2,gain,25,100,0,4,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,right,0,0,336,,25,361
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,98,choice,,html-keyboard-response,519,b,194731,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,21,2,3,gain,50,126,0,2.5,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,1,361,,50,411
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,102,choice,,html-keyboard-response,295,b,200031,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,22,2,3,loss,-25,0,-100,4,AAAAAB,true,B,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,1,411,,-25,386
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,106,choice,,html-keyboard-response,599,b,205636,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,23,2,3,mixed,0,40,-40,1,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,1,386,,0,386
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,110,choice,,html-keyboard-response,472,b,211116,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,24,2,3,mixed,0,80,-160,2,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,1,386,,0,386
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,114,choice,,html-keyboard-response,550,b,216673,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,25,3,3,gain,25,47,0,1.88,AAAAAB,true,B,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,1,386,,25,411
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,118,choice,,html-keyboard-response,723,b,222403,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,26,3,3,mixed,0,40,-40,1,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,1,411,,0,411
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,122,choice,,html-keyboard-response,438,b,227847,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,27,3,3,loss,-25,0,-41,1.64,AAAAAC,true,C,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,1,411,,-25,386
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,126,choice,,html-keyboard-response,493,b,233347,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,28,3,3,loss,-25,0,-44,1.76,AAAAAB,true,B,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,1,386,,-25,361
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,130,choice,,html-keyboard-response,1270,b,239623,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,29,3,3,mixed,0,40,-53,1.33,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,1,361,,0,361
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,134,choice,,html-keyboard-response,1366,b,245995,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,30,3,3,loss,-25,0,-55,2.2,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,1,361,,-25,336
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,138,choice,,html-keyboard-response,343,n,251345,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,31,3,4,loss,-25,0,-63,2.5,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,right,0,1,336,,-25,311
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,142,choice,,html-keyboard-response,1168,b,257520,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,32,3,4,mixed,0,40,-8,0.2,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,left,1,0,311,1,40,351
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,146,choice,,html-keyboard-response,540,n,263370,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,33,3,4,loss,-25,0,-50,2,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,right,0,0,351,,-25,326
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,150,choice,,html-keyboard-response,757,b,269134,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,34,3,4,mixed,0,80,-160,2,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,left,1,0,326,1,80,406
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,154,choice,,html-keyboard-response,390,n,274832,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,35,3,4,gain,25,75,0,3,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,right,0,0,406,,25,431
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,158,choice,,html-keyboard-response,3067,n,282906,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,36,3,4,loss,-25,0,-100,4,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,right,0,1,431,,-25,406
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,162,choice,,html-keyboard-response,1485,n,289398,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,37,4,4,gain,25,44,0,1.76,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,right,0,1,406,,25,431
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,166,choice,,html-keyboard-response,1239,n,295644,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,38,4,4,gain,50,110,0,2.2,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,right,0,1,431,,50,481
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,170,choice,,html-keyboard-response,1093,n,301743,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,39,4,4,gain,50,100,0,2,AAAAAC,true,C,left,,true,running,0.0026666666666666666,0.012833333333333334,right,0,1,481,,50,531
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,174,choice,,html-keyboard-response,1304,n,308053,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,40,4,4,mixed,0,80,-32,0.4,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,right,0,1,531,,0,531
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,178,choice,,html-keyboard-response,566,n,313625,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,41,4,5,mixed,0,80,-44,0.55,AAAAAB,true,B,right,,true,running,0.0026666666666666666,0.012833333333333334,right,1,0,531,0,-44,487
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,182,choice,,html-keyboard-response,335,b,319270,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,42,4,5,gain,50,200,0,4,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,0,487,,50,537
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,186,choice,,html-keyboard-response,595,b,324872,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,43,4,5,loss,-25,0,-55,2.2,AAAAAB,true,B,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,1,537,,-25,512
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,190,choice,,html-keyboard-response,477,b,330356,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,44,4,5,mixed,0,80,-64,0.8,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,1,512,,0,512
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,194,choice,,html-keyboard-response,527,b,335889,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,45,4,5,mixed,0,80,-32,0.4,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,1,512,,0,512
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,198,choice,,html-keyboard-response,341,n,341237,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,46,4,5,gain,50,94,0,1.88,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012833333333333334,right,1,0,512,1,94,606
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,202,choice,,html-keyboard-response,638,b,347184,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,47,4,5,mixed,0,80,-54,0.67,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,0,606,,0,606
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,206,choice,,html-keyboard-response,597,b,352787,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,48,4,5,loss,-25,0,-75,3,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,1,606,,-25,581
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,210,choice,,html-keyboard-response,523,n,358316,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,49,5,5,mixed,0,80,-44,0.55,AAAAAB,true,B,right,,true,running,0.0026666666666666666,0.012833333333333334,right,1,0,581,0,-44,537
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,214,choice,,html-keyboard-response,1220,b,364845,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,50,5,5,gain,25,75,0,3,AAAAAA,false,,right,,true,running,0.0026666666666666666,0.012833333333333334,left,0,0,537,,25,562
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,218,choice,,html-keyboard-response,672,n,370524,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,51,5,6,gain,50,88,0,1.76,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,right,0,1,562,,50,612
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,222,choice,,html-keyboard-response,446,b,375977,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,52,5,6,gain,50,100,0,2,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,left,1,0,612,1,100,712
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,226,choice,,html-keyboard-response,497,n,381784,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,53,5,6,mixed,0,80,-54,0.67,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,right,0,0,712,,0,712
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,230,choice,,html-keyboard-response,593,n,387383,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,54,5,6,gain,25,41,0,1.64,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,right,0,1,712,,25,737
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,234,choice,,html-keyboard-response,535,b,392924,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,55,5,6,gain,25,50,0,2,AAAAAC,true,C,left,,true,running,0.0026666666666666666,0.012833333333333334,left,1,0,737,1,50,787
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,238,choice,,html-keyboard-response,680,b,398913,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,56,5,6,mixed,0,80,-54,0.67,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,left,1,1,787,1,80,867
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,242,choice,,html-keyboard-response,310,n,404532,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,57,5,6,loss,-25,0,-41,1.64,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,right,0,0,867,,-25,842
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,246,choice,,html-keyboard-response,468,b,410006,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,58,5,6,gain,25,47,0,1.88,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,left,1,0,842,1,47,889
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,250,choice,,html-keyboard-response,257,n,415572,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,59,5,6,loss,-25,0,-50,2,AAAAAA,false,,left,,true,running,0.0026666666666666666,0.012833333333333334,right,0,0,889,,-25,864
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,254,choice,,html-keyboard-response,715,n,421293,,2.2.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,60,5,6,loss,-25,0,-63,2.5,AAAAAC,true,C,left,,true,running,0.0026666666666666666,0.012833333333333334,right,0,1,864,,-25,839
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,257,instructions,,instructions,2308,,425605,,2.1.0,feng2024-phase2-pilot,within-subjects,right,,task_done,"[{""page_index"":0,""viewing_time"":2308}]",,,,,,true,6,,,,,,,,,,,,,,,,,,,,,,,,,,,
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,258,sequence_check,,html-button-response,9648,0,435255,"
+        <div class=""seq-check"" data-n=""9"" data-correct=""left"">
+          <p>Listen to both sequences. Which is the more common sequence?</p>
+          <div class=""seq-pair"">
+            <div><strong>LEFT</strong><br><button type=""button"" class=""jspsych-btn play-btn"" data-play=""left"">&#9654; Play</button></div>
+            <div><strong>RIGHT</strong><br><button type=""button"" class=""jspsych-btn play-btn"" data-play=""right"">&#9654; Play</button></div>
+          </div>
+        </div>",2.1.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,left,true,true,6,post,left,AAAAAC,,,,,,,,,,,,,,,,,,,,,,,,
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,259,sequence_check,,html-button-response,11315,1,446572,"
+        <div class=""seq-check"" data-n=""10"" data-correct=""right"">
+          <p>Listen to both sequences. Which is the more common sequence?</p>
+          <div class=""seq-pair"">
+            <div><strong>LEFT</strong><br><button type=""button"" class=""jspsych-btn play-btn"" data-play=""left"">&#9654; Play</button></div>
+            <div><strong>RIGHT</strong><br><button type=""button"" class=""jspsych-btn play-btn"" data-play=""right"">&#9654; Play</button></div>
+          </div>
+        </div>",2.1.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,right,true,true,6,post,right,AAAAAB,,,,,,,,,,,,,,,,,,,,,,,,
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,260,demographics,,survey,6618,"{""age"":26,""gender"":""Woman""}",453232,,4.0.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,,,,,,,,,,,,,,,,,,,,,,,,
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,261,comments,,survey-text,1520,"{""comments"":""""}",454755,,2.1.1,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,,,,,,,,,,,,,,,,,,,,,,,,
+26eZCcqFLOd1sQ8gBwmxkxQbPEp2-fc49ebd9,262,debrief,,html-button-response,3147,0,457904,"
+      <h2>Debrief</h2>
+      <p>Thank you. This study tests whether hearing an unexpected sound changes the decisions people
+      make. Most choices followed the common tone sequence, and some followed a rare one. The tones
+      had no connection to the gambles: every gamble was a true 50/50 chance, whatever you heard.
+      The points did not affect your payment.</p>
+      <p>If you have questions about this research, contact
+      <a href=""mailto:stanfordpsych251@gmail.com"">stanfordpsych251@gmail.com</a>.
+      Press the button to save your responses and finish.</p>",2.1.0,feng2024-phase2-pilot,within-subjects,right,,,,,,,,,true,6,,,,,,,,,,,,,,,,,,,,,,,,,,,

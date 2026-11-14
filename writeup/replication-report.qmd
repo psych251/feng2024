@@ -49,9 +49,10 @@ library(jsonlite)
 
 # Must match EXPERIMENT.id in experiment.js, and the --experiment you passed to the export.
 # Phase 1 moves feng2024-pilot-a -> feng2024-pilot-b -> feng2024-final; change it here each time.
-# Phase 2 runs under its own id, so its data never mix with Phase 1's.
+# Phase 2 runs under its own id, so its data never mix with Phase 1's:
+# feng2024-phase2-pilot while piloting, then feng2024-phase2 for data collection (phase2/experiment.js).
 experiment_id        <- "feng2024-lite-final"
-experiment_id_phase2 <- "feng2024-phase2"
+experiment_id_phase2 <- "feng2024-phase2-pilot"
 ```
 
 ```{r}
@@ -98,7 +99,7 @@ original_stay_sem  <- 0.89
 
 | Tool and model | What it was used for | How you checked the output |
 |---|---|---|
-| *Claude (Claude Opus 5.5)* | *Explain some of the terminology in the paper, debugging when getting error in pushing report, debugging R code for power analysis and key stats table of original studies, building experiment in javascript* | *read the original paper carefully, manually check the output and code, and check if I can open the link, check the live studies and the exported data* |
+| *Claude (Claude Opus 5.5)* | *Explain some of the terminology in the paper, debugging when getting error in pushing report, debugging R code for power analysis and key stats table of original studies, building experiments in javascript. Robustness check with provided adversarial protocol review skill file (run by a claude agent), caps-lock recoding and rounding fix, coding power analysis (and curve) and recruitment simulation. * | *read the original paper carefully, manually check the output and code, and check if I can open the link, check the live studies and the exported data, reviewed the robustness check results manually* |
 
 I wrote all of the text in this report myself. AI tools were not used to write, rewrite or
 paraphrase it, and were not used to generate, alter, or impute any participant data. I take full
@@ -122,7 +123,7 @@ adapt its code and say so in the caption.
 #| code-summary: "Show the analysis code (shared by Phase 1 and Phase 2)"
 # Load one phase's exported data and apply the exclusion rule. Returns NULL if that phase
 # has not been exported yet, which is how every section below knows to skip itself.
-read_phase <- function(id) {
+read_phase <- function(id, n_choice_trials = 120) {
   dir <- file.path("..", "data", "raw", id)
   if (!all(file.exists(file.path(dir, c("participants.csv", "trials.csv"))))) return(NULL)
   participants <- read_csv(file.path(dir, "participants.csv"), show_col_types = FALSE)
@@ -130,24 +131,51 @@ read_phase <- function(id) {
   errors_path  <- file.path(dir, "errors.csv")
   errors <- if (file.exists(errors_path)) read_csv(errors_path, show_col_types = FALSE) else tibble()
 
+  # Choices are coded from the key actually pressed (b/B = left, n/N = right). The Phase 1
+  # (lite) experiment saved an uppercase "B" (caps lock) as a right-hand choice, so chosen
+  # side, chose_risky and stay (same choice as the previous trial; trial 1 has none) are
+  # recomputed from the key here. For correctly coded data (Phase 2) this changes nothing.
+  # The values as saved are kept as chose_risky_recorded / stay_recorded for the sensitivity check.
+  if (all(c("task", "response", "risky_side", "trial_number") %in% names(trials))) {
+    recoded <- trials |>
+      filter(task == "choice") |>
+      mutate(trial_number = as.numeric(trial_number),
+             chosen_side_key = if_else(tolower(as.character(response)) == "b", "left", "right"),
+             chose_risky_key = as.numeric(chosen_side_key == risky_side)) |>
+      arrange(participant_id, trial_number) |>
+      group_by(participant_id) |>
+      mutate(stay_key = as.numeric(chose_risky_key == lag(chose_risky_key))) |>
+      ungroup() |>
+      select(participant_id, trial_number, chose_risky_key, stay_key)
+    trials <- trials |>
+      mutate(trial_number = as.numeric(trial_number)) |>
+      left_join(recoded, by = c("participant_id", "trial_number")) |>
+      mutate(chose_risky_recorded = as.numeric(chose_risky), stay_recorded = as.numeric(stay),
+             chose_risky = if_else(task %in% "choice", chose_risky_key, as.numeric(chose_risky)),
+             stay        = if_else(task %in% "choice", stay_key, as.numeric(stay))) |>
+      select(-chose_risky_key, -stay_key)
+  }
+
   # Sessions run by the automated test robot (?fast=1, only possible on localhost) are not data.
   if ("fast_mode" %in% names(participants)) participants <- participants |> filter(!(fast_mode %in% TRUE))
   if (!"headphone_passed" %in% names(participants)) participants$headphone_passed <- NA
 
   complete <- participants |> filter(completed %in% TRUE)
 
-  # Exclusion rule: replace with the rule you preregister. Here: passed the headphone check
-  # (5 or more of 6 correct; failing ends the study) and has all 120 choice trials.
+  # Exclusion rule (preregistered): passed the headphone check (Phase 1 lite: 2 of 2 correct;
+  # Phase 2: 5 or more of 6; failing ends the study) and has all choice trials
+  # (n_choice_trials: 120 in Phase 1, 60 in Phase 2). Not named n_trials, because participants.csv
+  # has a column called n_trials (all saved rows), which dplyr would use instead.
   n_choice <- trials |> filter(task == "choice") |> count(participant_id, name = "n_choice")
   checked <- complete |>
     left_join(n_choice, by = "participant_id") |>
     mutate(n_choice = coalesce(n_choice, 0L))
-  keep <- checked |> filter(headphone_passed %in% TRUE, n_choice == 120)
+  keep <- checked |> filter(headphone_passed %in% TRUE, n_choice == n_choice_trials)
 
   list(participants = participants, trials = trials, errors = errors,
        complete = complete, keep = keep,
        n_headphone_fail = sum(participants$headphone_passed %in% FALSE),
-       n_missing_trials = sum(checked$headphone_passed %in% TRUE & checked$n_choice < 120))
+       n_missing_trials = sum(checked$headphone_passed %in% TRUE & checked$n_choice < n_choice_trials))
 }
 
 # Per-participant percentages of risky choices (and of staying with the previous choice)
@@ -162,7 +190,9 @@ person_effects <- function(d) {
               stay_rare    = 100 * mean(stay[rare], na.rm = TRUE),
               stay_common  = 100 * mean(stay[!rare], na.rm = TRUE),
               .groups = "drop") |>
-    mutate(risk_diff = risky_rare - risky_common, stay_diff = stay_rare - stay_common)
+    # Rounded so that differences that are equal in exact arithmetic (e.g. 0) are equal in
+    # floating point too; otherwise the Wilcoxon test's zero and tie handling depends on rounding noise.
+    mutate(risk_diff = round(risky_rare - risky_common, 8), stay_diff = round(stay_rare - stay_common, 8))
 }
 
 # The key statistic: mean rare-minus-common difference with SEM and 95% CI, d_z, and the
@@ -172,7 +202,7 @@ effect_summary <- function(x) {
   n <- length(x)
   if (n < 2) return(NULL)
   m <- mean(x); s <- sd(x); sem <- s / sqrt(n)
-  w <- tryCatch(suppressWarnings(wilcox.test(x, mu = 0, alternative = "two.sided", exact = FALSE)),
+  w <- tryCatch(suppressWarnings(wilcox.test(round(x, 8), mu = 0, alternative = "two.sided", exact = FALSE)),
                 error = function(e) list(statistic = NA_real_, p.value = NA_real_))
   tibble(N = n, estimate = m, sem = sem,
          ci_low = m - qt(0.975, n - 1) * sem, ci_high = m + qt(0.975, n - 1) * sem,
@@ -214,7 +244,7 @@ comparison_plot <- function(...) {
 fmt_p <- function(p) if (is.na(p)) "" else format.pval(p, digits = 2, eps = 0.001)
 
 phase1 <- read_phase(experiment_id)
-phase2 <- read_phase(experiment_id_phase2)
+phase2 <- read_phase(experiment_id_phase2, n_choice_trials = 60)   # Phase 2 has 60 choice trials
 have_data   <- !is.null(phase1)
 have_phase2 <- !is.null(phase2)
 ```
@@ -257,14 +287,13 @@ For the specific experiment that I replicated, experiment 2, each participant ca
 There were several challenges that we anticipated in running this experiment, including limited budget to recruit participants in-time, participants attention and audio quality are hard to control, moving from Gorilla (original experiment platform) to jsPsych with firebase. 
 For the **key statistical test**, we calculated the percentage difference of each participant’s risky choices in rare trial and in common trial and perform the 2-sided Wilcoxon signed-rank test (against 0), to be consistent with the authors.
 
-One possible extension to this experiment is incorporating ‘think like a trader’ reframing (Sokol-Hessner et al. 2009) to half of the participants (randomly, N=100) to test if it reduces loss aversion and effect of surprising sounds.
 
 ## Methods
 
 ### Power analysis
 
 
-The original effect size is 4.03 ± 1.6% (i.e. % points of risky choice for rare minus common tone sequence), d_z = 0.27 with N = 200 participants. As we can see from the power table below, we need 116 participants (Wilcoxon) for 80 % power, 155 for 90%, and 191 for 95%. The other alternative that one could use is 2.5 times the original sample size (500 participants), as published effect tend to be inflated. We choose to power the study to the original effect and aim for the minimum sample size of interest to achieve at least 80 \% power, which led us to choose N=120 participants. Budget constraint was also part of our consideration, which limit the number of participants we could recruit. 
+The original effect size is 4.03 ± 1.06% (i.e. % points of risky choice for rare minus common tone sequence), d_z = 0.27 with N = 200 participants. As we can see from the power table below, we need 116 participants (Wilcoxon) for 80 % power, 155 for 90%, and 191 for 95%. The other alternative that one could use is 2.5 times the original sample size (500 participants), as published effect tend to be inflated. We choose to power the study to the original effect and aim for the minimum sample size of interest to achieve at least 80 \% power, which led us to choose N=120 participants. Budget constraint was also part of our consideration, which limit the number of participants we could recruit. 
 
 ```{r}
 #| label: power
@@ -349,12 +378,13 @@ We excluded participants who failed the headphone (sound) check or didn't comple
 |Sample size | 200  | 120 | Unlikely, with N=120 the power is 80% at the original effect (acceptable level)|
 | Other tasks | PHQ-8 / GAD Questionnaires Included  | PHQ-8 / GAD Questionnaires Removed | No. |
 
+
 ### Methods addendum (post data collection)
 
 
 #### Actual sample
 
-From 297 participants who started the experiment, 277 passed the device check, and 142 passed the sound check. 122 of those finished the experiments, but 2 timed-out and excluded. We analysed results from 120 participants who passed the device check, sound check, and finished the experiments (without timed-out). The average participants age is 40.3 years, with 62 men and 58 women. The median time to complete the experiment is 18.7 minutes (against 17 mins that we compensated based on the pilot result).
+From 297 participants who started the experiment, 277 passed the device check, and 142 passed the sound check. 122 of those finished the experiments, but 1 screened-out participant who retook the sound check and 1 timed-out participant are excluded. We analysed results from 120 participants who passed the device check, sound check, and finished the experiments (without timed-out). The average participants age is 40.3 years, with 62 men and 58 women. The median time to complete the experiment is 18.7 minutes (against 17 mins that we compensated based on the pilot result).
 
 ```{r}
 #| label: no-data-notice
@@ -447,14 +477,17 @@ if (nrow(demo) > 0) {
 
 #### Deviations from the preregistered plan
 
-None
+(1) 2 participants' data were removed after data collection (1 due to timed-out and 1 due to retake after failing sound check).
+(2) We record the choices based on the key-pressed, due to caps-lock bug which affected 5 people and 234 trials in total.
+(3) Correction on handling zeros and ties result in Wilcoxon test, which caused minor change in p-value.
+
+
 
 ## Results
 
 ### Data preparation
 
-No data processing beyond applying the pre-registered exclusion rule (sound check and completing 120 trials).
-We reported the key-statistics and report and how they were calculated in the confirmatory analysis section.
+Data was recorded from the key-pressed (due to caps-lock bug which affected 5 participants and 234 trials in total, refer to deviations section) and the pre-registered exclusion rules were applied (sound check and completing 120 trials). We reported the key-statistics and report and how they were calculated in the confirmatory analysis section.
 
 ### Confirmatory analysis
 
@@ -475,7 +508,33 @@ if (nrow(pe) >= 2) {
 }
 ```
 
-We did two-sided Wilcoxon signed-rank test against 0, for the percentage difference of risky choices after rare and common tone. As shown in the table, with N=120, we get +2.14 mean difference (estimate), 1.35 SEM,  95% confidence interval of [−0.53, 4.81], effect size d_z = mean difference / std. dev of difference =  0.14, and p-value = 0.36. 
+```{r}
+#| label: sensitivity-coding
+#| eval: !expr have_data
+# Sensitivity check (deviation from the preregistered coding): the key test with choices as
+# saved by the Phase 1 experiment, where an uppercase B (caps lock) was saved as a right-hand choice.
+if ("chose_risky_recorded" %in% names(trials) && nrow(pe) >= 2) {
+  choice_rows <- trials |> filter(task == "choice", participant_id %in% keep$participant_id)
+  caps <- choice_rows |> filter(response %in% c("B", "N"))
+  pe_recorded <- choice_rows |>
+    mutate(rare = as.logical(rare)) |>
+    group_by(participant_id) |>
+    summarise(risk_diff = round(100 * (mean(chose_risky_recorded[rare]) - mean(chose_risky_recorded[!rare])), 8),
+              .groups = "drop")
+  bind_rows(
+    effect_summary(pe$risk_diff) |> mutate(Coding = "Key pressed (b/B = left, n/N = right): primary"),
+    effect_summary(pe_recorded$risk_diff) |> mutate(Coding = "As saved by the experiment (uppercase B = right)")
+  ) |>
+    transmute(Coding, N, `Mean (points)` = round(estimate, 2), SEM = round(sem, 2),
+              `95% CI` = sprintf("[%.2f, %.2f]", ci_low, ci_high), d_z = round(dz, 2),
+              V, p = map_chr(p, fmt_p)) |>
+    knitr::kable(caption = sprintf(
+      "Sensitivity check, choice coding: %d choice trials from %d analysed participants were typed in uppercase (%d of them an uppercase B).",
+      nrow(caps), n_distinct(caps$participant_id), sum(caps$response == "B")))
+}
+```
+
+We did two-sided Wilcoxon signed-rank test against 0, for the percentage difference of risky choices after rare and common tone. As shown in the table, with N=120, we get +2.55 mean difference (estimate), 1.44 SEM,  95% confidence interval of [−0.31, 5.40], effect size d_z = mean difference / std. dev of difference =  0.16, and p-value = 0.35. 
 Compare to the original studies of mean difference +4.03, 95% CI of [1.94, 6.12], p < .001, and d_z = 0.27.
 
 
@@ -484,7 +543,7 @@ Compare to the original studies of mean difference +4.03, 95% CI of [1.94, 6.12]
 
 
 The confidence interval of our replication result includes both 0 and also the original estimate of +4.03, hence we can say our result is inconclusive. 
-The calculated effect size d_z = 0.14 is only half of the original effect size d_z = 0.27. 
+The calculated effect size d_z = 0.16 is only 60% of the original effect size d_z = 0.27. 
 
 
 
@@ -538,7 +597,7 @@ comparison_plot(Original = original_rates, `Phase 1: replication` = sequence_rat
 
 ### Exploratory analyses
 
-We analysed replay users vs non-replay users after collecting our data and stay rate: rate of people making the same choice as on the previous trial. We also analysed the first half and second half of the trials separately (each with 60 tones: 15 rare tones and 45 common tones).
+We analysed replay users vs non-replay users after collecting our data and stay rate: rate of people making the same choice as on the previous trial. We also analysed the first half and second half of the trials separately (each with 60 trials: 15 rare tone trials and 45 common tone trials).
 The results are reported in the table below. 
 
 ```{r}
@@ -566,7 +625,7 @@ message(sprintf("Between groups (Wilcoxon rank-sum): W = %.1f, p = %s", rs$stati
 
 
 ```{r}
-#| label: exploratory-rt
+#| label: exploratory-stay-type
 #| eval: !expr have_data
 # Secondary effect reported in the original: staying with the previous choice, rare minus
 # common (original Experiment 2: -3.62 +/- 0.89 %). Then the key difference by option type.
@@ -642,13 +701,19 @@ if (nrow(errors) > 0) {
 
 ## Discussion
 
+
 ### Summary of replication attempt
+We did two-sided Wilcoxon signed-rank test against 0, for the percentage difference of risky choices after rare and common tone (for each person). With N=120, we get +2.55 mean difference (estimate), 1.44 SEM,  95% confidence interval of [−0.31, 5.40], effect size d_z = 0.16, and p-value = 0.35. 
+The confidence interval of our replication result includes both 0 and also the original estimate of +4.03, hence we can say our result is inconclusive. The calculated effect size d_z = 0.16 is only 60% of the original effect size d_z = 0.27. 
+Our conclusion still holds after robustness check.
+
 
 ### Commentary
 
 
-The exploratory analysis suggest that the participants who use replay (41 participants) have mean of +0.03 with SEM 1.81, while participants who don't use replay (79 participants) have mean of +3.23 with SEM 1.82. This may suggest that participants who need to use replay button show no effect to risky decision making after rare tone. This exploratory analysis result may have suggested the need for stricter sound check, i.e. dropping replay and restoring the 6 sequences sound checks. 
-Furthermore, halving the experiment length (i.e. with 60 trials instead of 120 trials per participant) is unlikely to improve the results, as exploratory analysis suggested that the effect built up over the session (original experiment : +2.8 in trials 1–60 vs +5.3 in trials 61–120 and replication +1.8 in trials 1–60 vs +2.5 in trials 61–120).
+The exploratory analysis suggest that the participants who use replay (41 participants) have mean of +1.49 with SEM 2.40, while participants who don't use replay (79 participants) have mean of +3.09 with SEM 1.81. This may suggest that participants who need to use replay button show much smaller effect to risky decision making after rare tone. This exploratory analysis result may have suggested the need for stricter sound check, i.e. dropping replay and restoring the 6 sequences sound checks. 
+Furthermore, halving the experiment length, i.e. with 60 trials instead of 120 trials per participant, can potentially reduce experiment fatigue, but has some trade-off involved, as discussed in Phase 2 Extension's Rationale section.
+
 
 # Phase 2: Extension
 
@@ -657,9 +722,9 @@ Furthermore, halving the experiment length (i.e. with 60 trials instead of 120 t
 ## Rationale
 
 
-There are 3 possible reasons for Phase 1 did not reproduce the original result. First, we had too few sample for a smaller true effect. The effect estimated by our replication is +2.14 and this gives much lower than 80 % power with N=120. We can potentially address this issue by increasing sample size to N=200. 
-Second, we had weaker sound check compare to the original paper. With 2 screens sound-check and replay option, guessers pass our 2-screen check around 11% of the time (compare to around 2% in the original paper). Another interesting observation from exploratory analysis suggest that participants who need to use replay button show no effect to risky decision making after rare tone (no replay users   +3.23 ± 1.82 and replay users: −0.03 ± 1.72 (n = 79 vs 43)). We can potentially address this issue by restoring the original 6 screens sound check (pass with 5 out of 6 correct) and removing the replay option.
-The third reason is experiment fatigue, based on few participants feedback in the pilot and main study, the 17 minutes duration of the experiment might be too long. One of the possible changes to make is to cut the experiment duration to 10 minutes (i.e. with 60 trials instead of 120 trials per participant). However, the drawback is we would get less chance to observe the risky sound effect for each participants (15 trials instead of 30 trials), and it is more costly as we need to increase the sample size to N=350 or more for 80% power. Also, the result from exploratory analysis showed that the effect built up over the session (original experiment : +2.8 in trials 1–60 vs +5.3 in trials 61–120 and replication +1.8 in trials 1–60 vs +2.5 in trials 61–120).
+There are 3 possible reasons for Phase 1 did not reproduce the original result. First, we had too few sample for a smaller true effect. The effect estimated by our replication is +2.55 and this gives much lower than 80 % power with N=120. We can potentially address this issue by increasing sample size to N=250. 
+Second, we had weaker sound check compare to the original paper. With 2 screens sound-check and replay option, guessers pass our 2-screen check around 11% of the time (compare to around 2% in the original paper). Another interesting observation from exploratory analysis suggest that participants who need to use replay button show no effect to risky decision making after rare tone (no replay users   +3.09 ± 1.81 (n=79) and replay users: 1.49 ± 2.40  (n = 41)). We can potentially address this issue by restoring the original 6 screens sound check (pass with 5 out of 6 correct) and removing the replay option.
+The third reason is experiment fatigue, based on few participants feedback in the pilot and main study, the 17 minutes duration of the experiment might be too long. One of the possible changes to make is to cut the experiment duration to 10 minutes (i.e. with 60 trials instead of 120 trials per participant). One of the drawback to this change is we would get less chance to observe the risky sound effect for each participants (15 trials instead of 30 trials). However, we can recruit more participants for the similar budget (N=250 to get 80% power for +3 points target effect), and attrition rate would have been reduced. Also, based on the exploratory analysis, the replication result does not provide strong support that effect built up over the session (+2.41 in trials 1–60 vs +2.69 in trials 61–120).
 
 
 ## Changes from Phase 1
@@ -669,7 +734,9 @@ The third reason is experiment fatigue, based on few participants feedback in th
 | # | Category | Phase 1 | Phase 2 | Why |
 |---|---|---|---|---|
 | 1 | Checks | 2-screen sound check with Replay, 2/2 to pass |  6-screen sound check, played once, 5/6 to pass | Participants from phase 1 who used replay show no effect, stricter sound check to screened out 'guesser' |
-| 2 | Sample | N=120 | N=200 | The effect estimated by our replication is +2.14 and this gives much lower than 80 % power with N=120 |
+| 2 | Sample | N=120 | N=250 | The effect estimated by our replication is +2.55 and this gives much lower than 80 % power with N=120, also to account for halving the number of trials|
+| 3 | Number of trials | 120 trials | 60 trials | Reduce experiment fatigue, reduce participants attrition rate |
+| 4 | Case sensitivity (Caps-lock) | saving upper B as right hand side choice | case insensitive: B read as b, N as n | Caps-lock enabled choices in Phase 1 were misrecorded (affected 5 people and 234 trials) and decoding had to be done to sync the data with the actual key pressed |
 
 
 Everything not listed above is identical to Phase 1.
@@ -680,49 +747,142 @@ Everything not listed above is identical to Phase 1.
 
 
 
-Considering the possible improvement through stricter sound check and no replay and based on the exploratory analysis of replay vs no-replay participants, we would expect the effect to move closer to original 4.03. Balancing the trade-off between effect size and budget constraints, we would power to 3 points instead of the phase 1 result of 2.14 or the original result of 4.03. To achieve at least 80% power at this effect size, we would require N=200 sample. Full analysis is presented in the table below.
+Considering the possible improvement through stricter sound check and no replay and based on the exploratory analysis of replay vs no-replay participants, we would expect the effect to move closer to original 4.03. Balancing the trade-off between effect size and budget constraints, we would power to 3 points instead of the phase 1 result of 2.55 or the original result of 4.03. To achieve at least 80% power at this effect size and half of the trials (60 trials), we would require N=250 participants. Considering the Phase 1 attrition rate and stricter sound-check, we may need 615-770 to start, however we would expect the dropout rate to be reduced with shorter experiment duration.
+Full analysis is presented in the table and the power curve below. 
+
 
 
 
 ```{r}
 #| label: phase2-power
-phase2_n <- 200   # planned analysed participants in Phase 2
+phase2_n <- 250   # planned analysed participants in Phase 2
 
-p1_effect <- if (have_data) effect_summary(person_effects(phase1)$risk_diff)
-basis_sd  <- if (!is.null(p1_effect)) p1_effect$estimate / p1_effect$dz else original_sd
-basis_src <- if (!is.null(p1_effect)) "Phase 1" else "the original study"
+# Power of the planned test (two-sided Wilcoxon signed-rank, alpha = .05) by simulation: draw
+# samples of n people from individual effects, moved so that the effect equals the target, and
+# count how often the test is significant. Phase 2 has 60 choice trials (15 rare), so its
+# individual effects are simulated from the Phase 1 effects computed on trials 1-60 only (same
+# number of rare and common trials); the Phase 1 row uses all 120 trials. Moving the
+# effects to the target: the effects are shifted so that their PSEUDO-MEDIAN (Hodges-Lehmann
+# estimate, what the Wilcoxon test is about) equals the target, i.e. every person's effect moves
+# by the same amount ("effect in everyone"). If instead only a few people carried the effect, as
+# in Phase 1 (median 0), power would be much lower: power_at(..., centre = "mean") gives that case.
+# Falls back to a one-sample t approximation with the original SD if there are no Phase 1 data.
+# The CI half-width (for the mean) uses the SD of the same individual effects.
+first_60 <- function(d) {
+  d$trials <- d$trials |> filter(!(task %in% "choice") | as.numeric(trial_number) <= 60)
+  d
+}
+basis <- if (have_data) list(`Phase 1 (actual)`  = person_effects(phase1)$risk_diff,
+                             `Phase 2 (planned)` = person_effects(first_60(phase1))$risk_diff)
+p1_effect <- if (have_data) effect_summary(basis$`Phase 1 (actual)`)
+n_sim     <- 2000
+hodges_lehmann <- function(x) { w <- outer(x, x, "+") / 2; median(w[upper.tri(w, diag = TRUE)]) }
 
-half_width <- function(n) qt(0.975, n - 1) * basis_sd / sqrt(n)
-power_at <- function(n, delta) {
-  tryCatch(power.t.test(n = n, delta = delta, sd = basis_sd, sig.level = 0.05, type = "one.sample")$power,
-           error = function(e) NA)
+power_at <- function(study, n, delta, centre) {
+  if (is.null(basis)) {
+    return(power.t.test(n = n, delta = delta, sd = original_sd, sig.level = 0.05, type = "one.sample")$power)
+  }
+  x0 <- basis[[study]]
+  shifted <- x0 - (if (centre == "mean") mean(x0) else hodges_lehmann(x0)) + delta
+  mean(replicate(n_sim, {
+    x <- round(sample(shifted, n, replace = TRUE), 8)
+    suppressWarnings(wilcox.test(x, mu = 0, exact = FALSE)$p.value) < 0.05
+  }))
+}
+half_width <- function(study, n) {
+  s <- if (is.null(basis)) original_sd else sd(basis[[study]])
+  qt(0.975, n - 1) * s / sqrt(n)
 }
 p1_est <- if (!is.null(p1_effect)) p1_effect$estimate else NA_real_
 pct <- function(x) scales::percent(x, accuracy = 1)
 
-tibble(
-  Study        = c(if (!is.null(p1_effect)) "Phase 1 (actual)", "Phase 2 (planned)"),
-  `N analysed` = c(if (!is.null(p1_effect)) p1_effect$N, phase2_n)
+set.seed(251)
+expand_grid(
+  Study  = c(if (!is.null(p1_effect)) "Phase 1 (actual)", "Phase 2 (planned)"),
+  centre = if (is.null(basis)) "mean" else "pseudo-median"
 ) |>
-  mutate(`Power at 4.03 (original)`  = pct(map_dbl(`N analysed`, power_at, delta = original_mean)),
-         `Power at 3`                = pct(map_dbl(`N analysed`, power_at, delta = 3)),
-         `Power at Phase 1 estimate` = if (is.na(p1_est)) "" else pct(map_dbl(`N analysed`, power_at, delta = p1_est)),
-         `95% CI half-width`         = sprintf("±%.2f points", map_dbl(`N analysed`, half_width))) |>
+  mutate(Trials       = if_else(Study == "Phase 2 (planned)", 60, 120),
+         `N analysed` = if_else(Study == "Phase 2 (planned)", as.numeric(phase2_n), if (!is.null(p1_effect)) as.numeric(p1_effect$N) else NA_real_),
+         Assumption   = if (is.null(basis)) "Normal (t approximation)"
+                        else "Effect in everyone",
+         `Power at 4.03 (original)`  = pct(pmap_dbl(list(Study, `N analysed`, centre), \(s, n, cen) power_at(s, n, original_mean, cen))),
+         `Power at 3`                = pct(pmap_dbl(list(Study, `N analysed`, centre), \(s, n, cen) power_at(s, n, 3, cen))),
+         `Power at Phase 1 estimate` = if (is.na(p1_est)) "" else pct(pmap_dbl(list(Study, `N analysed`, centre), \(s, n, cen) power_at(s, n, p1_est, cen))),
+         `95% CI half-width`         = sprintf("±%.2f points", map2_dbl(Study, `N analysed`, half_width))) |>
+  select(Study, Trials, Assumption, `N analysed`, starts_with("Power"), `95% CI half-width`) |>
   knitr::kable(caption = sprintf(
-    "Power of the key test (one-sample t approximation, two-sided alpha = .05) and expected precision, using the SD of individual effects from %s (%.1f points)%s.",
-    basis_src, basis_sd, if (is.na(p1_est)) "" else sprintf("; Phase 1 estimate = %.2f points", p1_est)))
+    "Power of the Wilcoxon signed-rank test (two-sided, alpha = .05), %s, and expected precision of the mean%s.",
+    if (is.null(basis)) "one-sample t approximation with the original SD" else sprintf("by simulation (%d resamples of Phase 1 individual effects, each shifted so the typical person's effect equals the target, i.e. the effect is in everyone; Phase 2 uses the effects from Phase 1 trials 1-60)", n_sim),
+    if (is.na(p1_est)) "" else sprintf("; Phase 1 estimate = %.2f points", p1_est)))
+```
+
+```{r}
+#| label: fig-phase2-power-curve
+#| fig-cap: "Power of the Phase 2 key test (Wilcoxon signed-rank, two-sided, alpha = .05) by number of analysed participants, for three effect sizes, simulated from the Phase 1 individual effects on trials 1-60 (Phase 2 has 60 trials), assuming the effect is in everyone. Dashed line: 80% power; dotted line: the planned sample."
+#| fig-width: 7
+#| fig-height: 4
+# Same simulation as the power table above, over a grid of sample sizes (fewer resamples per
+# point to keep the render quick). With 60 trials each person's score moves in steps of about
+# 2.2 points, so nearby effect sizes (e.g. the Phase 1 estimate and 3) can give similar power.
+n_sim_table <- n_sim
+n_sim <- 500
+set.seed(252)
+curve_effects <- c(if (!is.na(p1_est)) p1_est, 3, original_mean)
+curve_labels  <- c(if (!is.na(p1_est)) sprintf("Phase 1 estimate (%.2f)", p1_est), "Planning target (3)",
+                   sprintf("Original (%.2f)", original_mean))
+power_curve <- expand_grid(n = seq(50, 400, by = 25), i = seq_along(curve_effects)) |>
+  mutate(Effect = factor(curve_labels[i], levels = curve_labels),
+         power  = map2_dbl(n, i, \(n, i) power_at("Phase 2 (planned)", n, curve_effects[i], "pseudo-median")))
+n_sim <- n_sim_table
+ggplot(power_curve, aes(n, power, colour = Effect)) +
+  geom_hline(yintercept = 0.8, linetype = "dashed", colour = "grey55") +
+  geom_vline(xintercept = phase2_n, linetype = "dotted", colour = "grey25") +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 1.4) +
+  scale_colour_manual(values = setNames(c("#B8792A", "#1E6E76", "grey45")[seq_along(curve_labels)], curve_labels)) +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+  labs(x = "Analysed participants (Phase 2, 60 trials)", y = "Power", colour = NULL) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "top")
+```
+
+```{r}
+#| label: phase2-recruitment
+#| eval: !expr have_data
+# How many people need to START Phase 2 to end with phase2_n analysed, using the Phase 1
+# attrition at each step (device check, headphone check, finishing, exclusions). The stricter
+# 6-screen headphone check is expected to screen out more people, so the headphone pass rate is
+# also shown at 90% and 80% of its Phase 1 value. Rows of participants.csv are sessions.
+p1p <- phase1$participants
+rates <- c(device    = mean(p1p$device_supported %in% TRUE),
+           headphone = sum(p1p$headphone_passed %in% TRUE) / sum(p1p$device_supported %in% TRUE),
+           finish    = nrow(phase1$complete |> filter(headphone_passed %in% TRUE)) / sum(p1p$headphone_passed %in% TRUE),
+           analysed  = nrow(phase1$keep) / nrow(phase1$complete |> filter(headphone_passed %in% TRUE)))
+tibble(`Headphone pass rate` = c("As in Phase 1", "90% of Phase 1", "80% of Phase 1"),
+       hp = rates[["headphone"]] * c(1, 0.9, 0.8)) |>
+  mutate(overall = rates[["device"]] * hp * rates[["finish"]] * rates[["analysed"]],
+         `Starters needed` = ceiling(phase2_n / overall),
+         `Screened out by headphone check (approx.)` = round(`Starters needed` * rates[["device"]] * (1 - hp))) |>
+  transmute(`Headphone pass rate`, `Pass rate` = scales::percent(hp, accuracy = 1),
+            `Analysed per starter` = scales::percent(overall, accuracy = 1),
+            `Starters needed`, `Screened out by headphone check (approx.)`) |>
+  knitr::kable(caption = sprintf(
+    "Recruitment needed for %d analysed Phase 2 participants, from Phase 1 attrition: device check passed %s, headphone check passed %s of those, finished %s of those, analysed %s of those.",
+    phase2_n, scales::percent(rates[["device"]], 1), scales::percent(rates[["headphone"]], 1),
+    scales::percent(rates[["finish"]], 1), scales::percent(rates[["analysed"]], 1)))
 ```
 
 ## Analysis plan
 
 
-For Phase 2 analysis, we will perform the same test as in Phase 1: Wilcoxon two-sided signed rank test on percentage difference of risky choice after rare and common tone for each participant. For exploratory analysis, we will report the pooled estimates across Phase 1 and Phase 2. We will also report the pooled estimate of participants in Phase 1 who did not use replay and Phase 2 participants, as this is a closer comparison to Phase 2 compare to considering every Phase 1 participants.
+For Phase 2 analysis, we will perform the same test as in Phase 1: Wilcoxon two-sided signed rank test on percentage difference of risky choice after rare and common tone for each participant. Participants data will only included to the analysis for Phase 2 if they obtained  5 out of 6 correct on sound-check and completed all 60 trials. 
+For exploratory analysis, we will report the pooled estimates across Phase 1 and Phase 2. We will also report the pooled estimate of participants in Phase 1 who did not use replay and Phase 2 participants, as this is a closer comparison to Phase 2 compare to considering every Phase 1 participants.
 
 We will run Phase 2 under a new experiment id to avoid mixing the result with Phase 1.
 
 **Bot Extension**
 
-As a side extension to this project, we would like to train cognitive science based models to closely match human performance and choices in the risky sound and decision making task; we aim to learn which model can closely replicate human performance. 
+As an exploratory extension to this project, we would like to train cognitive science based models to closely match human performance and choices in the risky sound and decision making task; we aim to learn which model can closely replicate human performance. 
 
 
 ## Results
@@ -767,6 +927,32 @@ comparison_plot(Original = original_rates,
                 `Phase 2: extension` = sequence_rates(person_effects(phase2)))
 ```
 
+```{r}
+#| label: phase2-pooled
+#| eval: !expr have_phase2 && have_data
+# Exploratory (as planned in the Phase 2 analysis plan): pooled estimates of the key effect,
+# (1) all Phase 1 and Phase 2 participants, and (2) Phase 1 participants who did not use Replay
+# in the headphone check together with the Phase 2 participants. Same test as the key analysis.
+# Note: Phase 1 effects come from 120 trials (30 rare) and Phase 2 effects from 60 (15 rare),
+# so Phase 2 individual effects are noisier; the pooled estimate weights every person equally.
+p1_pe <- person_effects(phase1)
+p2_pe <- person_effects(phase2)
+p1_no_replay <- phase1$trials |>
+  filter(task == "headphone_check", participant_id %in% phase1$keep$participant_id) |>
+  group_by(participant_id) |>
+  summarise(used_replay = sum(as.numeric(replays), na.rm = TRUE) > 0, .groups = "drop") |>
+  filter(!used_replay) |>
+  pull(participant_id)
+bind_rows(
+  effect_summary(c(p1_pe$risk_diff, p2_pe$risk_diff)) |> mutate(Sample = "Phase 1 + Phase 2"),
+  effect_summary(c(p1_pe$risk_diff[p1_pe$participant_id %in% p1_no_replay], p2_pe$risk_diff)) |>
+    mutate(Sample = "Phase 1 without Replay users + Phase 2")
+) |>
+  transmute(Sample, N, `Mean (points)` = round(estimate, 2), SEM = round(sem, 2),
+            `95% CI` = sprintf("[%.2f, %.2f]", ci_low, ci_high), d_z = round(dz, 2), p = map_chr(p, fmt_p)) |>
+  knitr::kable(caption = "Exploratory: pooled rare minus common risky choices (Wilcoxon signed-rank test against zero).")
+```
+
 ## Discussion
 
 ::: {.callout-tip icon=false}
@@ -780,15 +966,8 @@ with what the two phases together say about the original finding.
 
 # Data and code availability
 
-::: {.callout-tip icon=false}
-## Guidance
-
-Edit the statement below to match what you are actually sharing. Anonymized data and all code
-should be public; if something cannot be shared, say what and why.
-:::
-
 The experiment code, the anonymized data, and the code that produces every number in this
-report are available at <https://github.com/psych251/your-repo>. The experiment itself can be
-taken at <https://psych251.github.io/your-repo/>. The data contain no names, email addresses,
+report are available at <https://github.com/psych251/feng2024>. The experiment itself can be
+taken at <https://psych251.github.io/feng2024/phase2>. The data contain no names, email addresses,
 IP addresses, or Prolific IDs; the file linking participants to their Prolific IDs is kept
 privately for payment and is not shared.
