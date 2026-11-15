@@ -52,7 +52,7 @@ library(jsonlite)
 # Phase 2 runs under its own id, so its data never mix with Phase 1's:
 # feng2024-phase2-pilot while piloting, then feng2024-phase2 for data collection (phase2/experiment.js).
 experiment_id        <- "feng2024-lite-final"
-experiment_id_phase2 <- "feng2024-phase2-pilot"
+experiment_id_phase2 <- "feng2024-phase2"
 ```
 
 ```{r}

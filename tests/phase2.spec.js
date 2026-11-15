@@ -18,7 +18,7 @@ const { test, expect, devices } = require("@playwright/test");
 
 const EMULATOR = process.env.EMULATOR === "1" || !!process.env.FIRESTORE_EMULATOR_HOST;
 const PROJECT = "demo-psych251";
-const EXPERIMENT_ID = "feng2024-phase2-pilot";
+const EXPERIMENT_ID = "feng2024-phase2";
 const FS = `http://localhost:8080/v1/projects/${PROJECT}/databases/(default)/documents`;
 
 // `fast=1` shrinks every timing (localhost only) so 60 trials take seconds, not 10 minutes.

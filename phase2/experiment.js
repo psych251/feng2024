@@ -51,7 +51,7 @@ const EXPERIMENT = {
   // Firestore path: experiments/<id>/participants/... New id for every phase so data never mix.
   // Phase 2: feng2024-phase2-pilot (non-naive pilot) -> feng2024-phase2 (data collection).
   // The report's experiment_id_phase2 must match the id being analysed.
-  id: "feng2024-phase2-pilot",
+  id: "feng2024-phase2",
 
   // Trials per Firestore write. About 80 rows per participant, so 10 gives ~11 writes each,
   // well inside the free tier's 20,000 writes/day.
