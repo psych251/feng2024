@@ -872,6 +872,56 @@ tibble(`Headphone pass rate` = c("As in Phase 1", "90% of Phase 1", "80% of Phas
     scales::percent(rates[["finish"]], 1), scales::percent(rates[["analysed"]], 1)))
 ```
 
+
+## Phase 2 Pilot testing
+
+We performed Phase 2 pilot testing with N=2 participants to check for potential issues in the experiment. There were no errors reported by pilot participants and no broser errors were logged. Both participants passed the sound check (6/6 and 5/6) in one attempt and both completed all 60 trials in about 7.5 minutes. Data was able to be stored and retrieved as expected. We reported the pilot result in the table and figure below, and the pilot show the Phase 2 procedure is working as expected.
+
+```{r}
+#| label: phase2-pilot
+# Phase 2 pilot (non-naive pilots, before data collection), read from its own collection so it
+# never mixes with the Phase 2 data analysed above and below (experiment_id_phase2).
+experiment_id_phase2_pilot <- "feng2024-phase2-pilot"
+pilot <- read_phase(experiment_id_phase2_pilot, n_choice_trials = 60)
+if (!is.null(pilot)) {
+  pilot_choices <- pilot$trials |>
+    filter(task == "choice") |>
+    group_by(participant_id) |>
+    summarise(`Choice trials` = n(), `Rare trials` = sum(as.logical(rare)), .groups = "drop")
+  pilot$participants |>
+    left_join(pilot_choices, by = "participant_id") |>
+    mutate(Pilot = row_number(),
+           Version = if_else(str_detect(page_url, "localhost"), "local", "live"),
+           `Sound check (of 6)` = headphone_correct,
+           Passed = if_else(headphone_passed %in% TRUE, "yes", "no"),
+           Finished = if_else(completed %in% TRUE & coalesce(`Choice trials`, 0L) == 60, "yes", "no"),
+           Minutes = round(as.numeric(difftime(as.POSIXct(ended_at), as.POSIXct(started_at), units = "mins")), 1)) |>
+    select(Pilot, Version, `Sound check (of 6)`, Passed, Finished, `Choice trials`, `Rare trials`, Minutes) |>
+    knitr::kable(caption = sprintf("Phase 2 pilot (%s): %d session(s), %d analysable under the Phase 2 exclusion rule.",
+                                   experiment_id_phase2_pilot, nrow(pilot$participants), nrow(pilot$keep)))
+} else {
+  message("No Phase 2 pilot data exported yet (", experiment_id_phase2_pilot, ").")
+}
+```
+
+```{r}
+#| label: fig-phase2-pilot
+#| eval: !expr exists("pilot") && !is.null(pilot) && nrow(pilot$keep) > 0
+#| fig-cap: "Phase 2 pilot, pipeline check only: percentage of risky choices after common and rare tone sequences for each non-naive pilot (60 trials: 45 common, 15 rare), computed with the same analysis code as the key test. Too few people to say anything about the effect."
+#| fig-width: 6
+#| fig-height: 3.5
+pilot_pe <- person_effects(pilot) |>
+  mutate(Pilot = factor(row_number())) |>
+  pivot_longer(c(risky_common, risky_rare), names_to = "sequence", values_to = "pct") |>
+  mutate(sequence = if_else(sequence == "risky_rare", "Rare", "Common"))
+ggplot(pilot_pe, aes(sequence, pct, group = Pilot, colour = Pilot)) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  scale_y_continuous(limits = c(0, 100)) +
+  labs(x = "Tone sequence before the choice", y = "Chose the risky option (%)", colour = "Pilot") +
+  theme_minimal(base_size = 12)
+```
+
 ## Analysis plan
 
 
