@@ -90,7 +90,7 @@ original_stay_sem  <- 0.89
 - **Original paper:** Feng, G.W., Rutledge, R.B. Surprising sounds influence risky decision making. Nat Commun 15, 8027 (2024). <https://doi.org/10.1038/s41467-024-51729-4>
 
 - **Preregistration:** [OSF registration](https://osf.io/zrn39/) *(registered 2026-10-30, before final data collection)*
-- **Live experiment:** <https://psych251.github.io/feng2024/lite/> 
+- **Live experiment:** <https://psych251.github.io/feng2024/phase2/> 
 - **Repository:** <https://github.com/psych251/feng2024> (experiment code, data, and this report)
 :::
 
