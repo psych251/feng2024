@@ -60,10 +60,10 @@ const EXPERIMENT = {
   save_full_data_at_end: true,
 
   // Prolific: completion code for people who finish. Leave empty for local testing.
-  prolific_completion_code: "",
+  prolific_completion_code: "CZKFBJIK",
   // Prolific: code for people who fail the headphone screen (screen-outs). Check the Class
   // Prolific Guidelines for how screen-outs should be handled before filling this in.
-  prolific_screenout_code: "",
+  prolific_screenout_code: "C1JIHL80",
 
   contact_email: "stanfordpsych251@gmail.com",
 
