@@ -172,8 +172,15 @@ read_phase <- function(id, n_choice_trials = 120) {
     mutate(n_choice = coalesce(n_choice, 0L))
   keep <- checked |> filter(headphone_passed %in% TRUE, n_choice == n_choice_trials)
 
+  # Post-hoc exclusions (decided after data collection; reported under Deviations), by Firebase
+  # session id, not Prolific id. Phase 2: one participant who finished the task but timed out on
+  # Prolific (228.6 minutes from start to end), excluded for consistency with Phase 1.
+  post_hoc_exclusions <- c("axlTsL99QzZx9imiBcKKXzypGkN2-b75fb361")
+  keep_preregistered <- keep
+  keep <- keep |> filter(!participant_id %in% post_hoc_exclusions)
+
   list(participants = participants, trials = trials, errors = errors,
-       complete = complete, keep = keep,
+       complete = complete, keep = keep, keep_preregistered = keep_preregistered,
        n_headphone_fail = sum(participants$headphone_passed %in% FALSE),
        n_missing_trials = sum(checked$headphone_passed %in% TRUE & checked$n_choice < n_choice_trials))
 }
